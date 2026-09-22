@@ -1,6 +1,13 @@
-.venv
-__pycache__
-.vscode
+/.venv
+/__pycache__
+/.vscode
 settings
 securedvars
 game.log
+*.save
+test.py
+/dist
+/build
+*.spec
+/_update
+build.sh

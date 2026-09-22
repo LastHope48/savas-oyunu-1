@@ -5,6 +5,9 @@ import logging
 from classes import defaults as game_data_defaults
 import classes
 from flags import SUCCESS, FAILURE
+from version import VERSION
+
+from update_manager import apply_pending_update
 
 from save_manager import SaveManager
 from settings import Settings
@@ -39,7 +42,7 @@ class Game:
 
         self.logger = logging.getLogger(__name__)
 
-        self.GAME_VERSION = "DEMO"
+        self.GAME_VERSION = VERSION
 
         self.save_manager = SaveManager(os.path.join(BASE_DIR, "saves"))
 
@@ -92,6 +95,7 @@ class Game:
 
             pygame.display.flip()
 
+        apply_pending_update()
         pygame.quit()
 
         if self.played:
