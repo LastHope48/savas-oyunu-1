@@ -1,0 +1,10 @@
+{
+    "fullscreen": true,
+    "music": false,
+    "sfx": true,
+    "music_volume": 0.7,
+    "sfx_volume": 0.8,
+    "other_music": "",
+    "fps": 160,
+    "language": "English"
+}

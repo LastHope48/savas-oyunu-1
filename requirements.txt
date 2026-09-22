@@ -1,0 +1,7 @@
+pygame
+opencv_python
+arabic_reshaper
+python-bidi
+pyinstaller
+requests
+packaging

@@ -1,0 +1,16 @@
+.venv
+__pycache__
+*.pyc
+
+build
+dist
+
+.git
+.github
+
+.vscode
+
+game.log
+
+Dockerfile
+build.sh
