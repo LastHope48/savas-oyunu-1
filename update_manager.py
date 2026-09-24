@@ -51,6 +51,7 @@ def get_latest_release():
 
     response = requests.get(
         GITHUB_API,
+        verify=False,
         timeout=10,
         headers={
             "Accept": "application/vnd.github+json"
@@ -142,6 +143,7 @@ def download_file(
         with requests.get(
             url,
             stream=True,
+            verify=False,
             timeout=30
         ) as response:
 

@@ -14460,3 +14460,10 @@
 2026-09-24 18:34:36,854 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
 2026-09-24 18:34:37,054 - INFO - levels.py: 317 [<module>] | Level variables created.
 2026-09-24 18:34:37,087 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-24 18:48:12,122 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 18:48:12,123 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 18:48:12,123 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 18:48:12,124 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 18:48:12,161 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 18:48:12,358 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 18:48:12,411 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
