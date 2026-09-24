@@ -12142,3 +12142,2321 @@
 2026-09-22 15:38:48,502 - INFO - game_screen.py: 311 [update] | Saving last.
 2026-09-22 15:38:48,512 - INFO - game_screen.py: 311 [update] | Saving last.
 2026-09-22 15:38:48,565 - INFO - save_manager.py: 83 [save_last_slot] | Saved last slot.
+2026-09-22 21:06:32,477 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-22 21:06:32,478 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-22 21:06:32,478 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-22 21:06:32,478 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-22 21:06:32,506 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-22 21:06:32,711 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-22 21:06:32,747 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-23 18:27:40,770 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-23 18:27:40,771 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-23 18:27:40,771 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-23 18:27:40,771 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-23 18:27:40,814 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-23 18:27:41,046 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-23 18:27:41,135 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-23 18:27:41,415 - INFO - save_manager.py: 59 [get_info] | Returning info slot0
+2026-09-23 18:27:41,440 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 0}
+2026-09-23 18:27:41,440 - INFO - save_manager.py: 59 [get_info] | Returning info slot1
+2026-09-23 18:27:41,465 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 1}
+2026-09-23 18:27:41,465 - INFO - save_manager.py: 59 [get_info] | Returning info slot2
+2026-09-23 18:27:41,489 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 2}
+2026-09-23 18:27:41,489 - INFO - save_manager.py: 59 [get_info] | Returning info slot5
+2026-09-23 18:27:41,519 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 5}
+2026-09-23 18:27:41,519 - INFO - save_manager.py: 59 [get_info] | Returning info slot7
+2026-09-23 18:27:41,545 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 7}
+2026-09-23 18:27:41,545 - INFO - save_manager.py: 59 [get_info] | Returning info slot27
+2026-09-23 18:27:41,579 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 27}
+2026-09-23 18:27:41,579 - INFO - save_manager.py: 123 [get_info_last_slot] | Trying to return last slot info...
+2026-09-24 15:56:13,381 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 15:56:13,381 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 15:56:13,381 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 15:56:13,382 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 15:56:13,412 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 15:56:13,638 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 15:56:13,751 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-24 15:56:14,024 - INFO - save_manager.py: 59 [get_info] | Returning info slot0
+2026-09-24 15:56:14,048 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 0}
+2026-09-24 15:56:14,049 - INFO - save_manager.py: 59 [get_info] | Returning info slot1
+2026-09-24 15:56:14,073 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 1}
+2026-09-24 15:56:14,073 - INFO - save_manager.py: 59 [get_info] | Returning info slot2
+2026-09-24 15:56:14,096 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 2}
+2026-09-24 15:56:14,096 - INFO - save_manager.py: 59 [get_info] | Returning info slot5
+2026-09-24 15:56:14,125 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 5}
+2026-09-24 15:56:14,125 - INFO - save_manager.py: 59 [get_info] | Returning info slot7
+2026-09-24 15:56:14,149 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 7}
+2026-09-24 15:56:14,150 - INFO - save_manager.py: 59 [get_info] | Returning info slot27
+2026-09-24 15:56:14,179 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 27}
+2026-09-24 15:56:14,179 - INFO - save_manager.py: 123 [get_info_last_slot] | Trying to return last slot info...
+2026-09-24 15:56:58,600 - INFO - save_manager.py: 83 [save_last_slot] | Saved last slot.
+2026-09-24 15:56:58,600 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,609 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,617 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,628 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,644 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,655 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,663 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,671 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,680 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,688 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,696 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,704 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,712 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,720 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,728 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,736 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,744 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,752 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,760 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,769 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,777 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,785 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,793 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,801 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,809 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,817 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,825 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,833 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,841 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,849 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,856 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,865 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,873 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,881 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,889 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,897 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,905 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,913 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,921 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,929 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,937 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,944 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,953 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,960 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,969 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,977 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,985 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:58,993 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,001 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,009 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,017 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,025 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,033 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,041 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,049 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,057 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,065 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,073 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,081 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,089 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,097 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,105 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,113 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,121 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,131 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,139 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,147 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,155 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,163 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,171 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,179 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,187 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,194 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,203 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,210 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,219 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,227 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,235 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,243 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,251 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,259 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,267 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,275 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,283 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,291 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,299 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,307 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,315 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,323 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,331 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,339 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,347 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,355 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,363 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,371 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,379 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,387 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,395 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,403 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,411 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,419 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,427 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,435 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,443 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,451 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,459 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,467 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,475 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,483 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,491 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,499 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,507 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,515 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,523 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,531 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,539 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,547 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,555 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,564 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,571 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,579 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,587 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,595 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,603 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,611 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,620 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,628 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,636 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,644 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,652 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,660 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,669 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,677 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,686 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,694 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,702 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,710 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,718 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,726 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,734 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,742 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,750 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,758 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,766 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,774 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,782 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,790 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,798 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,807 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,815 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,823 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,831 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,839 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,848 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,856 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,864 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,872 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,880 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,888 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,897 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,905 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,913 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,921 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,929 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,938 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,945 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,954 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,961 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,970 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,978 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,986 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:56:59,994 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,002 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,010 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,018 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,026 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,034 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,042 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,050 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,058 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,066 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,074 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,083 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,090 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,099 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,106 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,115 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,123 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,131 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,139 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,147 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,155 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,163 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,171 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,179 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,187 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,195 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,204 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,212 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,220 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,227 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,235 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,242 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,250 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,257 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,265 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,272 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,279 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,287 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,294 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,302 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,309 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,317 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,324 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,331 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,339 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,346 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,353 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,360 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,368 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,376 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,383 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,391 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,398 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,405 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,412 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,420 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,427 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,435 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,442 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,450 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,457 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,465 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,472 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,479 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:57:00,529 - INFO - save_manager.py: 83 [save_last_slot] | Saved last slot.
+2026-09-24 15:59:24,390 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 15:59:24,390 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 15:59:24,390 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 15:59:24,391 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 15:59:24,423 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 15:59:24,630 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 15:59:24,702 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-24 15:59:24,975 - INFO - save_manager.py: 59 [get_info] | Returning info slot0
+2026-09-24 15:59:25,002 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 0}
+2026-09-24 15:59:25,002 - INFO - save_manager.py: 59 [get_info] | Returning info slot1
+2026-09-24 15:59:25,027 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 1}
+2026-09-24 15:59:25,027 - INFO - save_manager.py: 59 [get_info] | Returning info slot2
+2026-09-24 15:59:25,055 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 2}
+2026-09-24 15:59:25,055 - INFO - save_manager.py: 59 [get_info] | Returning info slot5
+2026-09-24 15:59:25,085 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 5}
+2026-09-24 15:59:25,085 - INFO - save_manager.py: 59 [get_info] | Returning info slot7
+2026-09-24 15:59:25,111 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 7}
+2026-09-24 15:59:25,111 - INFO - save_manager.py: 59 [get_info] | Returning info slot27
+2026-09-24 15:59:25,142 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 27}
+2026-09-24 15:59:25,142 - INFO - save_manager.py: 123 [get_info_last_slot] | Trying to return last slot info...
+2026-09-24 15:59:41,319 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 15:59:41,319 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 15:59:41,320 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 15:59:41,320 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 15:59:41,354 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 15:59:41,552 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 15:59:41,639 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-24 15:59:41,914 - INFO - save_manager.py: 59 [get_info] | Returning info slot0
+2026-09-24 15:59:41,939 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 0}
+2026-09-24 15:59:41,939 - INFO - save_manager.py: 59 [get_info] | Returning info slot1
+2026-09-24 15:59:41,964 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 1}
+2026-09-24 15:59:41,964 - INFO - save_manager.py: 59 [get_info] | Returning info slot2
+2026-09-24 15:59:41,989 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 2}
+2026-09-24 15:59:41,989 - INFO - save_manager.py: 59 [get_info] | Returning info slot5
+2026-09-24 15:59:42,020 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 5}
+2026-09-24 15:59:42,020 - INFO - save_manager.py: 59 [get_info] | Returning info slot7
+2026-09-24 15:59:42,045 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 7}
+2026-09-24 15:59:42,045 - INFO - save_manager.py: 59 [get_info] | Returning info slot27
+2026-09-24 15:59:42,075 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 27}
+2026-09-24 15:59:42,075 - INFO - save_manager.py: 123 [get_info_last_slot] | Trying to return last slot info...
+2026-09-24 15:59:49,486 - WARNING - classes.py: 1599 [create_rocks] | Creating rocks try exceed 10.
+2026-09-24 15:59:49,508 - INFO - save_manager.py: 83 [save_last_slot] | Saved last slot.
+2026-09-24 15:59:49,508 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,515 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,523 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,534 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,543 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,553 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,562 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,571 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,580 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,588 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,596 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,606 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,615 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,624 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,633 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,643 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,652 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,663 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,672 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,682 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,691 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,701 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,712 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,720 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,729 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,737 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,745 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,753 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,761 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,770 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,778 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,787 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,797 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,806 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,815 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,823 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,831 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,838 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,846 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,853 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,860 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,868 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,875 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,883 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,890 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,898 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,905 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,913 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,920 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,927 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,934 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,941 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,949 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,956 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,964 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,971 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,979 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,986 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:49,993 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,001 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,008 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,016 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,023 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,030 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,038 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,045 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,053 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,060 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,068 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,075 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,083 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,090 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,098 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,105 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,112 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,120 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,127 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,134 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,141 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,149 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,156 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,164 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,171 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,178 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,186 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,193 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,200 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,208 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,215 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,223 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,230 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,237 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,245 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,252 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,259 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,267 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,274 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,282 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,289 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,297 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,304 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,311 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,319 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,326 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,333 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,340 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,348 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,355 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,363 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,370 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,377 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,385 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,392 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,400 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,407 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,415 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,424 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,433 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,442 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,451 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,458 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,465 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,473 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,480 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,488 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,495 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,503 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,510 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,517 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,525 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,533 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,540 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,548 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,555 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,563 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,570 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,578 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,585 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,593 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,600 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,608 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,615 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,623 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,630 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,637 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,645 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,652 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,659 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,667 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,674 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,682 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,689 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:50,731 - INFO - save_manager.py: 83 [save_last_slot] | Saved last slot.
+2026-09-24 15:59:51,971 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 15:59:51,972 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 15:59:51,972 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 15:59:51,972 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 15:59:52,002 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 15:59:52,215 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 15:59:52,297 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-24 15:59:52,570 - INFO - save_manager.py: 59 [get_info] | Returning info slot0
+2026-09-24 15:59:52,594 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 0}
+2026-09-24 15:59:52,595 - INFO - save_manager.py: 59 [get_info] | Returning info slot1
+2026-09-24 15:59:52,619 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 1}
+2026-09-24 15:59:52,619 - INFO - save_manager.py: 59 [get_info] | Returning info slot2
+2026-09-24 15:59:52,645 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 2}
+2026-09-24 15:59:52,645 - INFO - save_manager.py: 59 [get_info] | Returning info slot5
+2026-09-24 15:59:52,676 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 5}
+2026-09-24 15:59:52,676 - INFO - save_manager.py: 59 [get_info] | Returning info slot7
+2026-09-24 15:59:52,701 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 7}
+2026-09-24 15:59:52,701 - INFO - save_manager.py: 59 [get_info] | Returning info slot27
+2026-09-24 15:59:52,732 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 27}
+2026-09-24 15:59:52,732 - INFO - save_manager.py: 123 [get_info_last_slot] | Trying to return last slot info...
+2026-09-24 15:59:53,662 - INFO - save_manager.py: 83 [save_last_slot] | Saved last slot.
+2026-09-24 15:59:53,662 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,669 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,676 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,689 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,697 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,707 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,714 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,721 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,732 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,742 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,751 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,761 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,770 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,779 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,790 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,799 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,806 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,816 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,825 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,834 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,843 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,851 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,860 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,869 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,878 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,885 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,893 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,902 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,910 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,918 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,926 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,934 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,942 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,950 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,958 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,966 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,975 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,982 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,990 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:53,997 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,004 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,012 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,019 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,027 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,034 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,042 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,049 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,056 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,064 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,071 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,079 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,086 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,093 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,100 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,108 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,115 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,123 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,130 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,137 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,145 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,152 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,160 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,167 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,175 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,182 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,190 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,197 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,204 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,212 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,219 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,227 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,234 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,242 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,249 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,257 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,264 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,272 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,279 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,286 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,294 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,301 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,309 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,316 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,324 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,331 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,339 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,346 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,354 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,361 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,369 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,377 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,384 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,392 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,399 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,407 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,414 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,422 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,429 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,436 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,444 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,451 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,459 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,466 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,474 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,481 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,489 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,496 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,504 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,511 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,518 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,526 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,533 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,541 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,548 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,556 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,563 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,570 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,578 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,585 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,593 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,600 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,608 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,615 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,623 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,630 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,637 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,645 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,652 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,660 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,667 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,675 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,682 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,690 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,697 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,705 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,713 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,720 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,728 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,735 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,743 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,750 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,757 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,765 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,772 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,780 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,787 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,795 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,803 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,810 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,817 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,825 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,832 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,840 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,848 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,855 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,862 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,870 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,878 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,885 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,893 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,900 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,908 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,915 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,923 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,931 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,938 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,946 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,953 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,961 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,968 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,976 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,983 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,991 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:54,999 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,007 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,015 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,023 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,030 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,038 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,046 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,053 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,061 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,068 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,076 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,083 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,090 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,098 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,105 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,113 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,120 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,127 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,134 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,142 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,149 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,156 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,164 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,171 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,179 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,186 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,193 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,201 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,208 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,215 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,222 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,230 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,237 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,245 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,252 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,259 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,267 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,274 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,282 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,289 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,296 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,304 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,311 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,319 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,326 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,334 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,341 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,349 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,356 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,364 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,371 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,379 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,386 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,394 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,401 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,408 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,416 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,423 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,431 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,438 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,446 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,453 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,461 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,469 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,476 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,483 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,490 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,498 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,505 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,513 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,520 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 15:59:55,562 - INFO - save_manager.py: 83 [save_last_slot] | Saved last slot.
+2026-09-24 16:00:20,179 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 16:00:20,180 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 16:00:20,180 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 16:00:20,180 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 16:00:20,220 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 16:00:20,424 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 16:00:20,508 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-24 16:00:20,784 - INFO - save_manager.py: 59 [get_info] | Returning info slot0
+2026-09-24 16:00:20,809 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 0}
+2026-09-24 16:00:20,809 - INFO - save_manager.py: 59 [get_info] | Returning info slot1
+2026-09-24 16:00:20,834 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 1}
+2026-09-24 16:00:20,834 - INFO - save_manager.py: 59 [get_info] | Returning info slot2
+2026-09-24 16:00:20,858 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 2}
+2026-09-24 16:00:20,858 - INFO - save_manager.py: 59 [get_info] | Returning info slot5
+2026-09-24 16:00:20,888 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 5}
+2026-09-24 16:00:20,888 - INFO - save_manager.py: 59 [get_info] | Returning info slot7
+2026-09-24 16:00:20,914 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 7}
+2026-09-24 16:00:20,914 - INFO - save_manager.py: 59 [get_info] | Returning info slot27
+2026-09-24 16:00:20,945 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 27}
+2026-09-24 16:00:20,945 - INFO - save_manager.py: 123 [get_info_last_slot] | Trying to return last slot info...
+2026-09-24 16:00:26,394 - INFO - save_manager.py: 83 [save_last_slot] | Saved last slot.
+2026-09-24 16:00:26,394 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,402 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,410 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,419 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,426 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,434 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,441 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,449 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,457 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,464 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,472 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,479 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,487 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,494 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,501 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,509 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,516 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,523 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,531 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,538 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,546 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,553 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,561 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,568 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,575 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,583 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,590 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,598 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,605 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,612 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,620 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,627 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,634 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,642 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,649 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,657 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,664 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,672 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,680 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,687 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,695 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,703 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,710 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,718 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,726 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,734 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,741 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,749 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,756 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,764 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,771 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,779 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,787 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,794 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,802 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,809 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,817 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,824 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,832 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,839 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,847 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,855 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,862 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,870 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,877 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,885 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,892 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,899 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,907 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,914 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,922 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,929 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,937 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,944 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,952 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,959 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,967 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,974 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,982 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,989 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:26,996 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,003 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,011 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,018 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,025 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,033 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,040 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,048 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,055 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,062 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,070 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,077 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,084 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,091 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,099 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,106 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,114 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,121 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,128 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,136 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,143 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,150 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,158 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,165 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,172 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,180 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,187 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,194 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,202 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,209 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,216 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,224 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,231 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,238 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,246 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,253 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,260 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,268 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,275 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,283 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,290 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,298 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,305 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,313 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,320 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,327 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,335 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,342 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,350 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,357 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,365 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,372 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,380 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,387 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,394 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,402 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,409 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,418 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,425 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,433 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,441 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,449 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,457 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,464 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,472 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,480 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,487 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,494 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,502 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,509 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,517 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,524 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,532 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,539 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,547 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,554 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,561 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,569 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,576 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,584 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,591 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,599 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,606 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,614 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,621 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,629 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,636 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,643 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,651 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,658 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,666 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,674 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,681 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,689 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,696 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,704 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,711 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,718 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,726 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,733 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,741 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,748 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,756 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,763 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,771 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,778 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,786 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,793 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,801 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,808 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,816 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,823 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,831 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,838 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,845 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,853 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,860 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,868 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,875 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,883 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,890 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,897 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,905 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,912 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,919 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,927 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,934 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,941 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,949 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,956 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,963 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,971 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,978 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,986 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:27,993 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,001 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,008 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,016 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,023 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,030 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,038 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,045 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,053 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,060 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,067 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,075 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,082 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,090 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,097 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,105 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,112 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,119 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,127 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,134 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,142 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,149 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,156 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,164 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,171 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,178 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,186 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,193 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,201 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,208 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,216 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,223 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,230 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,237 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,245 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,252 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,259 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,267 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,274 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,282 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,289 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,296 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,304 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,311 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,319 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,326 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,334 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,341 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,348 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,356 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,363 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,370 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,377 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,385 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,392 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,400 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,407 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,415 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,422 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,430 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,437 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,444 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,452 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,460 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,467 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,475 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 16:00:28,524 - INFO - save_manager.py: 83 [save_last_slot] | Saved last slot.
+2026-09-24 16:50:40,900 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 16:50:40,901 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 16:50:40,901 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 16:50:40,901 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 16:50:40,931 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 16:50:41,139 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 16:50:41,216 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-24 17:11:12,539 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 17:11:12,540 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:11:12,540 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:11:12,540 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 17:11:12,574 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 17:11:12,769 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 17:11:12,847 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-24 17:14:34,971 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 17:14:34,971 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:14:34,972 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:14:34,972 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 17:14:35,003 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 17:14:35,217 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 17:14:35,289 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-24 17:14:35,568 - INFO - save_manager.py: 59 [get_info] | Returning info slot0
+2026-09-24 17:14:35,593 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 0}
+2026-09-24 17:14:35,593 - INFO - save_manager.py: 59 [get_info] | Returning info slot1
+2026-09-24 17:14:35,618 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 1}
+2026-09-24 17:14:35,618 - INFO - save_manager.py: 59 [get_info] | Returning info slot2
+2026-09-24 17:14:35,643 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 2}
+2026-09-24 17:14:35,643 - INFO - save_manager.py: 59 [get_info] | Returning info slot5
+2026-09-24 17:14:35,672 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 5}
+2026-09-24 17:14:35,672 - INFO - save_manager.py: 59 [get_info] | Returning info slot7
+2026-09-24 17:14:35,697 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 7}
+2026-09-24 17:14:35,697 - INFO - save_manager.py: 59 [get_info] | Returning info slot27
+2026-09-24 17:14:35,727 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 27}
+2026-09-24 17:14:35,727 - INFO - save_manager.py: 123 [get_info_last_slot] | Trying to return last slot info...
+2026-09-24 17:15:36,301 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 17:15:36,301 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:15:36,301 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:15:36,302 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 17:15:36,337 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 17:15:36,555 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 17:15:36,622 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-24 17:15:36,904 - INFO - save_manager.py: 59 [get_info] | Returning info slot0
+2026-09-24 17:15:36,930 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 0}
+2026-09-24 17:15:36,930 - INFO - save_manager.py: 59 [get_info] | Returning info slot1
+2026-09-24 17:15:36,958 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 1}
+2026-09-24 17:15:36,958 - INFO - save_manager.py: 59 [get_info] | Returning info slot2
+2026-09-24 17:15:36,985 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 2}
+2026-09-24 17:15:36,986 - INFO - save_manager.py: 59 [get_info] | Returning info slot5
+2026-09-24 17:15:37,018 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 5}
+2026-09-24 17:15:37,018 - INFO - save_manager.py: 59 [get_info] | Returning info slot7
+2026-09-24 17:15:37,044 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 7}
+2026-09-24 17:15:37,044 - INFO - save_manager.py: 59 [get_info] | Returning info slot27
+2026-09-24 17:15:37,075 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 27}
+2026-09-24 17:15:37,075 - INFO - save_manager.py: 123 [get_info_last_slot] | Trying to return last slot info...
+2026-09-24 17:16:59,551 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 17:16:59,551 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:16:59,551 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:16:59,552 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 17:16:59,583 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 17:16:59,798 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 17:16:59,864 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-24 17:17:00,148 - INFO - save_manager.py: 59 [get_info] | Returning info slot0
+2026-09-24 17:17:00,173 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 0}
+2026-09-24 17:17:00,173 - INFO - save_manager.py: 59 [get_info] | Returning info slot1
+2026-09-24 17:17:00,198 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 1}
+2026-09-24 17:17:00,198 - INFO - save_manager.py: 59 [get_info] | Returning info slot2
+2026-09-24 17:17:00,223 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 2}
+2026-09-24 17:17:00,224 - INFO - save_manager.py: 59 [get_info] | Returning info slot5
+2026-09-24 17:17:00,254 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 5}
+2026-09-24 17:17:00,254 - INFO - save_manager.py: 59 [get_info] | Returning info slot7
+2026-09-24 17:17:00,279 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 7}
+2026-09-24 17:17:00,279 - INFO - save_manager.py: 59 [get_info] | Returning info slot27
+2026-09-24 17:17:00,309 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 27}
+2026-09-24 17:17:00,309 - INFO - save_manager.py: 123 [get_info_last_slot] | Trying to return last slot info...
+2026-09-24 17:19:50,269 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 17:19:50,269 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:19:50,270 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:19:50,270 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 17:19:50,304 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 17:19:50,513 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 17:19:50,587 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-24 17:19:50,866 - INFO - save_manager.py: 59 [get_info] | Returning info slot0
+2026-09-24 17:19:50,891 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 0}
+2026-09-24 17:19:50,891 - INFO - save_manager.py: 59 [get_info] | Returning info slot1
+2026-09-24 17:19:50,916 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 1}
+2026-09-24 17:19:50,916 - INFO - save_manager.py: 59 [get_info] | Returning info slot2
+2026-09-24 17:19:50,942 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 2}
+2026-09-24 17:19:50,942 - INFO - save_manager.py: 59 [get_info] | Returning info slot5
+2026-09-24 17:19:50,971 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 5}
+2026-09-24 17:19:50,971 - INFO - save_manager.py: 59 [get_info] | Returning info slot7
+2026-09-24 17:19:50,996 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 7}
+2026-09-24 17:19:50,996 - INFO - save_manager.py: 59 [get_info] | Returning info slot27
+2026-09-24 17:19:51,026 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 27}
+2026-09-24 17:19:51,027 - INFO - save_manager.py: 123 [get_info_last_slot] | Trying to return last slot info...
+2026-09-24 17:22:11,117 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 17:22:11,117 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:22:11,118 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:22:11,118 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 17:22:11,151 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 17:22:11,359 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 17:22:11,432 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-24 17:22:11,711 - INFO - save_manager.py: 59 [get_info] | Returning info slot0
+2026-09-24 17:22:11,736 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 0}
+2026-09-24 17:22:11,737 - INFO - save_manager.py: 59 [get_info] | Returning info slot1
+2026-09-24 17:22:11,763 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 1}
+2026-09-24 17:22:11,763 - INFO - save_manager.py: 59 [get_info] | Returning info slot2
+2026-09-24 17:22:11,788 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 2}
+2026-09-24 17:22:11,788 - INFO - save_manager.py: 59 [get_info] | Returning info slot5
+2026-09-24 17:22:11,819 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 5}
+2026-09-24 17:22:11,819 - INFO - save_manager.py: 59 [get_info] | Returning info slot7
+2026-09-24 17:22:11,844 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 7}
+2026-09-24 17:22:11,844 - INFO - save_manager.py: 59 [get_info] | Returning info slot27
+2026-09-24 17:22:11,875 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 27}
+2026-09-24 17:22:11,875 - INFO - save_manager.py: 123 [get_info_last_slot] | Trying to return last slot info...
+2026-09-24 17:23:40,385 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 17:23:40,385 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:23:40,385 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:23:40,386 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 17:23:40,418 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 17:23:40,625 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 17:23:40,694 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-24 17:23:40,972 - INFO - save_manager.py: 59 [get_info] | Returning info slot0
+2026-09-24 17:23:40,996 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 0}
+2026-09-24 17:23:40,997 - INFO - save_manager.py: 59 [get_info] | Returning info slot1
+2026-09-24 17:23:41,021 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 1}
+2026-09-24 17:23:41,021 - INFO - save_manager.py: 59 [get_info] | Returning info slot2
+2026-09-24 17:23:41,046 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 2}
+2026-09-24 17:23:41,046 - INFO - save_manager.py: 59 [get_info] | Returning info slot5
+2026-09-24 17:23:41,075 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 5}
+2026-09-24 17:23:41,075 - INFO - save_manager.py: 59 [get_info] | Returning info slot7
+2026-09-24 17:23:41,100 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 7}
+2026-09-24 17:23:41,100 - INFO - save_manager.py: 59 [get_info] | Returning info slot27
+2026-09-24 17:23:41,129 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 27}
+2026-09-24 17:23:41,129 - INFO - save_manager.py: 123 [get_info_last_slot] | Trying to return last slot info...
+2026-09-24 17:23:52,309 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 17:23:52,309 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:23:52,309 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:23:52,309 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 17:23:52,340 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 17:23:52,559 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 17:23:52,635 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-24 17:23:52,918 - INFO - save_manager.py: 59 [get_info] | Returning info slot0
+2026-09-24 17:23:52,944 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 0}
+2026-09-24 17:23:52,944 - INFO - save_manager.py: 59 [get_info] | Returning info slot1
+2026-09-24 17:23:52,971 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 1}
+2026-09-24 17:23:52,971 - INFO - save_manager.py: 59 [get_info] | Returning info slot2
+2026-09-24 17:23:53,000 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 2}
+2026-09-24 17:23:53,000 - INFO - save_manager.py: 59 [get_info] | Returning info slot5
+2026-09-24 17:23:53,033 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 5}
+2026-09-24 17:23:53,033 - INFO - save_manager.py: 59 [get_info] | Returning info slot7
+2026-09-24 17:23:53,057 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 7}
+2026-09-24 17:23:53,057 - INFO - save_manager.py: 59 [get_info] | Returning info slot27
+2026-09-24 17:23:53,087 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 27}
+2026-09-24 17:23:53,087 - INFO - save_manager.py: 123 [get_info_last_slot] | Trying to return last slot info...
+2026-09-24 17:24:00,681 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 17:24:00,681 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:24:00,681 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:24:00,682 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 17:24:00,713 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 17:24:00,941 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 17:24:01,019 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-24 17:24:01,310 - INFO - save_manager.py: 59 [get_info] | Returning info slot0
+2026-09-24 17:24:01,336 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 0}
+2026-09-24 17:24:01,336 - INFO - save_manager.py: 59 [get_info] | Returning info slot1
+2026-09-24 17:24:01,363 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 1}
+2026-09-24 17:24:01,363 - INFO - save_manager.py: 59 [get_info] | Returning info slot2
+2026-09-24 17:24:01,389 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 2}
+2026-09-24 17:24:01,389 - INFO - save_manager.py: 59 [get_info] | Returning info slot5
+2026-09-24 17:24:01,419 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 5}
+2026-09-24 17:24:01,419 - INFO - save_manager.py: 59 [get_info] | Returning info slot7
+2026-09-24 17:24:01,445 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 7}
+2026-09-24 17:24:01,445 - INFO - save_manager.py: 59 [get_info] | Returning info slot27
+2026-09-24 17:24:01,475 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 27}
+2026-09-24 17:24:01,475 - INFO - save_manager.py: 123 [get_info_last_slot] | Trying to return last slot info...
+2026-09-24 17:24:08,838 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 17:24:08,839 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:24:08,839 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:24:08,839 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 17:24:08,875 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 17:24:09,094 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 17:24:09,155 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-24 17:24:09,443 - INFO - save_manager.py: 59 [get_info] | Returning info slot0
+2026-09-24 17:24:09,468 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 0}
+2026-09-24 17:24:09,468 - INFO - save_manager.py: 59 [get_info] | Returning info slot1
+2026-09-24 17:24:09,493 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 1}
+2026-09-24 17:24:09,493 - INFO - save_manager.py: 59 [get_info] | Returning info slot2
+2026-09-24 17:24:09,518 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 2}
+2026-09-24 17:24:09,519 - INFO - save_manager.py: 59 [get_info] | Returning info slot5
+2026-09-24 17:24:09,548 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 5}
+2026-09-24 17:24:09,548 - INFO - save_manager.py: 59 [get_info] | Returning info slot7
+2026-09-24 17:24:09,574 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 7}
+2026-09-24 17:24:09,574 - INFO - save_manager.py: 59 [get_info] | Returning info slot27
+2026-09-24 17:24:09,605 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 27}
+2026-09-24 17:24:09,605 - INFO - save_manager.py: 123 [get_info_last_slot] | Trying to return last slot info...
+2026-09-24 17:25:20,806 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 17:25:20,806 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:25:20,807 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:25:20,807 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 17:25:20,841 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 17:25:21,040 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 17:25:21,106 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-24 17:25:21,395 - INFO - save_manager.py: 59 [get_info] | Returning info slot0
+2026-09-24 17:25:21,420 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 0}
+2026-09-24 17:25:21,420 - INFO - save_manager.py: 59 [get_info] | Returning info slot1
+2026-09-24 17:25:21,445 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 1}
+2026-09-24 17:25:21,445 - INFO - save_manager.py: 59 [get_info] | Returning info slot2
+2026-09-24 17:25:21,470 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 2}
+2026-09-24 17:25:21,470 - INFO - save_manager.py: 59 [get_info] | Returning info slot5
+2026-09-24 17:25:21,502 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 5}
+2026-09-24 17:25:21,502 - INFO - save_manager.py: 59 [get_info] | Returning info slot7
+2026-09-24 17:25:21,529 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 7}
+2026-09-24 17:25:21,529 - INFO - save_manager.py: 59 [get_info] | Returning info slot27
+2026-09-24 17:25:21,560 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 27}
+2026-09-24 17:25:21,560 - INFO - save_manager.py: 123 [get_info_last_slot] | Trying to return last slot info...
+2026-09-24 17:25:34,336 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 17:25:34,337 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:25:34,337 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:25:34,338 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 17:25:34,368 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 17:25:34,587 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 17:25:34,668 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-24 17:25:34,948 - INFO - save_manager.py: 59 [get_info] | Returning info slot0
+2026-09-24 17:25:34,973 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 0}
+2026-09-24 17:25:34,973 - INFO - save_manager.py: 59 [get_info] | Returning info slot1
+2026-09-24 17:25:35,000 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 1}
+2026-09-24 17:25:35,000 - INFO - save_manager.py: 59 [get_info] | Returning info slot2
+2026-09-24 17:25:35,026 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 2}
+2026-09-24 17:25:35,026 - INFO - save_manager.py: 59 [get_info] | Returning info slot5
+2026-09-24 17:25:35,056 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 5}
+2026-09-24 17:25:35,056 - INFO - save_manager.py: 59 [get_info] | Returning info slot7
+2026-09-24 17:25:35,082 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 7}
+2026-09-24 17:25:35,082 - INFO - save_manager.py: 59 [get_info] | Returning info slot27
+2026-09-24 17:25:35,113 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 27}
+2026-09-24 17:25:35,114 - INFO - save_manager.py: 123 [get_info_last_slot] | Trying to return last slot info...
+2026-09-24 17:25:42,665 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 17:25:42,666 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:25:42,666 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:25:42,667 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 17:25:42,713 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 17:25:42,912 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 17:25:42,974 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-24 17:25:43,263 - INFO - save_manager.py: 59 [get_info] | Returning info slot0
+2026-09-24 17:25:43,287 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 0}
+2026-09-24 17:25:43,287 - INFO - save_manager.py: 59 [get_info] | Returning info slot1
+2026-09-24 17:25:43,310 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 1}
+2026-09-24 17:25:43,310 - INFO - save_manager.py: 59 [get_info] | Returning info slot2
+2026-09-24 17:25:43,334 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 2}
+2026-09-24 17:25:43,334 - INFO - save_manager.py: 59 [get_info] | Returning info slot5
+2026-09-24 17:25:43,363 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 5}
+2026-09-24 17:25:43,363 - INFO - save_manager.py: 59 [get_info] | Returning info slot7
+2026-09-24 17:25:43,387 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 7}
+2026-09-24 17:25:43,387 - INFO - save_manager.py: 59 [get_info] | Returning info slot27
+2026-09-24 17:25:43,415 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 27}
+2026-09-24 17:25:43,415 - INFO - save_manager.py: 123 [get_info_last_slot] | Trying to return last slot info...
+2026-09-24 17:25:56,086 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 17:25:56,087 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:25:56,087 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:25:56,087 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 17:25:56,118 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 17:25:56,331 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 17:25:56,396 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-24 17:25:56,667 - INFO - save_manager.py: 59 [get_info] | Returning info slot0
+2026-09-24 17:25:56,692 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 0}
+2026-09-24 17:25:56,692 - INFO - save_manager.py: 59 [get_info] | Returning info slot1
+2026-09-24 17:25:56,717 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 1}
+2026-09-24 17:25:56,717 - INFO - save_manager.py: 59 [get_info] | Returning info slot2
+2026-09-24 17:25:56,741 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 2}
+2026-09-24 17:25:56,741 - INFO - save_manager.py: 59 [get_info] | Returning info slot5
+2026-09-24 17:25:56,771 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 5}
+2026-09-24 17:25:56,771 - INFO - save_manager.py: 59 [get_info] | Returning info slot7
+2026-09-24 17:25:56,795 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 7}
+2026-09-24 17:25:56,795 - INFO - save_manager.py: 59 [get_info] | Returning info slot27
+2026-09-24 17:25:56,825 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 27}
+2026-09-24 17:25:56,825 - INFO - save_manager.py: 123 [get_info_last_slot] | Trying to return last slot info...
+2026-09-24 17:55:02,746 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 17:55:02,747 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:55:02,747 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:55:02,747 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 17:55:02,781 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 17:55:02,995 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 17:55:03,068 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-24 17:57:35,286 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 17:57:35,287 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:57:35,287 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:57:35,287 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 17:57:35,320 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 17:57:35,523 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 17:57:35,601 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-24 17:57:35,881 - INFO - save_manager.py: 59 [get_info] | Returning info slot0
+2026-09-24 17:57:35,906 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 0}
+2026-09-24 17:57:35,906 - INFO - save_manager.py: 59 [get_info] | Returning info slot1
+2026-09-24 17:57:35,931 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 1}
+2026-09-24 17:57:35,931 - INFO - save_manager.py: 59 [get_info] | Returning info slot2
+2026-09-24 17:57:35,956 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 2}
+2026-09-24 17:57:35,956 - INFO - save_manager.py: 59 [get_info] | Returning info slot5
+2026-09-24 17:57:35,986 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 5}
+2026-09-24 17:57:35,986 - INFO - save_manager.py: 59 [get_info] | Returning info slot7
+2026-09-24 17:57:36,011 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 7}
+2026-09-24 17:57:36,011 - INFO - save_manager.py: 59 [get_info] | Returning info slot27
+2026-09-24 17:57:36,040 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 27}
+2026-09-24 17:57:36,040 - INFO - save_manager.py: 123 [get_info_last_slot] | Trying to return last slot info...
+2026-09-24 17:58:10,374 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 17:58:10,374 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:58:10,374 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:58:10,375 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 17:58:10,405 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 17:58:10,614 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 17:58:10,682 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-24 17:58:10,969 - INFO - save_manager.py: 59 [get_info] | Returning info slot0
+2026-09-24 17:58:10,994 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 0}
+2026-09-24 17:58:10,994 - INFO - save_manager.py: 59 [get_info] | Returning info slot1
+2026-09-24 17:58:11,019 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 1}
+2026-09-24 17:58:11,019 - INFO - save_manager.py: 59 [get_info] | Returning info slot2
+2026-09-24 17:58:11,045 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 2}
+2026-09-24 17:58:11,045 - INFO - save_manager.py: 59 [get_info] | Returning info slot5
+2026-09-24 17:58:11,075 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 5}
+2026-09-24 17:58:11,075 - INFO - save_manager.py: 59 [get_info] | Returning info slot7
+2026-09-24 17:58:11,100 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 7}
+2026-09-24 17:58:11,101 - INFO - save_manager.py: 59 [get_info] | Returning info slot27
+2026-09-24 17:58:11,132 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 27}
+2026-09-24 17:58:11,132 - INFO - save_manager.py: 123 [get_info_last_slot] | Trying to return last slot info...
+2026-09-24 17:59:14,596 - INFO - save_manager.py: 83 [save_last_slot] | Saved last slot.
+2026-09-24 17:59:14,596 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,603 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,611 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,622 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,631 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,642 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,650 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,657 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,664 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,671 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,679 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,686 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,694 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,701 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,708 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,716 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,723 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,731 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,738 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,745 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,753 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,760 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,768 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,775 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,782 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,790 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,797 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,804 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,812 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,819 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,826 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,834 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,841 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,848 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,856 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,863 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,870 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,878 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,885 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,892 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,899 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,907 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,914 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,921 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,929 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,936 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,944 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,951 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,958 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,966 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,973 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,980 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,988 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:14,995 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,003 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,010 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,017 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,025 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,032 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,039 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,047 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,054 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,062 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,069 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,077 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,084 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,091 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,099 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,106 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,113 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,121 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,128 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,135 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,143 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,150 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,157 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,165 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,172 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,180 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,187 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,194 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,201 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,209 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,216 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,223 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,231 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,238 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,246 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,254 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,261 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,269 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,276 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,283 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,290 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,298 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,305 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,313 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,320 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,328 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,335 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,342 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,350 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,357 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,364 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,372 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,379 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,386 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,394 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,401 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,409 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,416 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,423 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,431 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,438 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,446 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,453 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,461 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,469 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,476 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,483 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,491 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,499 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,506 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,514 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,521 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,528 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,536 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,543 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,550 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,557 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,565 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,572 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,580 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,587 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,595 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,602 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,610 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,617 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,625 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,633 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,640 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,648 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,656 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,663 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,671 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,679 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,686 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,694 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,701 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,709 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,716 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,723 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,731 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,738 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,746 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,753 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,761 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,768 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,776 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,783 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,790 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,798 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,805 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,813 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,820 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,828 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,835 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,843 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,850 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,857 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,865 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,872 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,880 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,888 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,895 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,903 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,911 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,918 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,926 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,933 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,941 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,948 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,955 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,963 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,970 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,978 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,985 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:15,993 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,000 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,007 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,015 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,022 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,030 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,037 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,045 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,052 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,059 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,067 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,074 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,081 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,089 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,096 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,103 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,111 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,118 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,125 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,133 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,140 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,148 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,155 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,162 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,169 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,177 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,184 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,192 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,199 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,207 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,214 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,221 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,229 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,236 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,244 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,251 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,259 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,266 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,274 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,281 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,288 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,296 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,304 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,311 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,318 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,326 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,333 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,341 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,348 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,355 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,363 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,370 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,378 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,385 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,392 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,399 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,406 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,414 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,421 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,429 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,436 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,444 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,451 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,458 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,466 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,473 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,480 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,488 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,495 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,502 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,510 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,517 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,524 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,531 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,539 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,546 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,553 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,561 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,570 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,577 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,584 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,591 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,599 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,606 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,614 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,621 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,629 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,646 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,657 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,667 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,675 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,683 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,691 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,699 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,706 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,715 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,722 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,731 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,739 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,747 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,755 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,763 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,771 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,779 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,787 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,795 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,803 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:16,864 - INFO - save_manager.py: 83 [save_last_slot] | Saved last slot.
+2026-09-24 17:59:39,497 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 17:59:39,497 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:59:39,497 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:59:39,498 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 17:59:39,527 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 17:59:39,736 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 17:59:39,818 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-24 17:59:40,097 - INFO - save_manager.py: 59 [get_info] | Returning info slot0
+2026-09-24 17:59:40,123 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 0}
+2026-09-24 17:59:40,123 - INFO - save_manager.py: 59 [get_info] | Returning info slot1
+2026-09-24 17:59:40,150 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 1}
+2026-09-24 17:59:40,150 - INFO - save_manager.py: 59 [get_info] | Returning info slot2
+2026-09-24 17:59:40,180 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 2}
+2026-09-24 17:59:40,180 - INFO - save_manager.py: 59 [get_info] | Returning info slot5
+2026-09-24 17:59:40,212 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 5}
+2026-09-24 17:59:40,212 - INFO - save_manager.py: 59 [get_info] | Returning info slot7
+2026-09-24 17:59:40,237 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 7}
+2026-09-24 17:59:40,238 - INFO - save_manager.py: 59 [get_info] | Returning info slot27
+2026-09-24 17:59:40,268 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 27}
+2026-09-24 17:59:40,268 - INFO - save_manager.py: 123 [get_info_last_slot] | Trying to return last slot info...
+2026-09-24 17:59:45,173 - INFO - save_manager.py: 83 [save_last_slot] | Saved last slot.
+2026-09-24 17:59:45,173 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,180 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,188 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,196 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,204 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,211 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,218 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,225 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,233 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,240 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,247 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,255 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,263 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,270 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,278 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,285 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,293 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,301 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,309 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,316 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,323 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,331 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,338 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,345 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,353 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,360 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,367 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,375 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,382 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,389 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,397 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,404 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,411 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,418 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,426 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,433 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,440 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,448 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,455 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,462 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,469 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,477 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,484 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,492 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,499 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,506 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,513 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,520 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,528 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,535 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,543 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,550 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,557 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,565 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,572 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,579 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,587 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,594 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,601 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,609 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,616 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,623 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,630 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,638 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,645 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,652 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,660 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,667 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,674 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,681 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,689 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,696 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,703 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,711 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,718 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,725 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,732 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,740 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,747 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,754 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,762 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,769 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,777 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,784 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,791 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,798 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,806 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,813 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,820 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,828 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,835 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,842 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,850 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,857 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,864 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,871 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,879 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,886 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,894 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,901 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,909 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,916 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,923 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,930 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,937 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,945 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,952 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,959 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,966 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,973 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,981 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,988 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:45,995 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,002 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,010 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,017 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,024 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,031 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,038 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,046 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,053 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,061 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,068 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,075 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,082 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,090 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,097 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,104 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,112 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,119 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,127 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,134 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,141 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,148 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,156 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,163 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,170 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,178 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,185 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,193 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,201 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,209 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,216 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,224 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,231 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,239 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,247 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,254 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,262 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,269 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,277 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,284 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,292 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,299 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,306 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,313 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,320 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,328 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,335 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,342 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,349 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,357 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,364 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,371 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,379 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,386 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,393 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,400 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,407 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,415 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,422 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,430 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,437 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,444 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,451 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,459 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,466 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,473 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,480 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,488 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,495 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,502 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,510 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,517 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,524 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,531 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,539 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,546 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,553 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,561 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,568 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,575 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,582 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,589 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,597 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,604 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,612 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,619 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,626 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,633 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,640 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,648 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,655 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,662 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,669 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,677 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,684 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,691 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,699 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,706 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,713 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,720 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,728 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,735 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,742 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,749 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,757 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,764 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,771 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,779 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,786 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,793 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,800 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,808 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,815 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,822 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,830 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,837 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,844 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,851 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,859 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,866 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,873 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,880 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,887 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,895 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,902 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,909 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,916 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,923 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,931 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,938 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,945 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,952 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,960 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,967 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,974 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,981 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,989 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:46,996 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,003 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,011 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,018 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,025 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,032 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,040 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,047 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,054 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,062 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,069 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,077 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,084 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,091 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,098 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,105 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,113 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,120 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,127 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,134 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,142 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,149 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,156 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,164 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,171 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,178 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,185 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,193 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,200 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,207 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,214 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,221 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,229 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,236 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,243 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 17:59:47,289 - INFO - save_manager.py: 83 [save_last_slot] | Saved last slot.
+2026-09-24 17:59:49,535 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 17:59:49,536 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:59:49,536 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 17:59:49,536 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 17:59:49,565 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 17:59:49,777 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 17:59:49,843 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-24 17:59:50,118 - INFO - save_manager.py: 59 [get_info] | Returning info slot0
+2026-09-24 17:59:50,144 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 0}
+2026-09-24 17:59:50,144 - INFO - save_manager.py: 59 [get_info] | Returning info slot1
+2026-09-24 17:59:50,170 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 1}
+2026-09-24 17:59:50,170 - INFO - save_manager.py: 59 [get_info] | Returning info slot2
+2026-09-24 17:59:50,194 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 2}
+2026-09-24 17:59:50,195 - INFO - save_manager.py: 59 [get_info] | Returning info slot5
+2026-09-24 17:59:50,225 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 5}
+2026-09-24 17:59:50,225 - INFO - save_manager.py: 59 [get_info] | Returning info slot7
+2026-09-24 17:59:50,251 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 7}
+2026-09-24 17:59:50,251 - INFO - save_manager.py: 59 [get_info] | Returning info slot27
+2026-09-24 17:59:50,286 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 27}
+2026-09-24 17:59:50,286 - INFO - save_manager.py: 123 [get_info_last_slot] | Trying to return last slot info...
+2026-09-24 18:00:02,676 - INFO - save_manager.py: 83 [save_last_slot] | Saved last slot.
+2026-09-24 18:00:02,676 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,683 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,691 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,699 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,707 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,715 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,723 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,732 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,740 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,747 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,755 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,762 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,770 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,777 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,785 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,792 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,799 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,806 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,814 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,821 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,828 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,836 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,843 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,850 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,857 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,865 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,872 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,879 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,886 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,894 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,901 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,908 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,915 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,923 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,930 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,937 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,944 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,952 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,959 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,966 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,973 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,980 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,988 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:02,995 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,002 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,009 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,017 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,024 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,031 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,038 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,046 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,053 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,060 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,067 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,075 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,082 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,089 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,097 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,104 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,111 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,118 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,125 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,133 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,140 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,147 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,154 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,162 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,169 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,176 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,184 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,191 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,200 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,207 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,215 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,223 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,232 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,239 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,247 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,254 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,262 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,269 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,276 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,283 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,291 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,298 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,305 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,313 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,320 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,327 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,334 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,341 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,349 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,356 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,364 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,371 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,378 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,385 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,393 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,400 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,407 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,415 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,422 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,430 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,437 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,445 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,452 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,459 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,467 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,474 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,482 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,489 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,496 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,503 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,511 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,518 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,525 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,533 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,540 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,548 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,555 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,562 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,569 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,577 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,584 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,591 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,599 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,606 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,613 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,620 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,628 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,635 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,642 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,650 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,657 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,664 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,671 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,679 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,686 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,694 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,701 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,708 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,716 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,723 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,731 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,738 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,746 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,753 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,761 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,768 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,776 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,783 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,791 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,798 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,805 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,813 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,820 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,828 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,835 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,842 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,850 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,857 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,865 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,872 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,880 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,887 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,894 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,901 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,909 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,916 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,923 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,931 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,938 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,946 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,953 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,960 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,968 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,975 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,983 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,990 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:03,998 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,005 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,012 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,020 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,027 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,034 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,041 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,049 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,056 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,064 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,071 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,078 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,085 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,093 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,100 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,107 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,115 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,122 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,130 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,137 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,144 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,151 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,158 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,166 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,173 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,181 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,188 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,195 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,203 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,210 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,217 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,224 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,232 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,239 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,246 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,254 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,261 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,268 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,276 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,283 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,290 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,298 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,305 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,313 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,320 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,327 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,335 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,342 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,350 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,357 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,365 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,373 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,381 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,388 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,396 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,403 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,411 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,419 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,427 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,434 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,441 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,449 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,456 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,463 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,471 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,478 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,485 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,492 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,500 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,507 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,514 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,522 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,529 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,536 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,544 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,551 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,558 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,566 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,573 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,580 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,587 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,595 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,602 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,610 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,617 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,624 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,632 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,639 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,647 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,654 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,661 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,669 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,676 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,683 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,691 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,698 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,705 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,713 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,720 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,728 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,735 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,743 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,751 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,758 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,766 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,774 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,782 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,789 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,797 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,804 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,812 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,819 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,826 - INFO - game_screen.py: 312 [update] | Saving last.
+2026-09-24 18:00:04,869 - INFO - save_manager.py: 83 [save_last_slot] | Saved last slot.
+2026-09-24 18:08:45,713 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 18:08:45,713 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 18:08:45,713 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 18:08:45,714 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 18:08:45,743 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 18:08:45,941 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 18:08:45,971 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-24 18:24:08,612 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 18:24:08,612 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 18:24:08,612 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 18:24:08,613 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 18:24:08,647 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 18:24:08,862 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 18:24:08,942 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.
+2026-09-24 18:24:09,213 - INFO - save_manager.py: 59 [get_info] | Returning info slot0
+2026-09-24 18:24:09,240 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 0}
+2026-09-24 18:24:09,240 - INFO - save_manager.py: 59 [get_info] | Returning info slot1
+2026-09-24 18:24:09,266 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 1}
+2026-09-24 18:24:09,267 - INFO - save_manager.py: 59 [get_info] | Returning info slot2
+2026-09-24 18:24:09,293 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 2}
+2026-09-24 18:24:09,293 - INFO - save_manager.py: 59 [get_info] | Returning info slot5
+2026-09-24 18:24:09,323 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 5}
+2026-09-24 18:24:09,323 - INFO - save_manager.py: 59 [get_info] | Returning info slot7
+2026-09-24 18:24:09,349 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:54', 'id': 7}
+2026-09-24 18:24:09,349 - INFO - save_manager.py: 59 [get_info] | Returning info slot27
+2026-09-24 18:24:09,379 - INFO - save_manager.py: 61 [get_info] | DATA: {'date': '20.09.2026 10:41', 'id': 27}
+2026-09-24 18:24:09,379 - INFO - save_manager.py: 123 [get_info_last_slot] | Trying to return last slot info...
+2026-09-24 18:34:36,819 - INFO - fonts.py: 28 [<module>] | Fonts loaded.
+2026-09-24 18:34:36,819 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 18:34:36,819 - WARNING - settings_manager.py: 138 [get_attribute] | Settings file not created.
+2026-09-24 18:34:36,820 - INFO - classes.py: 2467 [<module>] | Created classes.
+2026-09-24 18:34:36,854 - INFO - classes.py: 2486 [<module>] | Created reference defaults.
+2026-09-24 18:34:37,054 - INFO - levels.py: 317 [<module>] | Level variables created.
+2026-09-24 18:34:37,087 - INFO - save_manager.py: 18 [__init__] | Save manager initialized.

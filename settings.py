@@ -67,10 +67,27 @@ def make_json_serializable(value):
     return None
 
 
+class Icon:
+    def __init__(self, image_name: str | os.PathLike, size: int | float):
+        self.image_name = image_name
+        self.size = size
+        self.image = pygame.image.load(self.image_name)
+        self.image = pygame.transform.scale_by(self.image, self.size)
+
+    def draw(self, surface: pygame.Surface, x, y):
+
+        rect = self.image.get_rect(center=(x, y))
+
+        surface.blit(
+            self.image,
+            rect
+        )
+
+
 class SettingElement:
     default_size = (200, 40)
 
-    def __init__(self, pos, image=None, size=None):
+    def __init__(self, pos, image=None, size=None, icons: dict[str, Icon]=None):
         if size is None:
             size = self.default_size
 
@@ -83,6 +100,10 @@ class SettingElement:
             image,
             self.rect.size
         )
+
+        self.icons: dict[str, Icon] = icons or []
+        self.showing_icons: list[Icon] = []
+
 
     def prepare_image(self, image, size):
         if image is None:
@@ -103,6 +124,14 @@ class SettingElement:
     def draw(self, screen, font, value):
         self.draw_image(screen)
 
+    def draw_icon(self, screen):
+        for icon in self.showing_icons:
+            icon.draw(
+                screen,
+                self.rect.midright[0] + self.rect.width // 30,
+                self.rect.midright[1]
+            )
+
     def handle_event(self, event, value):
         return value
 
@@ -115,12 +144,13 @@ class Checkbox(SettingElement):
         pos,
         checked_image=None,
         unchecked_image=None,
-        size=None
+        size=None,
+        icons=None
     ):
         if size is None:
             size = self.default_size
 
-        super().__init__(pos, size=size)
+        super().__init__(pos, size=size, icons=icons)
 
         self.checked_image = self.prepare_image(
             checked_image,
@@ -180,7 +210,8 @@ class Slider(SettingElement):
         step=1,
         background_image=None,
         knob_image=None,
-        size=None
+        size=None,
+        icons=None
     ):
         if size is None:
             size = self.default_size
@@ -188,7 +219,8 @@ class Slider(SettingElement):
         super().__init__(
             pos,
             background_image,
-            size
+            size,
+            icons=icons
         )
 
         self.min = min_value
@@ -383,7 +415,8 @@ class TextBox(SettingElement):
         max_length=20,
         font: userFont=None,
         image=None,
-        size=None
+        size=None,
+        icons=None
     ):
         if size is None:
             size = self.default_size
@@ -391,7 +424,8 @@ class TextBox(SettingElement):
         super().__init__(
             pos,
             image,
-            size
+            size,
+            icons=icons
         )
 
         self.font = font
@@ -475,7 +509,8 @@ class Select(SettingElement):
         values,
         font: userFont=None,
         image=None,
-        size=None
+        size=None,
+        icons=None
     ):
         if size is None:
             size = self.default_size
@@ -484,7 +519,8 @@ class Select(SettingElement):
         super().__init__(
             pos,
             image,
-            size
+            size,
+            icons=icons
         )
 
         self.index = 0
@@ -626,7 +662,11 @@ class Settings:
             "other_music": {
                 "type": "textbox",
                 "max_length": 75,
-                "font": font3
+                "font": font3,
+                "icons": {
+                    "path_found": Icon(resource_path(r"settings_images/tick.png"), 0.1),
+                    "path_not_found": Icon(resource_path(r"settings_images/x.png"), 0.1)
+                }
             },
 
             "fps": {
@@ -675,6 +715,9 @@ class Settings:
 
     def get(self, name):
         return self.values[name]
+
+    def get_element(self, name: str) -> SettingElement | None:
+        return self.elements.get(name)
 
     def set(self, name, value):
 
@@ -772,6 +815,8 @@ class Settings:
                 self.values[key]
             )
 
+            element.draw_icon(screen)
+
     # =================================================
     # EVENT
     # =================================================
@@ -808,7 +853,7 @@ class Settings:
 
             if element_type == "checkbox":
 
-                images = option.get("images", {})
+                images: dict = option.get("images", {})
 
                 checked_image = self.load_image(
                     images.get("checked")
@@ -818,10 +863,13 @@ class Settings:
                     images.get("unchecked")
                 )
 
+                icons = option.get("icons", {})
+
                 element = Checkbox(
                     (element_x, y),
                     checked_image,
-                    unchecked_image
+                    unchecked_image,
+                    icons=icons
                 )
 
             elif element_type == "slider":
@@ -835,23 +883,28 @@ class Settings:
                 knob_image = self.load_image(
                     images.get("knob")
                 )
+
+                icons = option.get("icons", {})
+
                 element = Slider(
                     (element_x, y),
                     option["min"],
                     option["max"],
                     option.get("step", 1),
                     background_image,
-                    knob_image
+                    knob_image,
+                    icons=icons
                 )
 
             elif element_type == "select":
 
-                
+                icons = option.get("icons", {})
     
                 element = Select(
                     (element_x, y),
                     option["values"],
                     font=option["font"],
+                    icons=icons
                 )
 
                 size_x = max(*(element.font.font.size(val)[0] for val in option["values"]))
@@ -860,10 +913,13 @@ class Settings:
 
             elif element_type == "textbox":
 
+                icons = option.get("icons", {})
+
                 element = TextBox(
                     (element_x, y),
                     option.get("max_length", 20),
-                    font=option.get("font", None)
+                    font=option.get("font", None),
+                    icons=icons
                 )
 
                 size_x = element.font.font.size("W" * option.get("max_length", 20))[0]

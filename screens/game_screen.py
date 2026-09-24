@@ -481,6 +481,7 @@ class GameScreen(Screen):
         self.save_last_cd.refresh()
 
     def on_enter(self, transfer_datas):
+        self.game.mixer.music.stop()
 
         if self.game.settings.get("music"):
             self.game.mixer.music.load(

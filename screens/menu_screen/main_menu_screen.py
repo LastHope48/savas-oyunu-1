@@ -9,6 +9,8 @@ from calcs import calculate_size
 from screens.types import ScreenType
 from gamedata import GameData
 from lang_support import Lang
+import os
+from basedir import BASE_DIR
 
 class MainMenuScreen(MenuScreen):
     def __init__(self, game):
@@ -112,11 +114,24 @@ class MainMenuScreen(MenuScreen):
             plus_data=False
         )
 
+        self.title_font = None
+        self.title_font_size = None
+
     def draw(self, surface: pygame.Surface):
         surface.fill(colours.BLACK)
         _bolum = calculate_size(50, 800, self.game.width)
-        _font = classes.userFont("arial", int(_bolum))
-        _font.draw_text("SAVAŞ OYUNU", (self.game.width//2, int(self.game.height*0.11)), surface, colours.WHITE, "center")
+
+        if self.title_font is None or self.title_font_size != int(_bolum):
+            self.title_font_size = int(_bolum)
+            self.title_font = classes.userFont("arial", self.title_font_size)
+
+        self.title_font.draw_text(
+            "SAVAŞ OYUNU",
+            (self.game.width // 2, int(self.game.height * 0.11)),
+            surface,
+            colours.WHITE,
+            "center"
+        )
         self.new_game_button.draw(surface)
         self.continue_button.draw(surface)
         self.load_button.draw(surface)
@@ -215,3 +230,23 @@ class MainMenuScreen(MenuScreen):
 
         if self.info_button.clicked(event, ScreenType.MENU) and self.info_rect.plus_data:
             self.info_button.plus_data = not self.info_button.plus_data
+
+    def on_enter(self, transfer_datas):
+        if self.game.dump("last_music") == os.path.join(BASE_DIR,r"musics/settings_theme.mp3"):
+            self.game.mixer.music.load(
+                os.path.join(
+                    BASE_DIR,
+                    r"musics/menu_theme.mp3"
+                )
+            )
+
+            self.game.mixer.music.play(-1)
+
+    def on_exit(self):
+        self.game.dump(
+            "last_music",
+            os.path.join(
+                    BASE_DIR,
+                    r"musics/menu_theme.mp3"
+            )
+        )

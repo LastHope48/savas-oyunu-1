@@ -7,6 +7,8 @@ from fonts import font2, font3
 from calcs import calculate_size
 from screens.types import ScreenType
 from lang_support import Lang
+import os
+from basedir import BASE_DIR
 
 
 class LoadScreen(MenuScreen):
@@ -185,7 +187,7 @@ class LoadScreen(MenuScreen):
                 self.game.screen_manager.set_screen(ScreenType.GAME)
                 return
 
-    def on_enter(self, transfer_datas: dict):
+    def on_enter(self, transfer_datas):
         if transfer_datas.get("warning", False):
             if transfer_datas.get("accepted_continue", False):
                 data = self.game.save_manager.load(transfer_datas["slot_id"])
@@ -201,6 +203,26 @@ class LoadScreen(MenuScreen):
                     self.game.screen_manager.set_screen(ScreenType.GAME)
         else:
             self.return_button.plus_data = transfer_datas['screen_type_before']
+
+        if self.game.dump("last_music") == os.path.join(BASE_DIR,r"musics/settings_theme.mp3"):
+            self.game.mixer.music.load(
+                os.path.join(
+                    BASE_DIR,
+                    r"musics/menu_theme.mp3"
+                )
+            )
+
+            self.game.mixer.music.play(-1)
+
+    def on_exit(self):
+        self.game.dump(
+            "last_music",
+            os.path.join(
+                    BASE_DIR,
+                    r"musics/menu_theme.mp3"
+            )
+        )
+
 
     def change_page(self, delta):
         self.page.deger += delta

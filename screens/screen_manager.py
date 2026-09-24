@@ -34,13 +34,13 @@ class ScreenManager:
     def set_screen(self, screen_type: ScreenType, **transfer_data):
         self.last_screen = self.screen_to_type[self.current_screen]
 
-        if hasattr(self.current_screen, "on_exit"):
-            self.current_screen.on_exit()
+        #if hasattr(self.current_screen, "on_exit"):
+        self.current_screen.on_exit()
 
         self.current_screen = self.screens[screen_type]
 
-        if hasattr(self.current_screen, "on_enter"):
-            self.current_screen.on_enter(transfer_data)
+        #if hasattr(self.current_screen, "on_enter"):
+        self.current_screen.on_enter(transfer_data)
 
     def get_screen(self, screen_type: ScreenType) -> Screen:
         return self.screens[screen_type]

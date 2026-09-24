@@ -7,6 +7,8 @@ from fonts import font2, font3
 from calcs import calculate_size
 from screens.types import ScreenType
 from lang_support import Lang
+import os
+from basedir import BASE_DIR
 
 class SaveScreen(MenuScreen):
     def __init__(self, game):
@@ -223,5 +225,24 @@ class SaveScreen(MenuScreen):
 
         return sayfa_basina, sayfa_sayisi
 
-    def on_enter(self, transfer_datas: dict):
+    def on_enter(self, transfer_datas):
         self.return_button.plus_data = transfer_datas['screen_type_before']
+
+        if self.game.dump("last_music") == os.path.join(BASE_DIR,r"musics/settings_theme.mp3"):
+            self.game.mixer.music.load(
+                os.path.join(
+                    BASE_DIR,
+                    r"musics/menu_theme.mp3"
+                )
+            )
+
+            self.game.mixer.music.play(-1)
+
+    def on_exit(self):
+        self.game.dump(
+            "last_music",
+            os.path.join(
+                    BASE_DIR,
+                    r"musics/menu_theme.mp3"
+            )
+        )

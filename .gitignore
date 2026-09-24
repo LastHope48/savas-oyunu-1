@@ -1,6 +1,6 @@
-/.venv
-/__pycache__
-/.vscode
+.venv/
+__pycache__/
+.vscode/
 settings
 securedvars
 game.log
@@ -11,3 +11,6 @@ test.py
 *.spec
 /_update
 build.sh
+private_key.pem
+secret_keys/
+settings.json

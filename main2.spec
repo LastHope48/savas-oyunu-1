@@ -54,6 +54,7 @@ for file in [
     "securedvars",
     "settings",
     "settings.json",
+    "public_key.pem",
 ]:
     path = PROJECT_DIR / file
 
@@ -87,6 +88,7 @@ for file in [
     "typehint_game.py",
     "userfont.py",
     "zaman.py",
+    "dump.py"
 ]:
     path = PROJECT_DIR / file
 

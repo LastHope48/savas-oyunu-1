@@ -13,6 +13,7 @@ from save_manager import SaveManager
 from settings import Settings
 from pass_manager import HashManager
 from console import CommandParser
+from dump import Dump
 
 from gamedata import GameData
 import os
@@ -54,6 +55,18 @@ class Game:
         self.command_parser = CommandParser()
         self.command_parser.add_variable("dt_multiplier", 1)
         self.command_parser.add_command("dt", self.multiply_dt, [float], success_text="Delta Time multiplied to [arg1]")
+        self.dump = Dump()
+
+        self.mixer.music.load(
+            os.path.join(
+                BASE_DIR,
+                r"musics/menu_theme.mp3"
+            )
+        )
+
+        self.mixer.music.play(-1)
+
+        self.dump("last_music", None)
 
         self.running = True
 

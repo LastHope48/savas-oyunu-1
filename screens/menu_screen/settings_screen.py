@@ -160,6 +160,20 @@ class SettingsScreen(MenuScreen):
         self.old_fullscreen = self.game.settings.get("fullscreen")
         self.update_button.text = self.langs["update_button_text"].get(self.game.settings.get("language"))
 
+        if self.game.settings.get("music"):
+            other_music = self.game.settings.get_element("other_music")
+
+            if os.path.exists(self.game.settings.get("other_music")):
+
+                other_music.showing_icons = [
+                    other_music.icons.get("path_found")
+                ]
+
+            else:
+                other_music.showing_icons = [
+                    other_music.icons.get("path_not_found")
+                ]
+
 
     def handle_event(self, event: pygame.event.Event):
 
@@ -224,6 +238,7 @@ class SettingsScreen(MenuScreen):
 
             prepare_update(
                 update["url"],
+                update["signature_url"],
                 self.update_progress_callback
             )
 
@@ -236,14 +251,11 @@ class SettingsScreen(MenuScreen):
 
         except Exception as e:
 
-            print(
-                "Güncelleme hatası:",
-                e
-            )
 
             self.update_status = (
                 f"Güncelleme başarısız: {e}"
             )
+            print("GÜNCELLEME HATASI:", repr(e))
 
         finally:
 
@@ -255,9 +267,12 @@ class SettingsScreen(MenuScreen):
 
     def on_enter(self, transfer_datas: dict):
         self.game.mixer.music.load(os.path.join(BASE_DIR,r"musics/settings_theme.mp3"))
+
         self.game.mixer.music.play(-1)
 
     def on_exit(self):
         self.game.mixer.music.stop()
+
+        self.game.dump("last_music", os.path.join(BASE_DIR,r"musics/settings_theme.mp3"))
 
         self.game.settings.save()

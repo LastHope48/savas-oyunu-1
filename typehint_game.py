@@ -11,6 +11,7 @@ from save_manager import SaveManager
 from pass_manager import HashManager
 from settings import Settings
 from console import CommandParser
+from dump import Dump
 
 class Game:
     def __init__(self):
@@ -30,6 +31,7 @@ class Game:
         self.hash_manager: HashManager
         self.settings: Settings
         self.command_parser: CommandParser
+        self.dump: Dump
 
         self.game_data: GameData
         self.screen_manager: ScreenManager
