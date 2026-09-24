@@ -5,11 +5,12 @@ from cryptography.hazmat.primitives import serialization
 
 
 PROJECT_DIR = Path(__file__).resolve().parent.parent
+print(PROJECT_DIR)
 
 ZIP_FILE = PROJECT_DIR / "savas_oyunu1-linux.zip"
 
 PRIVATE_KEY_FILE = (
-    Path.home()
+    PROJECT_DIR
     / "secret_keys"
     / "private_key.pem"
 )
