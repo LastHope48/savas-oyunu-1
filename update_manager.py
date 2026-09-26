@@ -280,73 +280,74 @@ def verify_update():
     return True
 
 
-def prepare_update(
-    url,
-    signature_url,
-    progress_callback=None
-):
+def prepare_update(url, signature_url, progress_callback=None):
+    try:
+        # Eski güncelleme dosyalarını temizle
+        if UPDATE_DIR.exists():
+            shutil.rmtree(UPDATE_DIR)
 
-    """
-    ZIP'i ve dijital imzasını indirir.
+        UPDATE_FILES_DIR.mkdir(parents=True, exist_ok=True)
 
-    Daha sonra ZIP'in SHA-256 hash'ini hesaplar
-    ve dijital imzayı public key ile doğrular.
-
-    Doğrulama başarısız olursa ZIP çıkarılmaz.
-    """
-
-    if os.path.exists(
-        UPDATE_DIR
-    ):
-
-        shutil.rmtree(
-            UPDATE_DIR
+        # ZIP'i indir
+        download_file(
+            url,
+            UPDATE_ZIP,
+            progress_callback
         )
 
-    os.makedirs(
-        UPDATE_DIR
-    )
-
-    download_file(
-        url,
-        UPDATE_ZIP,
-        progress_callback
-    )
-
-    download_file(
-        signature_url,
-        SIGNATURE_FILE
-    )
-
-    verify_update()
-
-    os.makedirs(
-        UPDATE_FILES_DIR
-    )
-
-    with zipfile.ZipFile(
-        UPDATE_ZIP,
-        "r"
-    ) as zip_file:
-
-        zip_file.extractall(
-            UPDATE_FILES_DIR
+        # Dijital imzayı indir
+        download_file(
+            signature_url,
+            SIGNATURE_FILE
         )
 
-    os.remove(
-        UPDATE_ZIP
-    )
+        # Dijital imzayı doğrula
+        verify_update()
 
-    os.remove(
-        SIGNATURE_FILE
-    )
+        # Doğrulama başarılıysa ZIP'i aç
+        with zipfile.ZipFile(UPDATE_ZIP, "r") as zip_file:
+            zip_file.extractall(UPDATE_FILES_DIR)
 
-    if progress_callback is not None:
-        progress_callback(
-            100
+        # Geçici dosyaları sil
+        UPDATE_ZIP.unlink()
+        SIGNATURE_FILE.unlink()
+
+        if progress_callback:
+            progress_callback(100)
+
+        return True, None
+
+    except InvalidSignature:
+        shutil.rmtree(UPDATE_DIR, ignore_errors=True)
+
+        return (
+            False,
+            "Güncelleme hatası: Güncellemenin doğrulaması başarısız oldu."
         )
 
-    return True
+    except requests.RequestException:
+        shutil.rmtree(UPDATE_DIR, ignore_errors=True)
+
+        return (
+            False,
+            "Güncelleme hatası: Güncelleme indirilemedi."
+        )
+
+    except zipfile.BadZipFile:
+        shutil.rmtree(UPDATE_DIR, ignore_errors=True)
+
+        return (
+            False,
+            "Güncelleme hatası: Güncelleme dosyası bozuk."
+        )
+
+    except Exception:
+        shutil.rmtree(UPDATE_DIR, ignore_errors=True)
+
+        return (
+            False,
+            "Güncelleme hatası: Beklenmeyen bir hata oluştu."
+        )
 
 
 def apply_pending_update():

@@ -17,7 +17,21 @@ class SettingsScreen(MenuScreen):
         super().__init__(game)
 
         self.langs = {
-            "update_button_text": Lang(türkçe="Güncellemeleri Kontrol Et", english="Check Updates")
+            "update_button_text": Lang(türkçe="Güncellemeleri Kontrol Et", english="Check Updates"),
+            "checking_updates": Lang(türkçe="Güncellemeler kontrol ediliyor...", english="Checking updates..."),
+            "update_up_on_date": Lang(türkçe="Oyun zaten güncel.", english="The game is up-on-date."),
+            "new_ver_found": Lang(türkçe="Yeni sürüm bulundu: ", english="New Version Found: "),
+            "update_is_ready": Lang(
+                türkçe=(
+                "Güncelleme hazır. "
+                "Oyun kapatıldığında uygulanacak."
+                ),
+                english=(
+                "Update is ready. "
+                "Going to applyed when you quit game."
+                )
+            ),
+            "update_error": Lang(türkçe="Güncelleme hatası: Beklenmeyen bir hata oluştu.", english="Update Error: An unexpected error raised.")
         }
 
         self.console = Console(
@@ -174,6 +188,13 @@ class SettingsScreen(MenuScreen):
                     other_music.icons.get("path_not_found")
                 ]
 
+            self.game.mixer.music.set_volume(self.game.settings.get("music_volume"))
+
+        else:
+            self.game.mixer.music.set_volume(0.0)
+
+            self.game.settings.get_element("other_music").showing_icons = []
+
 
     def handle_event(self, event: pygame.event.Event):
 
@@ -187,6 +208,9 @@ class SettingsScreen(MenuScreen):
                     event.pos
                 ):
 
+                    if self.game.settings.get("sfx"):
+                        self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
+
                     self.game.screen_manager.set_screen(
                         self.game.screen_manager.get_last_screen()
                     )
@@ -195,10 +219,12 @@ class SettingsScreen(MenuScreen):
                     event.pos
                 ):
 
+                    if self.game.settings.get("sfx"):
+                        self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
+
                     self.check_update()
 
         self.console.handle_event(event)
-
 
     def check_update(self):
 
@@ -216,6 +242,7 @@ class SettingsScreen(MenuScreen):
 
         self.update_thread.start()
 
+
     def update_worker(self):
 
         try:
@@ -228,7 +255,6 @@ class SettingsScreen(MenuScreen):
                     "Oyun zaten güncel."
                 )
 
-                self.update_running = False
                 return
 
             self.update_status = (
@@ -236,11 +262,18 @@ class SettingsScreen(MenuScreen):
                 f"{update['version']}"
             )
 
-            prepare_update(
+            success, error = prepare_update(
                 update["url"],
                 update["signature_url"],
                 self.update_progress_callback
             )
+
+            if not success:
+
+                self.update_status = error
+                print("GÜNCELLEME HATASI:", error)
+
+                return
 
             self.update_progress = 100
 
@@ -251,11 +284,14 @@ class SettingsScreen(MenuScreen):
 
         except Exception as e:
 
-
             self.update_status = (
-                f"Güncelleme başarısız: {e}"
+                "Güncelleme hatası: Beklenmeyen bir hata oluştu."
             )
-            print("GÜNCELLEME HATASI:", repr(e))
+
+            print(
+                "GÜNCELLEME HATASI:",
+                repr(e)
+            )
 
         finally:
 

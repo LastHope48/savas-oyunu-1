@@ -11,6 +11,7 @@ from save_manager import SaveManager
 from pass_manager import HashManager
 from settings import Settings
 from console import CommandParser
+from sfx_manager import SFXManager
 from dump import Dump
 
 class Game:
@@ -31,6 +32,7 @@ class Game:
         self.hash_manager: HashManager
         self.settings: Settings
         self.command_parser: CommandParser
+        self.sfx_manager: SFXManager
         self.dump: Dump
 
         self.game_data: GameData

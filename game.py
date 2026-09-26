@@ -13,6 +13,7 @@ from save_manager import SaveManager
 from settings import Settings
 from pass_manager import HashManager
 from console import CommandParser
+from sfx_manager import SFX, SFXManager
 from dump import Dump
 
 from gamedata import GameData
@@ -47,15 +48,24 @@ class Game:
 
         self.save_manager = SaveManager(os.path.join(BASE_DIR, "saves"))
 
+        self.hash_manager = HashManager(filename=os.path.join(BASE_DIR, "securedvars"))
+
         self.settings = Settings(file=os.path.join(BASE_DIR, "settings.json"))
         self.settings.load()
-
-        self.hash_manager = HashManager(filename=os.path.join(BASE_DIR, "securedvars"))
 
         self.command_parser = CommandParser()
         self.command_parser.add_variable("dt_multiplier", 1)
         self.command_parser.add_command("dt", self.multiply_dt, [float], success_text="Delta Time multiplied to [arg1]")
         self.dump = Dump()
+
+        self.sfx_manager = SFXManager()
+        self.sfx_manager.add(self.mixer, "click", os.path.join(BASE_DIR, r"sounds/click.wav"))
+
+        if self.settings.get("music"):
+            self.mixer.music.set_volume(self.settings.get("music_volume"))
+
+        else:
+            self.mixer.music.set_volume(0.0)
 
         self.mixer.music.load(
             os.path.join(
@@ -91,8 +101,11 @@ class Game:
         return SUCCESS, f"Oyun {self.command_parser.variables['dt_multiplier']} kat daha hızlı."
 
     def run(self):
+        if self.settings.get("fullscreen"):
+            self.screen = pygame.display.set_mode((self.info.current_w, self.info.current_h), pygame.FULLSCREEN)
+
         while self.running:
-            orig_dt = self.clock.tick(self.settings.get("fps")) / 1000 # Şimdilik sabit
+            orig_dt = self.clock.tick(self.settings.get("fps")) / 1000
             dt = orig_dt * self.command_parser.variables["dt_multiplier"]
 
             for event in pygame.event.get():
@@ -108,7 +121,14 @@ class Game:
 
             pygame.display.flip()
 
+        self.logger.info("Applying update if there")
         apply_pending_update()
+
+        self.logger.info("Quitting Pygame")
+
+        self.mixer.stop()
+        self.mixer.music.stop()
+        self.mixer.quit()
         pygame.quit()
 
         if self.played:

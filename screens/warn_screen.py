@@ -92,21 +92,6 @@ class WarnScreen(Screen):
             True
         )
 
-        #font2.draw_text(
-        #    "Yüklemekte bulunduğunuz kayıt ile",
-        #    (self.game.width / 2, self.game.height / 2),
-        #    surface,
-        #    colours.WHITE,
-        #    "center"
-        #)
-        #font2.draw_text(
-        #    "şuanki oyunun sürümü aynı DEĞİL!",
-        #    (self.game.width / 2, self.game.height / 2 + font2.font.get_height() + 20),
-        #    surface,
-        #    colours.WHITE,
-        #    "center"
-        #)
-
         for i, message in enumerate(messages):
             surface.blit(
                 message,
@@ -126,9 +111,12 @@ class WarnScreen(Screen):
         self.warn_continue_button.set_center(width * 0.3, height * 0.7)
         self.warn_continue_button.width = calculate_size(200, 800, width)
         self.warn_continue_button.height = calculate_size(55, 800, height)
+        self.warn_continue_button.text = self.langs["continue"].get(self.game.settings.get("language"))
+
         self.warn_return_button.set_center(width * 0.7, height * 0.7)
         self.warn_return_button.width = calculate_size(200, 800, width)
         self.warn_return_button.height = calculate_size(55, 800, height)
+        self.warn_return_button.text = self.langs["return_button"].get(self.game.settings.get("language"))
 
     def handle_event(self, event: pygame.event.Event):
         if self.warn_continue_button.clicked(event, ScreenType.WARN):

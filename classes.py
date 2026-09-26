@@ -2202,13 +2202,57 @@ class Enemy:
                     font.draw_text(str(enemy.hp), (enemy.x+enemy.image.get_width()/2, enemy.y-10), surface, colours.BLACK, hiza="center")
                 surface.blit(enemy.image, (enemy.x, enemy.y))
         for i, enemy in enumerate(bosses):
+
             if i>1:
                 continue
+
             bossFont = bossFont or font
+
+            bar_height = info.current_w // 38.4
+            print(bar_height)
+
             font.draw_text(enemy.name, (info.current_w/2, 50+i*(padding)), surface, colours.BLACK, hiza="center")
-            pygame.draw.rect(surface, colours.GRAY, (100, 100+i*padding, info.current_w-200, 100), border_radius=20)
+
+            unfill_rect = pygame.Rect(
+                info.current_w // 2,
+                bar_height + 50 + i * padding,
+                info.current_w - info.current_w // 6,
+                bar_height
+            )
+
+            unfill_rect.center = (
+                info.current_w // 2,
+                bar_height + 50 + i * padding
+            )
+
+            pygame.draw.rect(
+                surface,
+                colours.GRAY,
+                unfill_rect,
+                border_radius=20
+            )
+
             percent = enemy.hp / enemy.origin_hp
-            pygame.draw.rect(surface, colours.RED, (100, 100+i*padding, (info.current_w-200) * percent, 100), border_radius=20)
+
+            fill_rect = pygame.Rect(
+                0,
+                0,
+                (info.current_w - info.current_w // 6) * percent,
+                bar_height
+            )
+
+            fill_rect.center = (
+                info.current_w // 2,
+                bar_height + 50 + i * padding
+            )
+
+            pygame.draw.rect(
+                surface,
+                colours.RED,
+                fill_rect,
+                border_radius=20
+            )
+
             bossFont.draw_text(f"{enemy.origin_hp}/{enemy.hp}", (info.current_w/2, 150+i*padding), surface, colours.BLACK, hiza="center")
     
     @classmethod

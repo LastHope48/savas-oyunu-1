@@ -7,7 +7,10 @@ from copy import deepcopy
 from enum import Enum
 from lang_support import Lang
 from classes import userFont
+from basedir import BASE_DIR
 
+
+desktop_size = pygame.display.get_desktop_sizes()[0]
 
 def resource_path(relative_path):
     try:
@@ -145,7 +148,8 @@ class Checkbox(SettingElement):
         checked_image=None,
         unchecked_image=None,
         size=None,
-        icons=None
+        icons=None,
+        click_sound: pygame.mixer.Sound=None
     ):
         if size is None:
             size = self.default_size
@@ -161,6 +165,8 @@ class Checkbox(SettingElement):
             unchecked_image,
             self.rect.size
         )
+
+        self.click_sound = click_sound
 
     def draw(self, screen, font, value):
 
@@ -188,12 +194,17 @@ class Checkbox(SettingElement):
                     self.rect.inflate(-8, -8)
                 )
 
-    def handle_event(self, event, value):
+    def handle_event(self, event, value, *, volume: float = 0.0, play: bool = False):
 
         if (
             event.type == pygame.MOUSEBUTTONDOWN
             and self.rect.collidepoint(event.pos)
         ):
+
+            if play:
+                self.click_sound.set_volume(volume)
+                self.click_sound.play()
+            
             return not value
 
         return value
@@ -407,7 +418,7 @@ class Slider(SettingElement):
 
 
 class TextBox(SettingElement):
-    default_size = (300, 40)
+    default_size = (0.01, 0.009)
 
     def __init__(
         self,
@@ -420,6 +431,11 @@ class TextBox(SettingElement):
     ):
         if size is None:
             size = self.default_size
+
+        size = (
+            desktop_size[0] * size[0],
+            font.font.get_height()
+        )
 
         super().__init__(
             pos,
@@ -626,7 +642,9 @@ class Settings:
                 "images": {
                     "checked": resource_path(r"settings_images/checkbox_on.png"),
                     "unchecked": resource_path(r"settings_images/checkbox_off.png")
-                }
+                },
+
+                "click_sound": pygame.mixer.Sound(os.path.join(BASE_DIR, r"sounds/click.wav"))
             },
 
             "music": {
@@ -634,7 +652,9 @@ class Settings:
                 "images": {
                     "checked": resource_path(r"settings_images/checkbox_on.png"),
                     "unchecked": resource_path(r"settings_images/checkbox_off.png")
-                }
+                },
+
+                "click_sound": pygame.mixer.Sound(os.path.join(BASE_DIR, r"sounds/click.wav"))
             },
 
             "sfx": {
@@ -642,7 +662,9 @@ class Settings:
                 "images": {
                     "checked": resource_path(r"settings_images/checkbox_on.png"),
                     "unchecked": resource_path(r"settings_images/checkbox_off.png")
-                }
+                },
+
+                "click_sound": pygame.mixer.Sound(os.path.join(BASE_DIR, r"sounds/click.wav"))
             },
 
             "music_volume": {
@@ -661,7 +683,7 @@ class Settings:
 
             "other_music": {
                 "type": "textbox",
-                "max_length": 75,
+                "max_length": desktop_size[0] // 50,
                 "font": font3,
                 "icons": {
                     "path_found": Icon(resource_path(r"settings_images/tick.png"), 0.1),
@@ -829,10 +851,20 @@ class Settings:
 
             old_value = self.values[key]
 
-            new_value = element.handle_event(
-                event,
-                old_value
-            )
+            if type(element) == Checkbox:
+                new_value = element.handle_event(
+                    event,
+                    old_value,
+                    volume=self.get("sfx_volume"),
+                    play=self.get("sfx")
+                )
+
+            else:
+
+                new_value = element.handle_event(
+                    event,
+                    old_value
+                )
 
             self.values[key] = new_value
 
@@ -863,13 +895,16 @@ class Settings:
                     images.get("unchecked")
                 )
 
+                click_sound = option.get("click_sound", None)
+
                 icons = option.get("icons", {})
 
                 element = Checkbox(
                     (element_x, y),
                     checked_image,
                     unchecked_image,
-                    icons=icons
+                    icons=icons,
+                    click_sound=click_sound
                 )
 
             elif element_type == "slider":

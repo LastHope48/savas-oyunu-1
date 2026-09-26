@@ -6,10 +6,10 @@ securedvars
 game.log
 *.save
 test.py
-/dist
-/build
+dist/
+build/
 *.spec
-/_update
+_update/
 build.sh
 private_key.pem
 secret_keys/

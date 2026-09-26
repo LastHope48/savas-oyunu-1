@@ -193,6 +193,10 @@ class MainMenuScreen(MenuScreen):
 
     def handle_event(self, event: pygame.event.Event):
         if self.new_game_button.clicked(event, ScreenType.MENU):
+
+            if self.game.settings.get("sfx"):
+                self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
+
             self.game.game_data = GameData.to_gamedata(game_data_defaults)
             game_screen = self.game.screen_manager.get_screen(ScreenType.GAME)
             game_screen.start_new_game()
@@ -200,6 +204,10 @@ class MainMenuScreen(MenuScreen):
             return
 
         if self.continue_button.clicked(event, ScreenType.MENU):
+
+            if self.game.settings.get("sfx"):
+                self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
+
             continue_data = self.game.save_manager.last_slot()
 
             if continue_data is not None:
@@ -208,15 +216,31 @@ class MainMenuScreen(MenuScreen):
                 return
 
         if self.save_button.clicked(event, ScreenType.MENU):
+
+            if self.game.settings.get("sfx"):
+                self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
+
             self.game.screen_manager.set_screen(ScreenType.SAVE, screen_type_before=ScreenType.MENU)
 
         if self.load_button.clicked(event, ScreenType.MENU):
+
+            if self.game.settings.get("sfx"):
+                self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
+
             self.game.screen_manager.set_screen(ScreenType.LOAD, screen_type_before=ScreenType.MENU)
 
         if self.settings_button.clicked(event, ScreenType.MENU):
+
+            if self.game.settings.get("sfx"):
+                self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
+
             self.game.screen_manager.set_screen(ScreenType.SETTINGS)
 
         if self.quit_button.clicked(event, ScreenType.MENU):
+
+            if self.game.settings.get("sfx"):
+                self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
+
             self.game.running = False
             return
 
@@ -229,10 +253,13 @@ class MainMenuScreen(MenuScreen):
                 self.info_rect.plus_data = False
 
         if self.info_button.clicked(event, ScreenType.MENU) and self.info_rect.plus_data:
+            if self.game.settings.get("sfx"):
+                self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
+
             self.info_button.plus_data = not self.info_button.plus_data
 
     def on_enter(self, transfer_datas):
-        if self.game.dump("last_music") == os.path.join(BASE_DIR,r"musics/settings_theme.mp3"):
+        if self.game.dump("last_music") != os.path.join(BASE_DIR, r"musics/menu_theme.mp3"):
             self.game.mixer.music.load(
                 os.path.join(
                     BASE_DIR,

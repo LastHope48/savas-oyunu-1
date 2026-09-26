@@ -169,7 +169,7 @@ class GameScreen(Screen):
         if not self.esc_screen and not self.gun_choosing:
 
             self.dash_cooldown.reduce(dt)
-            self.cd_gun_choosing.reduce(dt)
+        self.cd_gun_choosing.reduce(dt)
 
         self.save_last_cd.reduce(dt)
 
@@ -308,8 +308,9 @@ class GameScreen(Screen):
         self.check_win()
 
         if not self.saved_last:
+            self.game.logger.info("Saving last.")
             self.save_last()
-        self.game.logger.info("Saving last.")
+            
 
     def handle_event(self, event: pygame.event.Event):
 
@@ -348,6 +349,12 @@ class GameScreen(Screen):
 
             if event.key == pygame.K_ESCAPE and not self.gun_choosing:
                 self.esc_screen = not self.esc_screen
+
+                if self.esc_screen:
+                    self.game.mixer.music.pause()
+
+                else:
+                    self.game.mixer.music.unpause()
 
         if self.gun_choosing:
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -484,11 +491,21 @@ class GameScreen(Screen):
         self.game.mixer.music.stop()
 
         if self.game.settings.get("music"):
-            self.game.mixer.music.load(
-                self.game.settings.get("other_music")
-            )
+            try:
 
-            self.game.mixer.music.play(-1)
+                self.game.mixer.music.load(
+                    self.game.settings.get("other_music")
+                )
+
+                self.game.mixer.music.play(-1)
+
+                self.game.dump("last_music", self.game.settings.get("other_music"))
+
+            except FileNotFoundError:
+                self.game.logger.warning(f"Music {self.game.settings.get("other_music")} is not found.")
+
+            except pygame.error as e:
+                self.game.logger.error(f"Loading File {self.game.settings.get("other_music")} caused pygame.error: {e}")
 
         self.game.played = True
 

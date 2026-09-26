@@ -173,12 +173,21 @@ class SaveScreen(MenuScreen):
 
     def handle_event(self, event: pygame.event.Event):
         if self.onceki_button.clicked(event, ScreenType.SAVE):
+            if self.game.settings.get("sfx"):
+                self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
+
             self.change_page(-1)
 
         if self.sonraki_button.clicked(event, ScreenType.SAVE):
+            if self.game.settings.get("sfx"):
+                self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
+
             self.change_page(1)
 
         if self.return_button.clicked(event, ScreenType.SAVE):
+            if self.game.settings.get("sfx"):
+                self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
+
             self.game.screen_manager.set_screen(self.return_button.plus_data)
 
         for slot in self.visible_slots:
@@ -228,7 +237,7 @@ class SaveScreen(MenuScreen):
     def on_enter(self, transfer_datas):
         self.return_button.plus_data = transfer_datas['screen_type_before']
 
-        if self.game.dump("last_music") == os.path.join(BASE_DIR,r"musics/settings_theme.mp3"):
+        if self.game.dump("last_music") != os.path.join(BASE_DIR, r"musics/menu_theme.mp3"):
             self.game.mixer.music.load(
                 os.path.join(
                     BASE_DIR,
