@@ -537,10 +537,10 @@ class GameScreen(Screen):
                 self.game.dump("last_music", self.game.settings.get("other_music"))
 
             except FileNotFoundError:
-                self.game.logger.warning(f"Music {self.game.settings.get("other_music")} is not found.")
+                self.game.logger.warning(f"Music {self.game.settings.get('other_music')} is not found.")
 
             except pygame.error as e:
-                self.game.logger.error(f"Loading File {self.game.settings.get("other_music")} caused pygame.error: {e}")
+                self.game.logger.error(f"Loading File {self.game.settings.get('other_music')} caused pygame.error: {e}")
 
         self.game.played = True
 
