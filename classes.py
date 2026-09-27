@@ -61,6 +61,7 @@ class Slot:
         self.version = "Unknown"
         self.info = None
         self.unknown = False
+        self.unusable = False
         self.corrupted = False
         self.slots.append(self)
 
@@ -82,6 +83,11 @@ class Slot:
             except EOFError:
                 logging.warning(f"Slot {slot.id} caused EOFError.")
                 slot.used = False
+
+            except AttributeError:
+                logging.warning(f"Slot {slot.id} caused AttributeError, the slot could be old.")
+                slot.unusable = True
+
             except Exception as e:
                 logging.error(e)
                 slot.unknown = True
@@ -557,7 +563,8 @@ class Bullet:
 
         range_map = {
             MaterialFlags.BRONZE: 800,
-            MaterialFlags.SILVER: 1200
+            MaterialFlags.SILVER: 1200,
+            "__deflected__": 100_000
         }
 
         print(material)
@@ -1925,25 +1932,52 @@ class Enemy:
     DAMAGE_SILVER_GUN = "9"
     DAMAGE_SWORD = "10"
     
-    def __init__(self, hp: int, attack: int, abilities: list = None, image_name: os.PathLike = os.path.join(BASE_DIR,"images/enemyr.png"), size = 100, speed=300, damage_cooldown: Cooldown=Cooldown(2), boss=False, after_max_hp=None, name=None, summons: list = [], cooldown: Cooldown = Cooldown(10), collisions=True, damagables=[DAMAGE_BULLET, DAMAGE_BRONZE_GUN, DAMAGE_SILVER_GUN, DAMAGE_SWORD_DASH, DAMAGE_SWORD], cooldown_arrow: Cooldown = None, bagimsiz_summons=[], cooldown_bagimsiz_summons: Cooldown=Cooldown(10), arrow_image=os.path.join(BASE_DIR,r"images/arrow.png"), drops=[]):
+    def __init__(
+            self,
+            hp: int,
+            attack: int,
+            abilities: list = None,
+            r_image_name: os.PathLike = os.path.join(BASE_DIR,"images/enemyr.png"),
+            l_image_name: os.PathLike = os.path.join(BASE_DIR, r"images/enemyl.png"),
+            size = 100,
+            speed=300,
+            damage_cooldown: Cooldown=Cooldown(2),
+            cooldown: Cooldown = Cooldown(10),
+            collisions=True,
+            damagables=[
+                DAMAGE_BULLET,
+                DAMAGE_BRONZE_GUN,
+                DAMAGE_SILVER_GUN,
+                DAMAGE_SWORD_DASH,
+                DAMAGE_SWORD
+            ],
+            cooldown_arrow: Cooldown = None,
+            arrow_image=os.path.join(BASE_DIR,r"images/arrow.png"),
+            drops: list = None
+        ):
+
         self.hp = hp
         self.x = None
         self.y = None
-        self.name = name or ""
+
         self.origin_hp = hp
         self.attack = attack
         self.living = True
-        self.image_name = image_name
+        self.rimage_name = r_image_name
+        self.limage_name = l_image_name
         self.size = size
-        self.image = pygame.image.load(image_name)
-        self.image = pygame.transform.smoothscale(self.image, (int(self.image.get_width() * self.size / 100), int(self.image.get_height() * self.size / 100)))
+        self.image_r = pygame.image.load(r_image_name)
+        self.image_l = pygame.image.load(l_image_name)
+        self.image_r = pygame.transform.smoothscale(self.image_r, (int(self.image_r.get_width() * self.size / 100), int(self.image_r.get_height() * self.size / 100)))
+        self.image_l = pygame.transform.smoothscale(self.image_l, (int(self.image_l.get_width() * self.size / 100), int(self.image_l.get_height() * self.size / 100)))
+        self.uimage = self.image_r
         self.speed = speed
-        self.image_rect = self.image.get_rect()
+        self.image_rect = self.uimage.get_rect()
         self.rotated_rect = None
         self.angle = 0
         self.damaged = False
         self.damage_cooldown = damage_cooldown
-        self.boss = boss
+
         self.abilities = abilities if abilities is not None else []
 
         assert type(self.abilities) == list, f"{self}.abilities is not list"
@@ -1964,14 +1998,9 @@ class Enemy:
         self.scr_lazer_beam_cd = self.origin_cooldown + 6
         self.cat_jumping = False
         self.bombs = []
-        if self.boss:
-            self.after_max_hp = after_max_hp
-            self.summons = summons
+        self.drops = drops or []
         self.collisions = collisions
         self.damagables = damagables
-        self.bagimsiz_summons = bagimsiz_summons
-        self.bsummons_cooldown = cooldown_bagimsiz_summons
-        self.drops = drops
         self.id = str(uuid.uuid4())
         self.sgrounds: list[SplitGround] = []
         self.recoil = 0
@@ -1987,7 +2016,7 @@ class Enemy:
             x = random.randint(200, info.current_w - 200)
             y = random.randint(200, info.current_h - 200)
 
-            rect = pygame.Rect(x, y, self.image.get_width(), self.image.get_height())
+            rect = pygame.Rect(x, y, self.uimage.get_width(), self.uimage.get_height())
 
             if rect.collidelist(world.rocks_rects) == -1 and not rect.colliderect(world.dirt_rect):
                 self.x = x
@@ -2001,7 +2030,7 @@ class Enemy:
                     if in_var == world:
                         level = variable.get("Level", "Unknown")
 
-        raise EnemyPositionError(self.name, _, level)
+        raise EnemyPositionError(self.id, _, level)
     
     def update_arrows(self, player: Player, dt):
         for arrow in self.arrows:
@@ -2045,8 +2074,8 @@ class Enemy:
             
             self.x += 850 * dt if dx > 0 else -850 * dt
 
-            self.image_rect = self.image.get_rect(topleft=(self.x, self.y))
-            self.rect = self.image.get_rect(topleft=(self.x, self.y))
+            self.image_rect = self.uimage.get_rect(topleft=(self.x, self.y))
+            self.rect = self.uimage.get_rect(topleft=(self.x, self.y))
 
             if player.image_rect.colliderect(self.image_rect):
                 player.movable=False
@@ -2161,33 +2190,391 @@ class Enemy:
     def copy(self):
         return copy.deepcopy(self)
 
-    def summon(self, dt, level: list, world):
-        self.bsummons_cooldown.reduce(dt)
-        level = list(level)
-        if self.__dict__.get("summons"):
-            if self.living:
-                _withoutself = copy.deepcopy(level)
-                try:
-                    if all(not enemy.summoned for enemy in level) or self.summon_cooldown.check() and all(enemy.summoned for enemy in _withoutself):
-                        self.summon_cooldown.reduce(dt)
-                        if self.summon_cooldown.check():
-                            for summoning in self.summons:
-                                summoning: Enemy
-                                new_enemy = summoning.copy()
-                                new_enemy.summoned = True
-                                new_enemy.set_pos(world, info)
-                                level.append(new_enemy)
-                            self.summon_cooldown.refresh()
-                except TypeError:
-                    pass
-        if self.living:
-            if self.bsummons_cooldown.check():
-                for summoning in self.bagimsiz_summons:
-                    summoning: Enemy
-                    new_enemy = summoning.copy()
-                    new_enemy.set_pos(world, info)
-                    level.append(new_enemy)
-                self.bsummons_cooldown.refresh()
+    def summon(self, dt, level: dict, world, pending_enemies: list):
+        pass
+
+
+    @staticmethod
+    def draw(surface: pygame.Surface, font: userFont, level: list, bossFont: userFont = None):
+        for enemy in level:
+            enemy: Enemy
+            if enemy.living:
+
+                if type(enemy) == Boss: continue
+
+                font.draw_text(str(enemy.hp), (enemy.x+enemy.uimage.get_width()/2, enemy.y-10), surface, colours.BLACK, hiza="center")
+                surface.blit(enemy.uimage, (enemy.x, enemy.y))
+    
+    @classmethod
+    def default(cls):
+        return cls(100, 10, [])
+    
+    @classmethod
+    def miguel(cls):
+        return cls(
+            500,
+            70,
+            [EnemyAbilities.ABILITY_BOMBING],
+            r_image_name=os.path.join(BASE_DIR,r"images/miguelr.png"),
+            l_image_name=os.path.join(BASE_DIR,r"images/miguell.png"),
+            speed=270,
+            damagables=[Enemy.DAMAGE_SWORD_DASH, Enemy.DAMAGE_SILVER_BULLET],
+            drops=[Item("Miguel'in Kanı", colours.RED, [Effect("hp", 15, -1)], Item.YUVARLAK_IKSIR, Item.APPENDER)],
+            size=60
+        )
+
+    @classmethod
+    def luffy(cls):
+        return cls(
+            300,
+            25,
+            r_image_name=os.path.join(BASE_DIR,r"images/luffyr.png"),
+            l_image_name=os.path.join(BASE_DIR,r"images/luffyl.png"),
+            speed=420,
+            damagables=[Enemy.DAMAGE_SWORD_DASH],
+            size=8
+        )
+    
+    @classmethod
+    def dinosaur(cls):
+        return cls(
+            1000,
+            120,
+            r_image_name=os.path.join(BASE_DIR,r"images/urasr.png"),
+            l_image_name=os.path.join(BASE_DIR,r"images/urasl.png"),
+            speed=210,
+            size=40,
+            abilities=[EnemyAbilities.ABILITY_SPLIT_GROUND],
+            collisions=False,
+            cooldown=Cooldown(1)
+        )
+
+    @classmethod
+    def skzoo(cls, player=None, special=False):
+        player: Player
+        return cls(
+            700,
+            50,
+            r_image_name=os.path.join(BASE_DIR,r"images/denizinseyir.png"),
+            l_image_name=os.path.join(BASE_DIR,r"images/denizinseyil.png"),
+            speed=350,
+            size=12,
+            abilities=[],
+            damagables=[Enemy.DAMAGE_SWORD_DASH, Enemy.DAMAGE_BRONZE_GUN, Enemy.DAMAGE_SILVER_GUN, Enemy.DAMAGE_SILVER_BULLET],
+            drops=[Effect("hp", 0, -1, player.available_guns, [Charm("Deniz'in şeyi", os.path.join(BASE_DIR,r"images/denizinseyir.png"), 0.09, [Effect("heal_cooldown_orig", 0.75, -1, flags=(Item.EQUALER,))], [Effect("hp", 15, -1, flags=(Item.APPENDER,))], 0.45)], (Item.APPENDER))] if special else []
+        )
+
+    @classmethod
+    def floppa(cls):
+        return cls(
+            250,
+            14,
+            r_image_name=os.path.join(BASE_DIR, r"images/floppa.png"),
+            l_image_name=os.path.join(BASE_DIR, r"images/floppa.png"),
+            speed = 450,
+            abilities=[EnemyAbilities.ABILITY_CAT_JUMP],
+            damagables = [Enemy.DAMAGE_SWORD_DASH, Enemy.DAMAGE_BRONZE_GUN, Enemy.DAMAGE_BRONZE_BULLET],
+            size = 45
+        )
+
+    def update(self, player: Player, world: World, dt, level: list):
+
+
+        if not self.cat_jumping:
+
+
+            self.mx, self.my = player.x, player.y
+            if self.recoil > 0:
+
+                if self.recoil_dir == "right":
+                    new_x = self.x + (self.speed + 500) * dt
+                elif self.recoil_dir == "left":
+                    new_x = self.x - (self.speed + 500) * dt
+                self.image_rect = self.uimage.get_rect(topleft=(new_x, self.y))
+                if not self.image_rect.collidelist(world.rocks_rects) != -1 or not self.collisions:
+                    self.x = new_x
+                self.recoil -= 1 * dt
+
+            try:
+                self.dx = self.mx - self.x
+                self.dy = self.my - self.y
+            except TypeError:
+                self.set_pos(world, info)
+                self.dx = self.mx - self.x
+                self.dy = self.my - self.y
+
+            self.distance = math.hypot(self.dx, self.dy)
+
+            if self.distance > 0:
+
+                new_x = self.x + (self.dx / self.distance) * self.speed * dt
+                new_y = self.y + (self.dy / self.distance) * self.speed * dt
+                self.image_rect = self.uimage.get_rect(topleft=(new_x, new_y))
+                self.rect = self.uimage.get_rect(topleft=(new_x, new_y))
+        
+                if self.rotated_rect is None:
+                    if not self.image_rect.collidelist(world.rocks_rects) != -1 or not self.collisions:
+                        self.x += (self.dx / self.distance) * self.speed * dt
+                        self.y += (self.dy / self.distance) * self.speed * dt
+                
+                else:
+                    self.rotated_rect.topleft = (new_x, new_y)
+                    if not self.rotated_rect.collidelist(world.rocks_rects) != -1 or not self.collisions:
+                        self.x += (self.dx / self.distance) * self.speed * dt
+                        self.y += (self.dy / self.distance) * self.speed * dt
+
+            else:
+                self.touching = True
+        self.angle = math.degrees(math.atan2(-self.dy, self.dx))
+
+        if -45 < self.angle < 45:
+            self.uimage = self.image_r
+
+        elif self.angle < -135 or self.angle > 135:
+            self.uimage = self.image_l
+
+
+        self.update_sgrounds(player, dt)
+        self.sgrounds = [sg for sg in self.sgrounds if not sg.destroyed]
+        self.scr_lazers = [scr_lazer for scr_lazer in self.scr_lazers if not scr_lazer.destroyed]
+        if self.hp <= 0:
+            self.living = False
+            self.summoned = False
+            self.drops: list
+            for drop in self.drops:
+                if type(drop) == Sword or type(drop) == Gun:
+                    player.available_guns.append(drop)
+                elif type(drop) == Item:
+                    drop.set_pos(world, player)
+                    world.items.append(drop)
+                elif type(drop) == Effect:
+                    drop.use(player, ())
+                elif type(drop) == Enemy:
+                    level.append(drop)
+            self.drops.clear()
+            return
+    
+    @classmethod
+    def prepared_police(cls):
+        return cls(
+        450,
+        34,
+        r_image_name=os.path.join(BASE_DIR,r"images/enemy_policer.png"),
+        l_image_name=os.path.join(BASE_DIR,r"images/enemy_policel.png"),
+        size=120,
+        speed=280,
+        damage_cooldown=Cooldown(1.7),
+        damagables=[
+            Enemy.DAMAGE_BRONZE_GUN,
+            Enemy.DAMAGE_SILVER_GUN,
+            Enemy.DAMAGE_SWORD_DASH,
+            Enemy.DAMAGE_SILVER_BULLET
+        ]
+    )
+
+    @classmethod
+    def prepared_old(cls, random_speed=False, hp=40):
+        if random_speed:
+            speed = random.randint(350, 380)
+
+        return cls(
+            hp,
+            2,
+            r_image_name=os.path.join(BASE_DIR,r"images/enemy_oldr.png"),
+            l_image_name=os.path.join(BASE_DIR, r"images/enemy_oldl.png"),
+            size=89,
+            speed=speed if random_speed else 360,
+            damage_cooldown=Cooldown(2.1),
+            damagables=[
+                Enemy.DAMAGE_BULLET,
+                Enemy.DAMAGE_BRONZE_GUN,
+                Enemy.DAMAGE_SILVER_GUN,
+                Enemy.DAMAGE_SWORD_DASH
+            ]
+        )
+
+    def damage(self, player: Player, dt):
+        self.damage_cooldown.reduce(dt)
+
+        if self.damage_cooldown.check():
+            self.damaged = False
+
+        if not self.damaged and self.living:
+            if not player.drawing and not player.sword_attacking:
+                if self.image_rect.colliderect(player.image_rect):
+                    player.hp -= self.attack
+                    self.damaged = True
+                    self.damage_cooldown.refresh()
+
+    def reset(self, world: World):
+        self.set_pos(world, info)
+        self.living = True
+        self.hp = self.origin_hp
+        self.recoil = 0
+        self.recoil_dir = None
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        if state.get("image_r"):
+            del state["image_r"]
+            del state["image_l"]
+            del state["uimage"]
+            del state["arrow_image"]
+        
+        return state
+    
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        self.image_r = pygame.image.load(self.rimage_name)
+        self.image_r = pygame.transform.smoothscale(self.image_r, (int(self.image_r.get_width() * self.size / 100), int(self.image_r.get_height() * self.size / 100)))
+
+        self.image_l = pygame.image.load(self.limage_name)
+        self.image_l = pygame.transform.smoothscale(self.image_l, (int(self.image_l.get_width() * self.size / 100), int(self.image_l.get_height() * self.size / 100)))
+        self.uimage = self.image_r
+        self.arrow_image = pygame.image.load(self.arrow_image_name)
+
+
+class Boss(Enemy):
+    DAMAGE_SWORD_DASH = "4"
+    DAMAGE_BULLET = "5"
+    DAMAGE_BRONZE_BULLET = "6"
+    DAMAGE_SILVER_BULLET = "7"
+    DAMAGE_BRONZE_GUN = "8"
+    DAMAGE_SILVER_GUN = "9"
+    DAMAGE_SWORD = "10"
+
+    def __init__(
+            self,
+            hp,
+            attack,
+            abilities = None,
+            r_image_name = os.path.join(BASE_DIR, "images/enemyr.png"),
+            l_image_name = os.path.join(BASE_DIR, r"images/enemyl.png"),
+            size=100,
+            speed=300,
+            damage_cooldown = Cooldown(2),
+            cooldown = Cooldown(10),
+            collisions=True,
+            damagables=[DAMAGE_BULLET, DAMAGE_BRONZE_GUN, DAMAGE_SILVER_GUN, DAMAGE_SWORD_DASH, DAMAGE_SWORD],
+            cooldown_arrow = None,
+            arrow_image=os.path.join(BASE_DIR, r"images/arrow.png"),
+            drops: list = None,
+            *,
+            bagimsiz_summons_cooldown: Cooldown = Cooldown(3),
+
+            after_max_hp=None,
+            name=None,
+            bagimsiz_summons=None,
+            cooldown_bagimsiz_summons: Cooldown=Cooldown(10),
+            summons: list = None,
+            cooldown_summons = Cooldown(3),
+        ):
+
+        super().__init__(
+            hp,
+            attack,
+            abilities,
+            r_image_name,
+            l_image_name,
+            size,
+            speed,
+            damage_cooldown,
+            cooldown,
+            collisions,
+            damagables,
+            cooldown_arrow,
+            arrow_image,
+            drops=drops
+        )
+
+        self.after_max_hp = after_max_hp
+        self.name = name or ""
+        self.bagimsiz_summons = bagimsiz_summons or []
+        self.bsummons_cooldown = bagimsiz_summons_cooldown
+        self.cooldown_bagimsiz_summons = cooldown_bagimsiz_summons
+        self.drops = drops or []
+        self.summons = summons or []
+        self.summon_cooldown = cooldown_summons
+
+
+    def update(self, player: Player, world: World, dt, level: list):
+
+
+        if not self.cat_jumping:
+
+
+            self.mx, self.my = player.x, player.y
+            if self.recoil > 0:
+
+                if self.recoil_dir == "right":
+                    new_x = self.x + (self.speed + 500) * dt
+                elif self.recoil_dir == "left":
+                    new_x = self.x - (self.speed + 500) * dt
+                self.image_rect = self.uimage.get_rect(topleft=(new_x, self.y))
+                if not self.image_rect.collidelist(world.rocks_rects) != -1 or not self.collisions:
+                    self.x = new_x
+                self.recoil -= 1 * dt
+
+            try:
+                self.dx = self.mx - self.x
+                self.dy = self.my - self.y
+            except TypeError:
+                self.set_pos(world, info)
+                self.dx = self.mx - self.x
+                self.dy = self.my - self.y
+
+            self.distance = math.hypot(self.dx, self.dy)
+
+            if self.distance > 0:
+
+                new_x = self.x + (self.dx / self.distance) * self.speed * dt
+                new_y = self.y + (self.dy / self.distance) * self.speed * dt
+                self.image_rect = self.uimage.get_rect(topleft=(new_x, new_y))
+                self.rect = self.uimage.get_rect(topleft=(new_x, new_y))
+        
+                if self.rotated_rect is None:
+                    if not self.image_rect.collidelist(world.rocks_rects) != -1 or not self.collisions:
+                        self.x += (self.dx / self.distance) * self.speed * dt
+                        self.y += (self.dy / self.distance) * self.speed * dt
+                
+                else:
+                    self.rotated_rect.topleft = (new_x, new_y)
+                    if not self.rotated_rect.collidelist(world.rocks_rects) != -1 or not self.collisions:
+                        self.x += (self.dx / self.distance) * self.speed * dt
+                        self.y += (self.dy / self.distance) * self.speed * dt
+
+            else:
+                self.touching = True
+        self.angle = math.degrees(math.atan2(-self.dy, self.dx))
+
+        if -45 < self.angle < 45:
+            self.uimage = self.image_r
+
+        elif self.angle < -135 or self.angle > 135:
+            self.uimage = self.image_l
+
+        self.update_sgrounds(player, dt)
+        self.sgrounds = [sg for sg in self.sgrounds if not sg.destroyed]
+        self.scr_lazers = [scr_lazer for scr_lazer in self.scr_lazers if not scr_lazer.destroyed]
+        if self.hp <= 0:
+            self.living = False
+            self.summoned = False
+            self.drops: list
+            for drop in self.drops:
+                if type(drop) == Sword or type(drop) == Gun:
+                    player.available_guns.append(drop)
+                elif type(drop) == Item:
+                    drop.set_pos(world, player)
+                    world.items.append(drop)
+                elif type(drop) == Effect:
+                    drop.use(player, ())
+                elif type(drop) == Enemy:
+                    level.append(drop)
+            self.drops.clear()
+            if self.after_max_hp is not None:
+                player.max_hp = self.after_max_hp
+            self.after_max_hp = None
+            return
 
     @staticmethod
     def draw(surface: pygame.Surface, font: userFont, level: list, bossFont: userFont = None):
@@ -2196,13 +2583,12 @@ class Enemy:
         for enemy in level:
             enemy: Enemy
             if enemy.living:
-                if enemy.boss:
+                if type(enemy) == Boss:
                     bosses.append(enemy)
-                else:
-                    font.draw_text(str(enemy.hp), (enemy.x+enemy.image.get_width()/2, enemy.y-10), surface, colours.BLACK, hiza="center")
-                surface.blit(enemy.image, (enemy.x, enemy.y))
+                surface.blit(enemy.uimage, (enemy.x, enemy.y))
         for i, enemy in enumerate(bosses):
 
+            enemy: Boss
             if i>1:
                 continue
 
@@ -2256,81 +2642,14 @@ class Enemy:
             bossFont.draw_text(f"{enemy.origin_hp}/{enemy.hp}", (info.current_w/2, 150+i*padding), surface, colours.BLACK, hiza="center")
     
     @classmethod
-    def default(cls):
-        return cls(100, 10, [])
-    
-    @classmethod
-    def miguel(cls):
-        return cls(
-            500,
-            70,
-            [EnemyAbilities.ABILITY_BOMBING],
-            os.path.join(BASE_DIR,r"images/miguelr.png"),
-            speed=270,
-            damagables=[Enemy.DAMAGE_SWORD_DASH, Enemy.DAMAGE_SILVER_BULLET],
-            drops=[Item("Miguel'in Kanı", colours.RED, [Effect("hp", 15, -1)], Item.YUVARLAK_IKSIR, Item.APPENDER)],
-            size=60
-        )
-
-    @classmethod
-    def luffy(cls):
-        return cls(
-            300,
-            25,
-            image_name=os.path.join(BASE_DIR,r"images/luffyr.png"),
-            speed=420,
-            damagables=[Enemy.DAMAGE_SWORD_DASH],
-            size=8
-        )
-    
-    @classmethod
-    def dinosaur(cls):
-        return cls(
-            1000,
-            120,
-            image_name=os.path.join(BASE_DIR,r"images/urasr.png"),
-            speed=210,
-            size=40,
-            abilities=[EnemyAbilities.ABILITY_SPLIT_GROUND],
-            collisions=False,
-            cooldown=Cooldown(1)
-        )
-
-    @classmethod
-    def skzoo(cls, player=None, special=False):
-        player: Player
-        return cls(
-            700,
-            50,
-            image_name=os.path.join(BASE_DIR,r"images/denizinseyir.png"),
-            speed=350,
-            size=12,
-            abilities=[],
-            damagables=[Enemy.DAMAGE_SWORD_DASH, Enemy.DAMAGE_BRONZE_GUN, Enemy.DAMAGE_SILVER_GUN],
-            drops=[Effect("hp", 0, -1, player.available_guns, [Charm("Deniz'in şeyi", os.path.join(BASE_DIR,r"images/denizinseyir.png"), 0.09, [Effect("heal_cooldown_orig", 0.75, -1, flags=(Item.EQUALER,))], [Effect("hp", 15, -1, flags=(Item.APPENDER,))], 0.45)], (Item.APPENDER))] if special else []
-        )
-
-    @classmethod
-    def floppa(cls):
-        return cls(
-            250,
-            14,
-            image_name=os.path.join(BASE_DIR, r"images/floppa.png"),
-            speed = 450,
-            abilities=[EnemyAbilities.ABILITY_CAT_JUMP],
-            damagables = [Enemy.DAMAGE_SWORD_DASH, Enemy.DAMAGE_BRONZE_GUN, Enemy.DAMAGE_BRONZE_BULLET],
-            size = 45
-        )
-
-    @classmethod
     def demirbt(cls):
         return cls(
             10_000,
             200,
-            image_name=os.path.join(BASE_DIR, r"images/demirboklutf.png"),
+            r_image_name=os.path.join(BASE_DIR, r"images/demirboklutf.png"),
+            l_image_name=os.path.join(BASE_DIR, r"images/demirboklutf.png"),
             size=30,
             abilities=[EnemyAbilities.ABILITY_BOMBING, EnemyAbilities.ABILITY_SCR_LAZER_BEAM],
-            boss=True,
             name="Demirin Boklu Telefonu",
             damage_cooldown = Cooldown(3.4),
             cooldown=Cooldown(7),
@@ -2339,173 +2658,62 @@ class Enemy:
             collisions=False
         )
 
-    def update(self, player: Player, world: World, dt, level: list):
+    def summon(self, dt, level: dict, world, pending_enemies: list):
+        self.bsummons_cooldown.reduce(dt)
 
+        if self.summons and self.living:
 
-        if not self.cat_jumping:
+            # Kendisi hariç mevcut düşmanlar
+            without_self = (
+                enemy
+                for enemy in level.values()
+                if enemy is not self
+            )
 
+            # Henüz summon edilmemiş düşmanlar
+            all_not_summoned = all(
+                not enemy.summoned
+                for enemy in without_self
+            )
 
-            self.mx, self.my = player.x, player.y
-            if self.recoil > 0:
-
-                if self.recoil_dir == "right":
-                    new_x = self.x + (self.speed + 500) * dt
-                elif self.recoil_dir == "left":
-                    new_x = self.x - (self.speed + 500) * dt
-                self.image_rect = self.image.get_rect(topleft=(new_x, self.y))
-                if not self.image_rect.collidelist(world.rocks_rects) != -1 or not self.collisions:
-                    self.x = new_x
-                self.recoil -= 1 * dt
-
-            try:
-                self.dx = self.mx - self.x
-                self.dy = self.my - self.y
-            except TypeError:
-                self.set_pos(world, info)
-                self.dx = self.mx - self.x
-                self.dy = self.my - self.y
-
-            self.distance = math.hypot(self.dx, self.dy)
-
-            if self.distance > 0:
-
-                new_x = self.x + (self.dx / self.distance) * self.speed * dt
-                new_y = self.y + (self.dy / self.distance) * self.speed * dt
-                self.image_rect = self.image.get_rect(topleft=(new_x, new_y))
-                self.rect = self.image.get_rect(topleft=(new_x, new_y))
-        
-                if self.rotated_rect is None:
-                    if not self.image_rect.collidelist(world.rocks_rects) != -1 or not self.collisions:
-                        self.x += (self.dx / self.distance) * self.speed * dt
-                        self.y += (self.dy / self.distance) * self.speed * dt
-                
-                else:
-                    self.rotated_rect.topleft = (new_x, new_y)
-                    if not self.rotated_rect.collidelist(world.rocks_rects) != -1 or not self.collisions:
-                        self.x += (self.dx / self.distance) * self.speed * dt
-                        self.y += (self.dy / self.distance) * self.speed * dt
+            if all_not_summoned:
+                should_summon = True
 
             else:
-                self.touching = True
-        self.angle = math.degrees(math.atan2(-self.dy, self.dx))
-        old_image_name = self.image_name
+                self.summon_cooldown.reduce(dt)
 
-        if -45 < self.angle < 45:
-            self.image_name = self.image_name.replace("l.png", "r.png")
-
-        elif self.angle < -135 or self.angle > 135:
-            self.image_name = self.image_name.replace("r.png", "l.png")
-
-        if self.image_name != old_image_name:
-            self.image = pygame.image.load(os.path.join(BASE_DIR,self.image_name)).convert_alpha()
-            self.image = pygame.transform.smoothscale(
-                self.image,
-                (
-                    int(self.image.get_width() * self.size / 100),
-                    int(self.image.get_height() * self.size / 100)
+                # Kendisi hariç bütün düşmanlar summon edilmiş mi?
+                should_summon = (
+                    self.summon_cooldown.check()
+                    and all(
+                        enemy.summoned
+                        for enemy in level.values()
+                        if enemy is not self
+                    )
                 )
-            )
-        self.update_sgrounds(player, dt)
-        self.sgrounds = [sg for sg in self.sgrounds if not sg.destroyed]
-        self.scr_lazers = [scr_lazer for scr_lazer in self.scr_lazers if not scr_lazer.destroyed]
-        if self.hp <= 0:
-            self.living = False
-            self.summoned = False
-            self.drops: list
-            for drop in self.drops:
-                if type(drop) == Sword or type(drop) == Gun:
-                    player.available_guns.append(drop)
-                elif type(drop) == Item:
-                    drop.set_pos(world, player)
-                    world.items.append(drop)
-                elif type(drop) == Effect:
-                    drop.use(player, ())
-                elif type(drop) == Enemy:
-                    level.append(drop)
-            self.drops.clear()
-            if self.boss:
-                if self.after_max_hp is not None:
-                    player.max_hp = self.after_max_hp
-                self.after_max_hp = None
-            return
-    
-    @classmethod
-    def create_boss(cls, hp, attack, name: str, after_max_hp: int, cooldown: Cooldown = Cooldown(10), abilities: list = [], summons: list = [], image_name = os.path.join(BASE_DIR,r"images/enemyr.png")):
-        return cls(hp, attack, boss=True, name=name, after_max_hp=after_max_hp, cooldown=cooldown, abilities=abilities, summons=summons, image_name=image_name)
-    
-    @classmethod
-    def prepared_police(cls):
-        return cls(
-        450,
-        34,
-        image_name=os.path.join(BASE_DIR,r"images/enemy_policer.png"),
-        size=120,
-        speed=280,
-        damage_cooldown=Cooldown(1.7),
-        damagables=[
-            Enemy.DAMAGE_BRONZE_GUN,
-            Enemy.DAMAGE_SILVER_GUN,
-            Enemy.DAMAGE_SWORD_DASH,
-            Enemy.DAMAGE_SILVER_BULLET
-        ]
-    )
 
-    @classmethod
-    def prepared_old(cls, random_speed=False, hp=40):
-        if random_speed:
-            speed = random.randint(350, 380)
+            if should_summon:
+                for summoning in self.summons:
+                    new_enemy = summoning.copy()
 
-        return cls(
-            hp,
-            2,
-            image_name=os.path.join(BASE_DIR,r"images/enemy_oldr.png"),
-            size=89,
-            speed=speed if random_speed else 360,
-            damage_cooldown=Cooldown(2.1),
-            damagables=[
-                Enemy.DAMAGE_BULLET,
-                Enemy.DAMAGE_BRONZE_GUN,
-                Enemy.DAMAGE_SILVER_GUN,
-                Enemy.DAMAGE_SWORD_DASH
-            ]
-        )
+                    new_enemy.summoned = True
+                    new_enemy.set_pos(world, info)
 
-    def damage(self, player: Player, dt):
-        self.damage_cooldown.reduce(dt)
+                    pending_enemies.append(new_enemy)
 
-        if self.damage_cooldown.check():
-            self.damaged = False
+                self.summon_cooldown.refresh()
 
-        if not self.damaged and self.living:
-            if not player.drawing and not player.sword_attacking:
-                if self.image_rect.colliderect(player.image_rect):
-                    player.hp -= self.attack
-                    self.damaged = True
-                    self.damage_cooldown.refresh()
+        # Bağımsız summonlar
+        if self.living and self.bsummons_cooldown.check():
 
-    def reset(self, world: World):
-        self.set_pos(world, info)
-        self.living = True
-        self.hp = self.origin_hp
-        self.recoil = 0
-        self.recoil_dir = None
+            for summoning in self.bagimsiz_summons:
+                new_enemy = summoning.copy()
+                new_enemy.set_pos(world, info)
 
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        if state.get("image"):
-            del state["image"]
-            del state["arrow_image"]
-        
-        return state
-    
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-        self.image = pygame.image.load(self.image_name)
-        self.image = pygame.transform.smoothscale(self.image, (int(self.image.get_width() * self.size / 100), int(self.image.get_height() * self.size / 100)))
-        self.arrow_image = pygame.image.load(self.arrow_image_name)
+                pending_enemies.append(new_enemy)
 
+            self.bsummons_cooldown.refresh()
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 logging.info("Created classes.")
@@ -2516,7 +2724,7 @@ item_map = {
 }
 
 level1 = [
-    Enemy(100, 5, image_name=os.path.join(BASE_DIR,r"images/enemyr.png"))
+    Enemy(100, 5)
 ]
 
 
@@ -2540,7 +2748,7 @@ for enemy in globals()[defaults["Level"]]:
     enemy.set_pos(defaults["World"], info)
 
 # hileli silah
-# defaults["Player"].available_guns.append(Gun("At Kafası", colours.lighter(colours.BLACK, 30), 40, 800, os.path.join(BASE_DIR,r"images/silver_silahr.png"), os.path.join(BASE_DIR,r"images/silver_silah_mermi.png"), 0.03, MaterialFlags.SILVER))
+# defaults["Player"].available_guns.append(Gun("At Kafası", colours.lighter(colours.BLACK, 30), 40, 800, os.path.join(BASE_DIR,r"images/silver_silahr.png"), os.path.join(BASE_DIR,r"images/silver_silah_mermi.png"), 0.03, "__deflected__"))
 
 def reset(screen_x: int, screen_y: int, game: dict):
     logging.info("Called reset.")

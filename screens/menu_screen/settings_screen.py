@@ -195,6 +195,8 @@ class SettingsScreen(MenuScreen):
 
             self.game.settings.get_element("other_music").showing_icons = []
 
+        Lang.USING_LANG = self.game.settings.get("language")
+
 
     def handle_event(self, event: pygame.event.Event):
 
@@ -233,7 +235,7 @@ class SettingsScreen(MenuScreen):
 
         self.update_running = True
         self.update_progress = 0
-        self.update_status = "Güncellemeler kontrol ediliyor..."
+        self.update_status = self.langs["checking_updates"]()
 
         self.update_thread = threading.Thread(
             target=self.update_worker,
@@ -252,13 +254,13 @@ class SettingsScreen(MenuScreen):
             if update is None:
 
                 self.update_status = (
-                    "Oyun zaten güncel."
+                    self.langs["update_up_on_date"]()
                 )
 
                 return
 
             self.update_status = (
-                f"Yeni sürüm bulundu: "
+                f"{self.langs['new_ver_found']()} "
                 f"{update['version']}"
             )
 
@@ -278,14 +280,13 @@ class SettingsScreen(MenuScreen):
             self.update_progress = 100
 
             self.update_status = (
-                "Güncelleme hazır. "
-                "Oyun kapatıldığında uygulanacak."
+                self.langs["update_is_ready"]()
             )
 
         except Exception as e:
 
             self.update_status = (
-                "Güncelleme hatası: Beklenmeyen bir hata oluştu."
+                self.langs["update_error"]()
             )
 
             print(

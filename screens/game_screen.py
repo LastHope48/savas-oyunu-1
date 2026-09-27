@@ -146,6 +146,13 @@ class GameScreen(Screen):
             font1
         )
 
+        classes.Boss.draw(
+            surface,
+            font3,
+            list(self.game.game_data.enemy_data.values()),
+            font1
+        )
+
         self.game.game_data.player.draw(surface)
         self.game.game_data.player.draw_dash(surface)
         self.game.game_data.player.draw_teleport(surface)
@@ -233,14 +240,24 @@ class GameScreen(Screen):
                 if type(self.game.game_data.player.using_gun) == classes.Sword:
                     self.game.game_data.player.deflect(self.game.game_data.enemy_data.values(), dt)
 
+                pending_enemies = []
+
                 for enemy in self.game.game_data.enemy_data.values():
                     enemy: classes.Enemy
                     enemy.update(self.game.game_data.player, self.game.game_data.world, dt, self.game.game_data.enemy_data.values())
                     enemy.update_arrows(self.game.game_data.player, dt)
-                    enemy.summon(dt, self.game.game_data.enemy_data.values(), self.game.game_data.world)
+                    enemy.summon(
+                        dt,
+                        self.game.game_data.enemy_data,
+                        self.game.game_data.world,
+                        pending_enemies
+                    )
                     enemy.update_bombs(self.game.game_data.player, dt)
                     enemy.update_cat_jump(self.game.game_data.player, dt)
                     enemy.update_scr_lazers(self.game.game_data.player, dt)
+                
+                for enemy in pending_enemies:
+                    self.game.game_data.enemy_data[enemy.id] = enemy
 
                 for item in self.game.game_data.world.items:
                     item.update_pos(dt)
@@ -378,6 +395,9 @@ class GameScreen(Screen):
 
         elif self.esc_screen:
             if self.new_game_button.clicked(event, ScreenType.GAME):
+                if self.game.settings.get("sfx"):
+                    self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
+
                 self.game.game_data = GameData.to_gamedata(game_data_defaults)
                 game_screen = self.game.screen_manager.get_screen(ScreenType.GAME)
                 game_screen.start_new_game()
@@ -385,24 +405,39 @@ class GameScreen(Screen):
                 return
 
             if self.continue_button.clicked(event, ScreenType.GAME):
+                if self.game.settings.get("sfx"):
+                    self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
+
                 self.esc_screen = False
                 return
 
             if self.save_button.clicked(event, ScreenType.GAME):
+                if self.game.settings.get("sfx"):
+                    self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
                 self.game.screen_manager.set_screen(ScreenType.SAVE, screen_type_before=ScreenType.GAME)
 
             if self.load_button.clicked(event, ScreenType.GAME):
+
+                if self.game.settings.get("sfx"):
+                    self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
                 self.game.screen_manager.set_screen(ScreenType.LOAD, screen_type_before=ScreenType.GAME)
 
             if self.settings_button.clicked(event, ScreenType.GAME):
+
+                if self.game.settings.get("sfx"):
+                    self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
                 self.game.screen_manager.set_screen(ScreenType.SETTINGS)
 
             if self.quit_button.clicked(event, ScreenType.GAME):
+
+                if self.game.settings.get("sfx"):
+                    self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
                 self.game.running = False
                 return
 
     def check_win(self):
         if self.game.game_data.win:
+            self.game.achievements.unlock("win")
             self.game.screen_manager.set_screen(ScreenType.WIN)
 
     def update_level(self):

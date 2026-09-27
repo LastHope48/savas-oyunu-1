@@ -26,11 +26,11 @@ bronze_gun = classes.Gun("Normal Silah", colours.lighter(colours.BLACK, 30), 20,
 silver_gun = classes.Gun("Gümüş Silah", colours.lighter(colours.BLACK, 30), 40, 640, os.path.join(BASE_DIR,r"images/silver_silahr.png"), os.path.join(BASE_DIR,r"images/silver_silah_mermi.png"), 0.15, classes.MaterialFlags.SILVER)
 
 level1 = [
-    classes.Enemy(100, 5, image_name=os.path.join(BASE_DIR,r"images/enemyr.png"))
+    classes.Enemy(100, 5)
 ]
 
 level2 = [
-    classes.Enemy(100, 5, image_name=os.path.join(BASE_DIR,r"images/enemyr.png"))
+    classes.Enemy(100, 5)
 ]
 
 level3 = [
@@ -40,39 +40,42 @@ level3 = [
 ]
 
 level4 = [
-    classes.Enemy(200, 30, size=200, boss=True, after_max_hp=350, name="Fondöten")
+    classes.Boss(200, 30, size=200, after_max_hp=350, name="Fondöten")
 ]
 
 level5 = [
-    classes.Enemy(150, 5, image_name=os.path.join(BASE_DIR,r"images/enemypurpler.png"), speed=500, damage_cooldown=Cooldown(0.3))
+    classes.Enemy(150, 5, r_image_name=os.path.join(BASE_DIR,r"images/enemypurpler.png"), l_image_name=os.path.join(BASE_DIR,r"images/enemypurplel.png"),  speed=500, damage_cooldown=Cooldown(0.3))
 ]
 
 level6 = [
-    classes.Enemy(30, 10, [classes.EnemyAbilities.ABILITY_ARROWS], image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png"))
+    classes.Enemy(30, 10, [classes.EnemyAbilities.ABILITY_ARROWS], r_image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png"), l_image_name=os.path.join(BASE_DIR, r"images/enemy_arrowl.png"))
 ]
 
 level7 = [
-    classes.Enemy(50, 5, [classes.EnemyAbilities.ABILITY_ARROWS], speed=250, image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png")),
-    classes.Enemy(50, 5, [classes.EnemyAbilities.ABILITY_ARROWS], speed=250, image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png")),
-    classes.Enemy(50, 5, [classes.EnemyAbilities.ABILITY_ARROWS], speed=250, image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png")),
-    classes.Enemy(50, 5, [classes.EnemyAbilities.ABILITY_ARROWS], speed=250, image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png")),
-    classes.Enemy(50, 5, [classes.EnemyAbilities.ABILITY_ARROWS], speed=250, image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png")),
+    classes.Enemy(50, 5, [classes.EnemyAbilities.ABILITY_ARROWS], speed=250, r_image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png"), l_image_name=os.path.join(BASE_DIR, r"images/enemy_arrowl.png")),
+    classes.Enemy(50, 5, [classes.EnemyAbilities.ABILITY_ARROWS], speed=250, r_image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png"), l_image_name=os.path.join(BASE_DIR, r"images/enemy_arrowl.png")),
+    classes.Enemy(50, 5, [classes.EnemyAbilities.ABILITY_ARROWS], speed=250, r_image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png"), l_image_name=os.path.join(BASE_DIR, r"images/enemy_arrowl.png")),
+    classes.Enemy(50, 5, [classes.EnemyAbilities.ABILITY_ARROWS], speed=250, r_image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png"), l_image_name=os.path.join(BASE_DIR, r"images/enemy_arrowl.png")),
+    classes.Enemy(50, 5, [classes.EnemyAbilities.ABILITY_ARROWS], speed=250, r_image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png"), l_image_name=os.path.join(BASE_DIR, r"images/enemy_arrowl.png")),
 ]
 
-alberta_summon = classes.Enemy(60, 7, [classes.EnemyAbilities.ABILITY_ARROWS], os.path.join(BASE_DIR,r"images/enemy_arrowr.png"), speed=250 ,cooldown=Cooldown(5))
+alberta_summon = classes.Enemy(60, 7, [classes.EnemyAbilities.ABILITY_ARROWS], r_image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png"), l_image_name=os.path.join(BASE_DIR, r"images/enemy_arrowl.png") ,speed=250 ,cooldown=Cooldown(5))
 level8 = [
     classes.Enemy(120, 12, speed=350, damage_cooldown=Cooldown(1.7)),
     classes.Enemy(40, 46, speed=200, damage_cooldown=Cooldown(1), size=120),
     classes.Enemy(100, 4, speed=450, damage_cooldown=Cooldown(1.7)),
     classes.Enemy(80, 3, speed=120, damage_cooldown=Cooldown(1.7)),
-    classes.Enemy(50, 4, [classes.EnemyAbilities.ABILITY_ARROWS], speed=350, damage_cooldown=Cooldown(3), image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png")),
-    classes.Enemy(50, 4, [classes.EnemyAbilities.ABILITY_ARROWS], speed=350, damage_cooldown=Cooldown(3), image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png")),
-    classes.Enemy(50, 4, [classes.EnemyAbilities.ABILITY_ARROWS], speed=350, damage_cooldown=Cooldown(3), image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png")),
-    classes.Enemy(1600, 45, [classes.EnemyAbilities.ABILITY_ARROWS, classes.EnemyAbilities.ABILITY_BOMBING], damage_cooldown=Cooldown(1.2), boss=True, after_max_hp=500, name="Kraliçe El Abraham", image_name=os.path.join(BASE_DIR,r"images/AlbertaChibir.png"), size=20, speed=200, cooldown=Cooldown(3), summons=[
+    classes.Enemy(50, 4, [classes.EnemyAbilities.ABILITY_ARROWS], speed=350, damage_cooldown=Cooldown(3), r_image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png"), l_image_name=os.path.join(BASE_DIR, r"images/enemy_arrowl.png")),
+    classes.Enemy(50, 4, [classes.EnemyAbilities.ABILITY_ARROWS], speed=350, damage_cooldown=Cooldown(3), r_image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png"), l_image_name=os.path.join(BASE_DIR, r"images/enemy_arrowl.png")),
+    classes.Enemy(50, 4, [classes.EnemyAbilities.ABILITY_ARROWS], speed=350, damage_cooldown=Cooldown(3), r_image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png"), l_image_name=os.path.join(BASE_DIR, r"images/enemy_arrowl.png")),
+
+
+    classes.Boss(1600, 45, [classes.EnemyAbilities.ABILITY_ARROWS, classes.EnemyAbilities.ABILITY_BOMBING], damage_cooldown=Cooldown(1.2), after_max_hp=500, name="Kraliçe El Abraham", r_image_name=os.path.join(BASE_DIR,r"images/AlbertaChibir.png"), l_image_name=os.path.join(BASE_DIR, r"images/AlbertaChibil.png"),size=20, speed=200, cooldown=Cooldown(3), summons=[
         alberta_summon.copy(),
         alberta_summon.copy(),
         alberta_summon.copy()
     ],
+
     collisions=False,
     arrow_image=os.path.join(BASE_DIR,r"images/arrow_gold.png"))
 ]
@@ -92,15 +95,15 @@ level11 = [
     classes.Enemy.prepared_police(),
     classes.Enemy.prepared_police(),
     classes.Enemy.prepared_police(),
-    classes.Enemy(
+    classes.Boss(
         2200,
         57,
         [classes.EnemyAbilities.ABILITY_ARROWS, classes.EnemyAbilities.ABILITY_BOMBING],
         os.path.join(BASE_DIR,r"images/ampul_adamr.png"),
+        os.path.join(BASE_DIR, r"images/ampul_adaml.png"),
         10,
         speed=340,
         damage_cooldown=Cooldown(0.7),
-        boss=True,
         after_max_hp=950,
         name="Ampul Adam",
         summons=[
@@ -112,14 +115,14 @@ level11 = [
         cooldown_bagimsiz_summons=Cooldown(1),
         arrow_image=os.path.join(BASE_DIR,r"images/ampul_adam_arrow.png")
     ),
-    classes.Enemy(
+    classes.Boss(
         900,
         12,
         [classes.EnemyAbilities.ABILITY_BOMBING],
-        image_name=os.path.join(BASE_DIR,r"images/enemypurpler.png"),
+        r_image_name=os.path.join(BASE_DIR,r"images/enemypurpler.png"),
+        l_image_name=os.path.join(BASE_DIR,r"images/enemypurplel.png"),
         size=250,
         speed=340,
-        boss=True,
         name="Aile ve Yasaklar Bakanı",
         drops=[silver_gun, classes.Effect("heal_cooldown_orig", 3.5, -1, flags=(classes.Item.EQUALER,))]
     )
@@ -184,7 +187,7 @@ level17 = [
     classes.Enemy.miguel(),
     classes.Enemy.miguel(),
     classes.Enemy.miguel(),
-    classes.Enemy.demirbt()
+    classes.Boss.demirbt()
 ]
 
 levels: list[list[classes.Enemy]] = []
@@ -203,7 +206,7 @@ del _ordu
 _ordu = list(classes.Enemy.prepared_old(True) for _ in range(10))
 for enemy in _ordu:
     for level_enemy in level11:
-        if level_enemy.boss:
+        if type(level_enemy) == classes.Boss:
             level_enemy.summons.append(enemy)
             break
 del _ordu

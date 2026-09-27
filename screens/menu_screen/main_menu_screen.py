@@ -20,7 +20,7 @@ class MainMenuScreen(MenuScreen):
             "new_game_button": Lang(türkçe="Yeni Oyun", english="New Game"),
             "continue_button": Lang(türkçe="Devam Et", english="Continue"),
             "load_button": Lang(türkçe="Yükle", english="Load"),
-            "save_button": Lang(türkçe="Kaydet", english="Save"),
+            "achivements_button": Lang(türkçe="Başarılar", english="Achivements"),
             "settings_button": Lang(türkçe="Ayarlar", english="Settings"),
             "quit_button": Lang(türkçe="Çık", english="Quit"),
             "date_info": Lang(türkçe="Tarih", english="Date"),
@@ -60,9 +60,9 @@ class MainMenuScreen(MenuScreen):
             colours.darker(colours.YELLOW, 50)
         )
 
-        self.save_button = Button(
+        self.achivements_button = Button(
             0, 0, 300, 80,
-            "Kaydet",
+            "Başarılar",
             font1,
             colours.YELLOW,
             colours.WHITE,
@@ -135,7 +135,7 @@ class MainMenuScreen(MenuScreen):
         self.new_game_button.draw(surface)
         self.continue_button.draw(surface)
         self.load_button.draw(surface)
-        self.save_button.draw(surface)
+        self.achivements_button.draw(surface)
         self.settings_button.draw(surface)
         self.quit_button.draw(surface)
         if self.last:
@@ -163,10 +163,10 @@ class MainMenuScreen(MenuScreen):
         self.load_button.height = calculate_size(80, 800, height)
         self.load_button.text = self.langs['load_button'].get(self.game.settings.get('language'))
 
-        self.save_button.set_center(width * 0.5, height * 0.66)
-        self.save_button.width = calculate_size(300, 800, width)
-        self.save_button.height = calculate_size(80, 800, height)
-        self.save_button.text = self.langs['save_button'].get(self.game.settings.get('language'))
+        self.achivements_button.set_center(width * 0.5, height * 0.66)
+        self.achivements_button.width = calculate_size(300, 800, width)
+        self.achivements_button.height = calculate_size(80, 800, height)
+        self.achivements_button.text = self.langs['achivements_button'].get(self.game.settings.get('language'))
 
         self.settings_button.set_center(width * 0.5, height * 0.79)
         self.settings_button.width = calculate_size(300, 800, width)
@@ -199,6 +199,7 @@ class MainMenuScreen(MenuScreen):
 
             self.game.game_data = GameData.to_gamedata(game_data_defaults)
             game_screen = self.game.screen_manager.get_screen(ScreenType.GAME)
+
             game_screen.start_new_game()
             self.game.screen_manager.set_screen(ScreenType.GAME)
             return
@@ -215,12 +216,12 @@ class MainMenuScreen(MenuScreen):
                 self.game.screen_manager.set_screen(ScreenType.GAME)
                 return
 
-        if self.save_button.clicked(event, ScreenType.MENU):
+        if self.achivements_button.clicked(event, ScreenType.MENU):
 
             if self.game.settings.get("sfx"):
                 self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
 
-            self.game.screen_manager.set_screen(ScreenType.SAVE, screen_type_before=ScreenType.MENU)
+            self.game.screen_manager.set_screen(ScreenType.ACHIEVEMENTS, screen_type_before=ScreenType.MENU)
 
         if self.load_button.clicked(event, ScreenType.MENU):
 

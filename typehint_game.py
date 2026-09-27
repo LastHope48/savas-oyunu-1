@@ -12,6 +12,8 @@ from pass_manager import HashManager
 from settings import Settings
 from console import CommandParser
 from sfx_manager import SFXManager
+from achievements import Achievements
+from device_id import DeviceID
 from dump import Dump
 
 class Game:
@@ -33,7 +35,11 @@ class Game:
         self.settings: Settings
         self.command_parser: CommandParser
         self.sfx_manager: SFXManager
+        self.achievements: Achievements
+        self.device: DeviceID
         self.dump: Dump
+        self.illegal: bool
+        self.offline: bool
 
         self.game_data: GameData
         self.screen_manager: ScreenManager

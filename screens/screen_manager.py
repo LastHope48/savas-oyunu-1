@@ -4,6 +4,8 @@ from .menu_screen.main_menu_screen import MainMenuScreen
 from .menu_screen.load_screen import LoadScreen
 from .menu_screen.save_screen import SaveScreen
 from .menu_screen.settings_screen import SettingsScreen
+from .menu_screen.achievements_screen import AchievementsScreen
+
 from .win_screen import WinScreen
 from .lose_screen import LoseScreen
 from .game_screen import GameScreen
@@ -21,6 +23,7 @@ class ScreenManager:
             ScreenType.LOAD: LoadScreen(self.game),
             ScreenType.SAVE: SaveScreen(self.game),
             ScreenType.SETTINGS: SettingsScreen(self.game),
+            ScreenType.ACHIEVEMENTS: AchievementsScreen(self.game),
             ScreenType.WIN: WinScreen(self.game),
             ScreenType.LOSE: LoseScreen(self.game),
             ScreenType.WARN: WarnScreen(self.game),

@@ -172,8 +172,13 @@ class SaveManager:
                 except _pickle.UnpicklingError:
                     logging.warning(f"Save '{filename}' is corrupted.")
                     continue
+
                 except EOFError:
                     logging.warning(f"Loading save '{filename}' caused EOFError")
+                    continue
+
+                except AttributeError:
+                    logging.warning(f"Loading save '{filename}' caused AttributeError, save could be old.")
                     continue
 
             info = save["info"]

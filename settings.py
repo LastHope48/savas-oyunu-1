@@ -222,7 +222,8 @@ class Slider(SettingElement):
         background_image=None,
         knob_image=None,
         size=None,
-        icons=None
+        icons=None,
+        slide_sfx: pygame.mixer.Sound=None
     ):
         if size is None:
             size = self.default_size
@@ -237,6 +238,8 @@ class Slider(SettingElement):
         self.min = min_value
         self.max = max_value
         self.step = step
+
+        self.slide_sfx = slide_sfx
 
         self.knob_image = self.prepare_knob(
             knob_image
@@ -370,16 +373,27 @@ class Slider(SettingElement):
                 self.rect.height // 2
             )
 
-    def handle_event(self, event, value):
-
+    def handle_event(
+        self,
+        event,
+        value,
+        *,
+        volume: float = 0.0,
+        play: bool = False
+    ):
         if event.type == pygame.MOUSEBUTTONDOWN:
 
             if self.rect.collidepoint(event.pos):
                 self.dragging = True
 
-                return self.calculate_value(
-                    event.pos[0]
-                )
+                new_value = self.calculate_value(event.pos[0])
+
+                if new_value != value:
+                    if self.slide_sfx is not None and play:
+                        self.slide_sfx.set_volume(volume)
+                        self.slide_sfx.play()
+
+                return new_value
 
         elif event.type == pygame.MOUSEBUTTONUP:
 
@@ -388,9 +402,17 @@ class Slider(SettingElement):
         elif event.type == pygame.MOUSEMOTION:
 
             if self.dragging:
-                return self.calculate_value(
-                    event.pos[0]
-                )
+
+                new_value = self.calculate_value(event.pos[0])
+
+                # Sadece slider değeri değiştiyse ses çal
+                if new_value != value:
+
+                    if self.slide_sfx is not None and play:
+                        self.slide_sfx.set_volume(volume)
+                        self.slide_sfx.play()
+
+                    return new_value
 
         return value
 
@@ -671,14 +693,16 @@ class Settings:
                 "type": "slider",
                 "min": 0.0,
                 "max": 1.0,
-                "step": 0.1
+                "step": 0.1,
+                "slide_sfx": pygame.mixer.Sound(os.path.join(BASE_DIR, r"sounds/slide_bar_sfx.wav"))
             },
 
             "sfx_volume": {
                 "type": "slider",
                 "min": 0.0,
                 "max": 1.0,
-                "step": 0.1
+                "step": 0.1,
+                "slide_sfx": pygame.mixer.Sound(os.path.join(BASE_DIR, r"sounds/slide_bar_sfx.wav"))
             },
 
             "other_music": {
@@ -695,7 +719,8 @@ class Settings:
                 "type": "slider",
                 "min": 30,
                 "max": 240,
-                "step": 10
+                "step": 10,
+                "slide_sfx": pygame.mixer.Sound(os.path.join(BASE_DIR, r"sounds/slide_bar_sfx.wav"))
             },
 
             "language": {
@@ -859,6 +884,14 @@ class Settings:
                     play=self.get("sfx")
                 )
 
+            elif type(element) == Slider:
+                new_value = element.handle_event(
+                    event,
+                    old_value,
+                    volume=self.get("sfx_volume"),
+                    play=self.get("sfx")
+                )
+
             else:
 
                 new_value = element.handle_event(
@@ -919,6 +952,8 @@ class Settings:
                     images.get("knob")
                 )
 
+                slide_sfx = option.get("slide_sfx")
+
                 icons = option.get("icons", {})
 
                 element = Slider(
@@ -928,7 +963,8 @@ class Settings:
                     option.get("step", 1),
                     background_image,
                     knob_image,
-                    icons=icons
+                    icons=icons,
+                    slide_sfx=slide_sfx
                 )
 
             elif element_type == "select":

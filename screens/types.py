@@ -5,6 +5,7 @@ class ScreenType(Enum):
     GAME = auto()
     LOAD = auto()
     SAVE = auto()
+    ACHIEVEMENTS = auto()
     SETTINGS = auto()
     WIN = auto()
     LOSE = auto()

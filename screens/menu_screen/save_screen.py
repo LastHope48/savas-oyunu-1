@@ -21,6 +21,7 @@ class SaveScreen(MenuScreen):
             "empty_slot": Lang(türkçe="Boş Slot", english="Empty Slot"),
             "unknown_error_slot": Lang(türkçe="Bilinmeyen Hata", english="Unknown Error"),
             "corrupted_slot": Lang(türkçe="Bozuk Slot", english="Corrupted Slot"),
+            "unusable_slot": Lang(türkçe="Kullanılamaz Slot", english="Unusable Slot"),
             "version_slot": Lang(türkçe="Sürüm", english="Version"),
             "previous": Lang(türkçe="Önceki", english="Previous"),
             "next": Lang(türkçe="Sonraki", english="Next"),
@@ -119,9 +120,14 @@ class SaveScreen(MenuScreen):
                     slot.display.text += f"\n{self.langs['empty_slot'].get(self.game.settings.get('language'))}"
 
                 elif slot.unknown:
+                    slot.display.color = colours.WHITE
+                    slot.display.on_mouse_color = colours.WHITE
+                    slot.display.text += f"\n{self.langs['unknown_error_slot'].get(self.game.settings.get('language'))}"
+
+                elif slot.unusable:
                     slot.display.color = colours.GRAY
                     slot.display.on_mouse_color = colours.GRAY
-                    slot.display.text += f"\n{self.langs['unknown_error_slot'].get(self.game.settings.get('language'))}"
+                    slot.display.text += f"\n{self.langs['unusable_slot'].get(self.game.settings.get('language'))}"
 
                 else:
                     slot.display.text += f"\n{self.langs['empty_slot'].get(self.game.settings.get('language'))}"

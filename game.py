@@ -6,6 +6,7 @@ from classes import defaults as game_data_defaults
 import classes
 from flags import SUCCESS, FAILURE
 from version import VERSION
+from lang_support import Lang
 
 from update_manager import apply_pending_update
 
@@ -13,7 +14,9 @@ from save_manager import SaveManager
 from settings import Settings
 from pass_manager import HashManager
 from console import CommandParser
-from sfx_manager import SFX, SFXManager
+from sfx_manager import SFXManager
+from achievements import Achievements
+from device_id import DeviceID
 from dump import Dump
 
 from gamedata import GameData
@@ -53,6 +56,8 @@ class Game:
         self.settings = Settings(file=os.path.join(BASE_DIR, "settings.json"))
         self.settings.load()
 
+        Lang.USING_LANG = self.settings.get("language")
+
         self.command_parser = CommandParser()
         self.command_parser.add_variable("dt_multiplier", 1)
         self.command_parser.add_command("dt", self.multiply_dt, [float], success_text="Delta Time multiplied to [arg1]")
@@ -60,6 +65,25 @@ class Game:
 
         self.sfx_manager = SFXManager()
         self.sfx_manager.add(self.mixer, "click", os.path.join(BASE_DIR, r"sounds/click.wav"))
+
+        self.illegal = False
+
+        self.achievements = None
+        self.device = None
+        self.offline = False
+        self.illegal = False
+
+        try:
+            self.device = DeviceID()
+            self.achievements = Achievements(self.device)
+
+        except ConnectionError:
+            self.illegal = False
+            self.offline = True
+
+        except (ValueError, FileNotFoundError):
+            self.illegal = True
+            self.offline = False
 
         if self.settings.get("music"):
             self.mixer.music.set_volume(self.settings.get("music_volume"))

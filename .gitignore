@@ -14,3 +14,5 @@ build.sh
 private_key.pem
 secret_keys/
 settings.json
+achievements.dat
+device_id.dat
