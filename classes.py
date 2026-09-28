@@ -170,7 +170,24 @@ class AlignedRect:
 class Button:
     buttons = []
 
-    def __init__(self, x: int, y: int, width: int, height: int, text, font: userFont, color, text_color, game_state: list, on_mouse_color=None, on_click_color=None, border_radius=10, plus_data=None):
+    def __init__(
+            self,
+            x: int,
+            y: int,
+            width: int,
+            height: int,
+            text,
+            font: userFont,
+            color,
+            text_color,
+            game_state: list,
+            on_mouse_color=None,
+            on_click_color=None,
+            border_radius=10,
+            plus_data=None,
+            design=None
+        ):
+
         self.id = 0 if self.buttons == [] else self.buttons[-1].id + 1
         self.x = x
         self.y = y
@@ -186,6 +203,7 @@ class Button:
         self.game_state = game_state
         self.plus_data = plus_data
         self.clicking = False
+        self.design = design
 
     @property
     def width(self):
@@ -240,8 +258,72 @@ class Button:
             return False
 
     def draw(self, surface):
-        pygame.draw.rect(surface, self.color, self.rect, border_radius=self.border_radius)
+        if self.design is None:
+            pygame.draw.rect(surface, self.color, self.rect, border_radius=self.border_radius)
 
+        elif self.design == "bevel":
+            light = colours.lighter(self.color, 35)
+            dark = colours.darker(self.color, 35)
+
+            pygame.draw.rect(
+                surface,
+                dark,
+                self.rect,
+                border_radius=self.border_radius
+            )
+
+            inner_rect = self.rect.inflate(-6, -6)
+
+            pygame.draw.rect(
+                surface,
+                self.color,
+                inner_rect,
+                border_radius=self.border_radius
+            )
+
+            pygame.draw.polygon(
+                surface,
+                light,
+                [
+                    self.rect.topleft,
+                    self.rect.topright,
+                    inner_rect.topright,
+                    inner_rect.topleft
+                ]
+            )
+
+            pygame.draw.polygon(
+                surface,
+                light,
+                [
+                    self.rect.topleft,
+                    inner_rect.topleft,
+                    inner_rect.bottomleft,
+                    self.rect.bottomleft
+                ]
+            )
+
+            pygame.draw.polygon(
+                surface,
+                dark,
+                [
+                    self.rect.bottomleft,
+                    self.rect.bottomright,
+                    inner_rect.bottomright,
+                    inner_rect.bottomleft
+                ]
+            )
+
+            pygame.draw.polygon(
+                surface,
+                dark,
+                [
+                    self.rect.topright,
+                    self.rect.bottomright,
+                    inner_rect.bottomright,
+                    inner_rect.topright
+                ]
+            )
         lines = self.text.splitlines()
 
         line_height = self.font.font.get_height()
@@ -1099,11 +1181,11 @@ class Player:
 
     def draw(self, surface: pygame.Surface):
         surface.blit(self.image, (self.x, self.y))
-        if self.sword_rect is not None:
-            pygame.draw.rect(surface, "red", self.sword_rect, 5)
+
         if self.deflecting:
             if self.parlama_rect is None: self.parlama_rect = self.parlama_image.get_rect()
             if self.parlama_rect2 is None: self.parlama_rect2 = self.parlama_image2.get_rect()
+
             if self.drawing or self.sword_attacking:
                 if self.look_dir == "right":
                     self.parlama_rect.center = (self.x + 105, self.y)
@@ -1114,6 +1196,7 @@ class Player:
             else:
                 self.parlama_rect.center = (self.x + 20, self.y - 40)
                 self.parlama_rect2.center = (self.x + 32, self.y - 25)
+
             center = self.parlama_rect.center
             center2 = self.parlama_rect2.center
             rotated = pygame.transform.rotate(
@@ -1412,26 +1495,165 @@ class Player:
         self.available_guns.clear()
         self.available_guns.append(self.using_gun)
     
-    def draw_statistics(self, surface: pygame.Surface, font: userFont, info):
-        pygame.draw.rect(surface, colours.GRAY, (10, info.current_h-225, 200, 60), border_radius=20)
-        percent = self.hp / self.max_hp
-        pygame.draw.rect(surface, colours.RED, (10, info.current_h-225, 200 * percent, 60), border_radius=20)
-        font.draw_text(f"Can: {self.hp}", (100, info.current_h-200), surface, colours.WHITE, hiza="center")
-        if not self.ability_healing:
-            font.draw_text(f"Silah: {self.using_gun.name}", (250, info.current_h-200), surface, colours.WHITE, hiza="midleft")
-            font.draw_text(f"Hız: {int(self.speed / 100)}", (750, info.current_h-200), surface, colours.WHITE, hiza="midleft")
-        else:
-            percent_heal = self.heal_cooldown / self.heal_cooldown_orig
+    def draw_statistics(self, surface: pygame.Surface, font: userFont, info, clock: pygame.time.Clock):
 
-            full_rect = pygame.Rect(300, info.current_h-225, 200, 60)
+        y = info.current_h - 225
+        h = 60
+        padding = info.current_w // 30
 
-            pygame.draw.rect(surface, colours.BLUE, full_rect, border_radius=20)
-            pygame.draw.rect(surface, colours.GRAY, (300, info.current_h-225, 200 * percent_heal, 60), border_radius=20)
+        elements: list[tuple[str, pygame.Rect]] = []
 
-            font.draw_text(f"{self.heal_cooldown:.2f}", (full_rect.centerx, full_rect.centery), surface, colours.WHITE, "center")
+        # CAN
+        hp_rect = pygame.Rect(
+            10,
+            y,
+            200,
+            h
+        )
 
-            font.draw_text(f"Silah: {self.using_gun.name}", (550, info.current_h-200), surface, colours.WHITE, hiza="midleft")
-            font.draw_text(f"Hız: {int(self.speed / 100)}", (1050, info.current_h-200), surface, colours.WHITE, hiza="midleft")
+        elements.append(("hp", hp_rect))
+
+        # HEAL
+        if self.ability_healing:
+            heal_rect = pygame.Rect(
+                0,
+                y,
+                200,
+                h
+            )
+            heal_rect.left = elements[-1][1].midright[0] + padding
+
+            elements.append(("heal", heal_rect))
+
+        # SİLAH
+        weapon_rect = pygame.Rect(
+            0,
+            y,
+            font.font.size(f"Silah: {self.using_gun.name}")[0],
+            h
+        )
+        weapon_rect.left = elements[-1][1].midright[0] + padding
+
+        elements.append(("weapon", weapon_rect))
+
+        # HIZ
+        speed_rect = pygame.Rect(
+            0,
+            y,
+            font.font.size(f"Hız: {self.speed}")[0],
+            h
+        )
+        speed_rect.left = elements[-1][1].midright[0] + padding
+
+        elements.append(("speed", speed_rect))
+
+        # FPS
+        fps_rect = pygame.Rect(
+            0,
+            y,
+            font.font.size(f"FPS: {int(clock.get_fps())}")[0],
+            h
+        )
+        fps_rect.left = elements[-1][1].midright[0] + padding
+
+        elements.append(("fps", fps_rect))
+
+        for element, rect in elements:
+
+            if element == "hp":
+
+                percent = self.hp / self.max_hp
+
+                pygame.draw.rect(
+                    surface,
+                    colours.GRAY,
+                    rect,
+                    border_radius=20
+                )
+
+                pygame.draw.rect(
+                    surface,
+                    colours.RED,
+                    (
+                        rect.left,
+                        rect.top,
+                        rect.width * percent,
+                        rect.height
+                    ),
+                    border_radius=20
+                )
+
+                font.draw_text(
+                    f"Can: {self.hp}",
+                    rect.center,
+                    surface,
+                    colours.WHITE,
+                    hiza="center"
+                )
+
+            elif element == "heal":
+
+                percent_heal = (
+                    self.heal_cooldown /
+                    self.heal_cooldown_orig
+                )
+
+                pygame.draw.rect(
+                    surface,
+                    colours.BLUE,
+                    rect,
+                    border_radius=20
+                )
+
+                pygame.draw.rect(
+                    surface,
+                    colours.GRAY,
+                    (
+                        rect.left,
+                        rect.top,
+                        rect.width * percent_heal,
+                        rect.height
+                    ),
+                    border_radius=20
+                )
+
+                font.draw_text(
+                    f"{self.heal_cooldown:.2f}",
+                    rect.center,
+                    surface,
+                    colours.WHITE,
+                    hiza="center"
+                )
+
+            elif element == "weapon":
+
+                font.draw_text(
+                    f"Silah: {self.using_gun.name}",
+                    rect.midleft,
+                    surface,
+                    colours.WHITE,
+                    hiza="midleft"
+                )
+
+            elif element == "speed":
+
+                font.draw_text(
+                    f"Hız: {int(self.speed / 100)}",
+                    rect.midleft,
+                    surface,
+                    colours.WHITE,
+                    hiza="midleft"
+                )
+
+            elif element == "fps":
+
+                font.draw_text(
+                    f"FPS: {int(clock.get_fps())}",
+                    rect.midleft,
+                    surface,
+                    colours.WHITE,
+                    hiza="midleft"
+                )
 
     def copy(self):
         return copy.deepcopy(self)
@@ -1548,11 +1770,13 @@ class World:
         self.rockNum = random.randint(4, 10)
         self.items = copy.deepcopy(items)
         self.terrain_image_name = terrain_image
+
         if self.terrain_image_name:
             self.terrain_image = pygame.image.load(self.terrain_image_name)
             self.terrain_image = pygame.transform.scale(self.terrain_image, (info.current_w, info.current_w))
         else:
             self.terrain_image = None
+
         self.dirt_image_name = dirt_image
         if self.dirt_image_name:
             self.dirt_image = pygame.image.load(self.dirt_image_name)
@@ -1995,7 +2219,11 @@ class Enemy:
         self.bombing_cooldown = self.origin_cooldown + 3
         self.split_ground_cd = self.origin_cooldown + 2
         self.cat_jump_cd = self.origin_cooldown + 4
+
         self.scr_lazer_beam_cd = self.origin_cooldown + 6
+        self.lazer_beam_inside_cd = Cooldown(0.3)
+        self.scr_lazer_beam_counter = 0
+
         self.cat_jumping = False
         self.bombs = []
         self.drops = drops or []
@@ -2175,7 +2403,10 @@ class Enemy:
                 self.scr_lazer_beam_cd.reduce(dt)
 
                 if self.scr_lazer_beam_cd.check():
-                    for _ in range(5):
+                    self.lazer_beam_inside_cd.reduce(dt)
+
+                    if self.lazer_beam_inside_cd.check():
+
                         self.scr_lazers.append(
                             SCRLazerBeam(
                                 5,
@@ -2185,7 +2416,13 @@ class Enemy:
                             )
                         )
 
+                        self.lazer_beam_inside_cd.refresh()
+                        self.scr_lazer_beam_counter += 1
+                
+                if self.scr_lazer_beam_counter >= 5:
                     self.scr_lazer_beam_cd.refresh()
+                    self.lazer_beam_inside_cd.refresh()
+                    self.scr_lazer_beam_counter = 0
 
     def copy(self):
         return copy.deepcopy(self)
@@ -2275,6 +2512,17 @@ class Enemy:
             abilities=[EnemyAbilities.ABILITY_CAT_JUMP],
             damagables = [Enemy.DAMAGE_SWORD_DASH, Enemy.DAMAGE_BRONZE_GUN, Enemy.DAMAGE_BRONZE_BULLET],
             size = 45
+        )
+
+    @classmethod
+    def morty(cls):
+        return cls(
+            400,
+            56,
+            [EnemyAbilities.ABILITY_SCR_LAZER_BEAM],
+            os.path.join(BASE_DIR, r"images/evil-mortyr.png"),
+            os.path.join(BASE_DIR, r"images/evil-mortyl.png"),
+            20
         )
 
     def update(self, player: Player, world: World, dt, level: list):
@@ -2653,7 +2901,7 @@ class Boss(Enemy):
             name="Demirin Boklu Telefonu",
             damage_cooldown = Cooldown(3.4),
             cooldown=Cooldown(7),
-            summons=[Enemy.miguel(), Enemy.miguel(), Enemy.luffy()],
+            summons=[Enemy.miguel(), Enemy.miguel(), Enemy.morty()],
             after_max_hp = 2000,
             collisions=False
         )
@@ -2748,7 +2996,7 @@ for enemy in globals()[defaults["Level"]]:
     enemy.set_pos(defaults["World"], info)
 
 # hileli silah
-# defaults["Player"].available_guns.append(Gun("At Kafası", colours.lighter(colours.BLACK, 30), 40, 800, os.path.join(BASE_DIR,r"images/silver_silahr.png"), os.path.join(BASE_DIR,r"images/silver_silah_mermi.png"), 0.03, "__deflected__"))
+defaults["Player"].available_guns.append(Gun("At Kafası", colours.lighter(colours.BLACK, 30), 40, 800, os.path.join(BASE_DIR,r"images/silver_silahr.png"), os.path.join(BASE_DIR,r"images/silver_silah_mermi.png"), 0.03, "__deflected__"))
 
 def reset(screen_x: int, screen_y: int, game: dict):
     logging.info("Called reset.")

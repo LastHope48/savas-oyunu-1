@@ -14,3 +14,12 @@ game.log
 
 Dockerfile
 build.sh
+
+settings
+settings.json
+
+achievements.dat
+device_id.dat
+
+saves
+secret_keys

@@ -7,6 +7,7 @@ import classes
 from flags import SUCCESS, FAILURE
 from version import VERSION
 from lang_support import Lang
+import threading
 
 from update_manager import apply_pending_update
 
@@ -72,18 +73,10 @@ class Game:
         self.device = None
         self.offline = False
         self.illegal = False
+        self.console_used = False
 
-        try:
-            self.device = DeviceID()
-            self.achievements = Achievements(self.device)
+        threading.Thread(target=self.initialize_online_data, daemon=True).start()
 
-        except ConnectionError:
-            self.illegal = False
-            self.offline = True
-
-        except (ValueError, FileNotFoundError):
-            self.illegal = True
-            self.offline = False
 
         if self.settings.get("music"):
             self.mixer.music.set_volume(self.settings.get("music_volume"))
@@ -124,6 +117,37 @@ class Game:
         self.command_parser.variables["dt_multiplier"] = value
         return SUCCESS, f"Oyun {self.command_parser.variables['dt_multiplier']} kat daha hızlı."
 
+
+    def initialize_online_data(self):
+        try:
+            self.logger.info("Online sistem başlatılıyor...")
+
+            self.logger.info("DeviceID oluşturuluyor...")
+            device = DeviceID()
+            self.logger.info("DeviceID başarıyla oluşturuldu.")
+
+            self.logger.info("Achievements oluşturuluyor...")
+            achievements = Achievements(device)
+            self.logger.info("Achievements başarıyla oluşturuldu.")
+
+            self.device = device
+            self.achievements = achievements
+
+            self.logger.info("Online sistem başarıyla başlatıldı.")
+
+        except ConnectionError as e:
+            self.logger.exception(f"İnternet bağlantısı hatası: {e}")
+            self.illegal = False
+            self.offline = True
+
+        except (ValueError, FileNotFoundError) as e:
+            self.logger.exception(f"Online sistem veri/dosya hatası: {e}")
+            self.illegal = True
+            self.offline = False
+
+        except Exception as e:
+            self.logger.exception(f"Online sistem başlatılamadı: {e}")
+
     def run(self):
         if self.settings.get("fullscreen"):
             self.screen = pygame.display.set_mode((self.info.current_w, self.info.current_h), pygame.FULLSCREEN)
@@ -147,6 +171,9 @@ class Game:
 
         self.logger.info("Applying update if there")
         apply_pending_update()
+
+        self.logger.info(f"Saving settings to '{self.settings.file}'.")
+        self.settings.save()
 
         self.logger.info("Quitting Pygame")
 

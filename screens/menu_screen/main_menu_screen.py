@@ -35,7 +35,9 @@ class MainMenuScreen(MenuScreen):
             colours.WHITE,
             [ScreenType.MENU],
             colours.darker(colours.YELLOW, 20),
-            colours.darker(colours.YELLOW, 50)
+            colours.darker(colours.YELLOW, 50),
+            design="bevel",
+            border_radius=0
         )
 
         self.continue_button = Button(
@@ -46,7 +48,9 @@ class MainMenuScreen(MenuScreen):
             colours.WHITE,
             [ScreenType.MENU],
             colours.darker(colours.YELLOW, 20),
-            colours.darker(colours.YELLOW, 50)
+            colours.darker(colours.YELLOW, 50),
+            design="bevel",
+            border_radius=0
         )
 
         self.load_button = Button(
@@ -57,7 +61,9 @@ class MainMenuScreen(MenuScreen):
             colours.WHITE,
             [ScreenType.MENU],
             colours.darker(colours.YELLOW, 20),
-            colours.darker(colours.YELLOW, 50)
+            colours.darker(colours.YELLOW, 50),
+            design="bevel",
+            border_radius=0
         )
 
         self.achivements_button = Button(
@@ -68,7 +74,9 @@ class MainMenuScreen(MenuScreen):
             colours.WHITE,
             [ScreenType.MENU],
             colours.darker(colours.YELLOW, 20),
-            colours.darker(colours.YELLOW, 50)
+            colours.darker(colours.YELLOW, 50),
+            design="bevel",
+            border_radius=0
         )
 
         self.settings_button = Button(
@@ -79,7 +87,9 @@ class MainMenuScreen(MenuScreen):
             colours.WHITE,
             [ScreenType.MENU],
             colours.darker(colours.YELLOW, 20),
-            colours.darker(colours.YELLOW, 50)
+            colours.darker(colours.YELLOW, 50),
+            design="bevel",
+            border_radius=0
         )
 
         self.quit_button = Button(
@@ -90,7 +100,9 @@ class MainMenuScreen(MenuScreen):
             colours.WHITE,
             [ScreenType.MENU],
             colours.darker(colours.RED, 20),
-            colours.darker(colours.RED, 50)
+            colours.darker(colours.RED, 50),
+            design="bevel",
+            border_radius=0
         )
 
         self.last = self.game.save_manager.get_info_last_slot()
@@ -189,7 +201,6 @@ class MainMenuScreen(MenuScreen):
             button: Button
             button.on_mouse()
 
-        self.last = self.game.save_manager.get_info_last_slot(log=False)
 
     def handle_event(self, event: pygame.event.Event):
         if self.new_game_button.clicked(event, ScreenType.MENU):
@@ -260,6 +271,8 @@ class MainMenuScreen(MenuScreen):
             self.info_button.plus_data = not self.info_button.plus_data
 
     def on_enter(self, transfer_datas):
+        self.last = self.game.save_manager.get_info_last_slot(log=False)
+
         if self.game.dump("last_music") != os.path.join(BASE_DIR, r"musics/menu_theme.mp3"):
             self.game.mixer.music.load(
                 os.path.join(

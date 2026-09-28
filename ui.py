@@ -3,15 +3,21 @@ import colours
 
 
 class BarElement:
-    def __init__(self, surface, on_click=None, update=None):
+    def __init__(self, surface, on_click=None, update=None, manual_update=False):
         self.surface = surface
         self.on_click = on_click
         self.update_function = update
+        self.manual_update = manual_update
         self.rect = pygame.Rect(0, 0, 0, 0)
 
-    def update(self, *args, **kwargs):
+    def update(self, manual_update=False, *args, **kwargs):
         if self.update_function:
-            self.surface = self.update_function(*args, **kwargs)
+
+            if self.manual_update and manual_update:
+                self.surface = self.update_function(*args, **kwargs)
+
+            elif not self.manual_update:
+                self.surface = self.update_function(*args, **kwargs)
 
 
     def draw(self, surface, rect):
@@ -46,29 +52,43 @@ class Bar:
         color,
         *elements,
         padding=10,
-        separator=True
+        separator=True,
+        image=None
     ):
         self.rect = pygame.Rect(x, y, w, h)
         self.color = color
         self.elements: list[BarElement] = elements
+        self.image: pygame.Surface | None = image
+
+        if self.image is not None:
+            self.image = pygame.transform.scale(self.image, (self.rect.width, self.rect.height))
+
         self.padding = padding
         self.separator = separator
 
     def draw(self, surface: pygame.Surface):
-        # Ana bar
-        pygame.draw.rect(
-            surface,
-            self.color,
-            self.rect
-        )
+        if self.image is None:
 
-        # Kenarlık
-        pygame.draw.rect(
-            surface,
-            colours.darker(self.color, 30),
-            self.rect,
-            5
-        )
+            # Ana bar
+            pygame.draw.rect(
+                surface,
+                self.color,
+                self.rect
+            )
+
+            # Kenarlık
+            pygame.draw.rect(
+                surface,
+                colours.darker(self.color, 30),
+                self.rect,
+                5
+            )
+
+        else:
+            surface.blit(
+                self.image,
+                self.rect
+            )
 
         if not self.elements:
             return
@@ -107,9 +127,9 @@ class Bar:
         for element in self.elements:
             element.handle_event(event)
 
-    def update(self):
+    def update(self, manual=False):
         for element in self.elements:
-            element.update()
+            element.update(manual)
 
     def _per_width_for_element(self):
         return self.rect.width // len(self.elements)

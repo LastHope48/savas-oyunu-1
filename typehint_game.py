@@ -40,6 +40,7 @@ class Game:
         self.dump: Dump
         self.illegal: bool
         self.offline: bool
+        self.console_used: bool
 
         self.game_data: GameData
         self.screen_manager: ScreenManager

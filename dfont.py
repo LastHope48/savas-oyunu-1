@@ -3,6 +3,7 @@ import sys
 from dataclasses import dataclass
 
 pygame.init()
+pygame.mixer.init()
 
 if __name__ == "__main__":
     screen = pygame.display.set_mode((800, 800), pygame.RESIZABLE)
@@ -265,18 +266,19 @@ class MsgBox:
         if self.typing:
             self.stop_typing()
 
-    def update(self, dt: float):
-        """
-        Typewriter efektini günceller.
-
-        dt:
-            Son frame'den beri geçen süre (saniye).
-        """
-
+    def update(self, dt: float, sound: pygame.mixer.Sound = None):
         if not self.typing:
             return
 
+        old_chars = int(self.visible_chars)
+
         self.visible_chars += self.typing_speed * dt
+
+        new_chars = min(int(self.visible_chars), len(self.text))
+
+        if sound is not None:
+            for _ in range(new_chars - old_chars):
+                sound.play()
 
         if self.visible_chars >= len(self.text):
             self.visible_chars = len(self.text)
@@ -367,10 +369,12 @@ if __name__ == "__main__":
     GAME_STATE = "GAME_MODE_SELECT"
     font = DynamicFont("arial", 1, 700)
 
-    text = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.Duis vel commodo quam. Praesent aliquam metus vel elit lacinia tristique.Proin commodo bibendum dapibus. Nunc lacinia rhoncus nulla et rhoncus. Suspendisse fringilla eget elit iaculis auctor. Proin vitae enim ac nunc vulputate ultrices. Etiam hendrerit enim ac sapien pharetra consectetur. Donec imperdiet nibh tortor, in malesuada mauris finibus eget. Donec suscipit porttitor ultrices. Ut eu augue venenatis, facilisis magna vitae, bibendum nisi. Duis nec commodo ex, congue efficitur libero.\nNunc consectetur erat id nisl luctus, at tincidunt eros luctus.' * 10
+    sound = pygame.mixer.Sound(r"sounds/heavy_speak.wav")
+
+    text = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.Duis vel commodo quam. Praesent aliquam metus vel elit lacinia tristique.Proin commodo bibendum dapibus. Nunc lacinia rhoncus nulla et rhoncus. Suspendisse fringilla eget elit iaculis auctor. Proin vitae enim ac nunc vulputate ultrices. Etiam hendrerit enim ac sapien pharetra consectetur. Donec imperdiet nibh tortor, in malesuada mauris finibus eget. Donec suscipit porttitor ultrices. Ut eu augue venenatis, facilisis magna vitae, bibendum nisi. Duis nec commodo ex, congue efficitur libero.\nNunc consectetur erat id nisl luctus, at tincidunt eros luctus.'
 
     i = 1
-    message = MsgBox(text, font, 2000, 2000, 50, 50, (0, 0, 255), 10, typing_speed=3000, text_color="white")
+    message = MsgBox(text, font, 2000, 2000, 50, 50, (0, 0, 255), 10, typing_speed=10, text_color="white")
     message.start_typing()
 
     clock = pygame.time.Clock()
@@ -380,7 +384,7 @@ if __name__ == "__main__":
     while run:
         dt = clock.tick(120) / 1000
 
-        message.update(dt)
+        message.update(dt, sound)
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -393,4 +397,5 @@ if __name__ == "__main__":
         pygame.display.flip()
 
     pygame.quit()
+    pygame.mixer.quit()
     sys.exit(0)

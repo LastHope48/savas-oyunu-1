@@ -161,6 +161,7 @@ level15 = [
     classes.Enemy.luffy(),
     classes.Enemy.miguel(),
     classes.Enemy.miguel(),
+    classes.Enemy.morty()
 ]
 
 level16 = [
@@ -174,7 +175,9 @@ level16 = [
     classes.Enemy.miguel(),
     classes.Enemy.miguel(),
     classes.Enemy.miguel(),
-    classes.Enemy.miguel()
+    classes.Enemy.miguel(),
+    classes.Enemy.morty(),
+    classes.Enemy.morty()
 ]
 
 level17 = [
@@ -187,6 +190,9 @@ level17 = [
     classes.Enemy.miguel(),
     classes.Enemy.miguel(),
     classes.Enemy.miguel(),
+    classes.Enemy.morty(),
+    classes.Enemy.morty(),
+    classes.Enemy.morty(),
     classes.Boss.demirbt()
 ]
 

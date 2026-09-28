@@ -2,10 +2,11 @@ import json
 import os
 import secrets
 import requests
+from basedir import BASE_DIR
 
 
 class DeviceID:
-    FILE = "device_id.dat"
+    FILE = os.path.join(BASE_DIR, "device_id.dat")
 
     def __init__(self):
         if os.path.exists(self.FILE):

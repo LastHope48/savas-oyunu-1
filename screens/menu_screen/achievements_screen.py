@@ -27,6 +27,9 @@ class AchievementsScreen(MenuScreen):
             "no_internet_connection": Lang(türkçe="İnternet bağlantısı gerekli.", english="No Internet Connection")
         }
 
+        self.achievement_images = {}
+        self.achievement_card_cache = {}
+
         self.achievement_title_font = DynamicFont(
             "arial",
             20,
@@ -42,6 +45,18 @@ class AchievementsScreen(MenuScreen):
         self.achievements_counter_f = DynamicFont(
             "arial",
             10,
+            50
+        )
+
+        self.message_font = DynamicFont(
+            "notosans.ttf",
+            20,
+            50
+        )
+
+        self.loading_font = DynamicFont(
+            "notosans.ttf",
+            20,
             50
         )
 
@@ -63,7 +78,8 @@ class AchievementsScreen(MenuScreen):
             ),
             BarElement(
                 pygame.Surface((1, 1)),
-                update=self.create_achievement_surface
+                update=self.create_achievement_surface,
+                manual_update=True
             ),
             separator=True
         )
@@ -86,6 +102,158 @@ class AchievementsScreen(MenuScreen):
 
     def quit_button_on_click(self):
         self.game.screen_manager.set_screen(ScreenType.MENU)
+
+    def create_achievement_card(
+    self,
+    achievement_id: str,
+    width: int,
+    height: int
+):
+        metadata = self.game.achievements.achievements_metadata[
+            achievement_id
+        ]
+
+        card = pygame.Surface((width, height), pygame.SRCALPHA)
+
+        # Kart çerçevesi
+        pygame.draw.rect(
+            card,
+            "white",
+            card.get_rect(),
+            width=2,
+            border_radius=10
+        )
+
+        # -------------------------
+        # Görsel
+        # -------------------------
+
+        image_size = min(
+            width // 2,
+            height // 3
+        )
+
+        image = pygame.transform.smoothscale(
+            metadata["image"],
+            (image_size, image_size)
+        )
+
+        image_rect = image.get_rect(
+            midtop=(width // 2, 20)
+        )
+
+        card.blit(image, image_rect)
+
+        # -------------------------
+        # Başlık
+        # -------------------------
+
+        title = metadata["title"](
+            self.game.settings.get("language")
+        )
+
+        title_area = pygame.Surface(
+            (width - 20, 60)
+        )
+
+        title_render, title_height = self.achievement_title_font.render(
+            title,
+            "white",
+            title_area,
+            gap=0,
+            breaklines=False
+        )
+
+        title_rect = title_render.get_rect(
+            centerx=width // 2,
+            top=image_rect.bottom + 15
+        )
+
+        card.blit(title_render, title_rect)
+
+        # -------------------------
+        # Açıklama
+        # -------------------------
+
+        description = metadata["description"](
+            self.game.settings.get("language")
+        )
+
+        description_area = pygame.Surface(
+            (
+                width - 30,
+                height - (title_rect.bottom) - 30
+            )
+        )
+
+        description_renders, line_height = (
+            self.achievement_description_font.render(
+                description,
+                (180, 180, 180),
+                description_area,
+                gap=0,
+                breaklines=True
+            )
+        )
+
+        y = title_rect.bottom + 10
+
+        for rendered in description_renders:
+
+            if y + rendered.get_height() > height - 10:
+                break
+
+            rendered_rect = rendered.get_rect(
+                centerx=width // 2,
+                top=y
+            )
+
+            card.blit(rendered, rendered_rect)
+
+            y += line_height
+
+        return card
+
+    def get_achievement_card(
+        self,
+        achievement_id: str,
+        width: int,
+        height: int
+    ):
+        language = self.game.settings.get("language")
+
+        key = (
+            achievement_id,
+            width,
+            height,
+            language
+        )
+
+        if key not in self.achievement_card_cache:
+            self.achievement_card_cache[key] = (
+                self.create_achievement_card(
+                    achievement_id,
+                    width,
+                    height
+                )
+            )
+
+        return self.achievement_card_cache[key]
+    
+    def get_achievement_image(self, achievement_id, image_size):
+        key = (achievement_id, image_size)
+
+        if key not in self.achievement_images:
+            image = self.game.achievements.achievements_metadata[
+                achievement_id
+            ]["image"]
+
+            self.achievement_images[key] = pygame.transform.smoothscale(
+                image,
+                (image_size, image_size)
+            )
+
+        return self.achievement_images[key]
 
     def start_verify(self):
         if self.verifying:
@@ -112,11 +280,7 @@ class AchievementsScreen(MenuScreen):
         if self.offline:
             message = self.langs["no_internet_connection"]()
 
-            message_font = DynamicFont(
-                "notosans.ttf",
-                20,
-                50
-            )
+            message_font = self.message_font
 
             message_area = pygame.Surface(
                 (
@@ -148,11 +312,7 @@ class AchievementsScreen(MenuScreen):
 
 
         elif self.illegal:
-            message_font = DynamicFont(
-                "arial",
-                20,
-                50
-            )
+            message_font = self.message_font
 
             message_area = pygame.Surface(
                 (
@@ -232,112 +392,20 @@ class AchievementsScreen(MenuScreen):
         achievement_id: str,
         rect: pygame.Rect
     ):
-
-        pygame.draw.rect(
-            surface,
-            "white",
-            rect,
-            width=2,
-            border_radius=10
-        )
-        
-        metadata = self.game.achievements.achievements_metadata[
-            achievement_id
-        ]
-
-        title = metadata["title"](self.game.settings.get("language"))
-        description = metadata["description"](self.game.settings.get("language"))
-        image = metadata["image"]
-
-        # Görsel
-        image_size = min(
-            rect.width // 2,
-            rect.height // 3
+        card = self.get_achievement_card(
+            achievement_id,
+            rect.width,
+            rect.height
         )
 
-        image = pygame.transform.smoothscale(
-            image,
-            (image_size, image_size)
-        )
-
-        image_rect = image.get_rect(
-            midtop=(
-                rect.centerx,
-                rect.top + 20
-            )
-        )
-
-        surface.blit(image, image_rect)
-
-        # Başlık
-        title_area = pygame.Surface(
-            (
-                rect.width - 20,
-                60
-            )
-        )
-
-        title_render, title_height = self.achievement_title_font.render(
-            title,
-            "white",
-            title_area,
-            gap=0,
-            breaklines=False
-        )
-
-        title_rect = title_render.get_rect(
-            centerx=rect.centerx,
-            top=image_rect.bottom + 15
-        )
-
-        surface.blit(
-            title_render,
-            title_rect
-        )
-
-        # Açıklama
-        description_area = pygame.Surface(
-            (
-                rect.width - 30,
-                rect.height - (title_rect.bottom - rect.top) - 30
-            )
-        )
-
-        description_renders, line_height = (
-            self.achievement_description_font.render(
-                description,
-                (180, 180, 180),
-                description_area,
-                gap=0,
-                breaklines=True
-            )
-        )
-
-        y = title_rect.bottom + 10
-
-        for rendered in description_renders:
-
-            if y + rendered.get_height() > rect.bottom - 10:
-                break
-
-            rendered_rect = rendered.get_rect(
-                centerx=rect.centerx,
-                top=y
-            )
-
-            surface.blit(
-                rendered,
-                rendered_rect
-            )
-
-            y += line_height
+        surface.blit(card, rect)
 
     def update(self, dt):
-        if self.verifying:
-            self.loading_time += dt
-
         self.bar.update()
         self.offline_bar.update()
+
+        if self.verifying:
+            self.loading_time += dt
 
         bar_height = self.game.screen.get_height() // 10
 
@@ -377,12 +445,7 @@ class AchievementsScreen(MenuScreen):
 
         message = f"{self.langs['verifying_achievements']()}{dots}"
 
-        font = DynamicFont(
-            "notosans.ttf",
-            20,
-            50
-        )
-
+        font = self.loading_font
         area = pygame.Surface(
             (
                 surface.get_width() - 100,
@@ -468,4 +531,5 @@ class AchievementsScreen(MenuScreen):
 
         self.start_verify()
         self.update_achievements()
-        self.bar.update()
+        self.bar.update(manual=True)
+        self.offline_bar.update(manual=True)

@@ -8,6 +8,9 @@ import colours
 from classes import Button, defaults as game_data_defaults
 from calcs import calculate_size
 from lang_support import Lang
+from ui import Bar, BarElement
+import os
+from basedir import BASE_DIR
 
 from gamedata import GameData
 
@@ -50,7 +53,9 @@ class GameScreen(Screen):
             colours.WHITE,
             [ScreenType.MENU, ScreenType.GAME],
             colours.darker(colours.YELLOW, 20),
-            colours.darker(colours.YELLOW, 50)
+            colours.darker(colours.YELLOW, 50),
+            design="bevel",
+            border_radius=0
         )
 
         self.continue_button = Button(
@@ -61,7 +66,9 @@ class GameScreen(Screen):
             colours.WHITE,
             [ScreenType.MENU, ScreenType.GAME],
             colours.darker(colours.YELLOW, 20),
-            colours.darker(colours.YELLOW, 50)
+            colours.darker(colours.YELLOW, 50),
+            design="bevel",
+            border_radius=0
         )
 
         self.load_button = Button(
@@ -72,7 +79,9 @@ class GameScreen(Screen):
             colours.WHITE,
             [ScreenType.MENU, ScreenType.GAME],
             colours.darker(colours.YELLOW, 20),
-            colours.darker(colours.YELLOW, 50)
+            colours.darker(colours.YELLOW, 50),
+            design="bevel",
+            border_radius=0
         )
 
         self.save_button = Button(
@@ -83,7 +92,9 @@ class GameScreen(Screen):
             colours.WHITE,
             [ScreenType.MENU, ScreenType.GAME],
             colours.darker(colours.YELLOW, 20),
-            colours.darker(colours.YELLOW, 50)
+            colours.darker(colours.YELLOW, 50),
+            design="bevel",
+            border_radius=0
         )
 
         self.settings_button = Button(
@@ -94,7 +105,9 @@ class GameScreen(Screen):
             colours.WHITE,
             [ScreenType.MENU, ScreenType.GAME],
             colours.darker(colours.YELLOW, 20),
-            colours.darker(colours.YELLOW, 50)
+            colours.darker(colours.YELLOW, 50),
+            design="bevel",
+            border_radius=0
         )
 
         self.quit_button = Button(
@@ -105,7 +118,9 @@ class GameScreen(Screen):
             colours.WHITE,
             [ScreenType.MENU, ScreenType.GAME],
             colours.darker(colours.RED, 20),
-            colours.darker(colours.RED, 50)
+            colours.darker(colours.RED, 50),
+            design="bevel",
+            border_radius=0
         )
     
     def draw(self, surface: pygame.Surface):
@@ -156,7 +171,7 @@ class GameScreen(Screen):
         self.game.game_data.player.draw(surface)
         self.game.game_data.player.draw_dash(surface)
         self.game.game_data.player.draw_teleport(surface)
-        self.game.game_data.player.draw_statistics(surface, font2, self.game.info)
+        self.game.game_data.player.draw_statistics(surface, font2, self.game.info, self.game.clock)
 
         for enemy in self.game.game_data.enemy_data.values():
             enemy.draw_scr_lazers(surface)

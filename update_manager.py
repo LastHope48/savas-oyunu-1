@@ -3,11 +3,11 @@ import platform
 import shutil
 import zipfile
 import hashlib
+from pathlib import Path
+import sys
 
 from cryptography.hazmat.primitives import serialization
 from cryptography.exceptions import InvalidSignature
-
-from basedir import BASE_DIR as GAME_DIR
 
 import requests
 from packaging.version import Version
@@ -15,36 +15,26 @@ from packaging.version import Version
 from version import VERSION
 
 
+if getattr(sys, "frozen", False):
+    # PyInstaller
+    GAME_DIR = Path(sys.executable).parent
+else:
+    # Normal Python
+    GAME_DIR = Path(__file__).resolve().parent
+
 GITHUB_API = (
     "https://api.github.com/repos/"
     "LastHope48/savas-oyunu-1/releases/latest"
 )
 
 
-UPDATE_DIR = os.path.join(
-    GAME_DIR,
-    "_update"
-)
+UPDATE_DIR = GAME_DIR / "_update"
 
-UPDATE_ZIP = os.path.join(
-    UPDATE_DIR,
-    "update.zip"
-)
 
-UPDATE_FILES_DIR = os.path.join(
-    UPDATE_DIR,
-    "files"
-)
-
-SIGNATURE_FILE = os.path.join(
-    UPDATE_DIR,
-    "update.zip.sig"
-)
-
-PUBLIC_KEY_FILE = os.path.join(
-    GAME_DIR,
-    "public_key.pem"
-)
+UPDATE_ZIP = UPDATE_DIR / "update.zip"
+UPDATE_FILES_DIR = UPDATE_DIR / "files"
+SIGNATURE_FILE = UPDATE_DIR / "update.zip.sig"
+PUBLIC_KEY_FILE = GAME_DIR / "public_key.pem"
 
 
 def get_latest_release():
@@ -136,10 +126,12 @@ def download_file(
     progress_callback=None
 ):
 
-    temporary_file = destination + ".tmp"
+    destination = Path(destination)
+    temporary_file = destination.with_suffix(
+        destination.suffix + ".tmp"
+    )
 
     try:
-
         with requests.get(
             url,
             stream=True,
@@ -171,21 +163,17 @@ def download_file(
                         continue
 
                     file.write(chunk)
-
                     downloaded += len(chunk)
 
                     if (
                         progress_callback is not None
                         and total_size > 0
                     ):
-
                         progress = (
                             downloaded / total_size
                         ) * 100
 
-                        progress_callback(
-                            progress
-                        )
+                        progress_callback(progress)
 
         os.replace(
             temporary_file,
@@ -194,11 +182,10 @@ def download_file(
 
     except Exception:
 
-        if os.path.exists(temporary_file):
-            os.remove(temporary_file)
+        if temporary_file.exists():
+            temporary_file.unlink()
 
         raise
-
 
 def calculate_sha256(path):
 
@@ -351,55 +338,52 @@ def prepare_update(url, signature_url, progress_callback=None):
 
 
 def apply_pending_update():
+    if not UPDATE_FILES_DIR.exists():
+        return
 
-    if not os.path.isdir(
-        UPDATE_FILES_DIR
-    ):
-        return False
+    protected_files = {
+        "achievements.dat",
+        "device_data.dat",
+        "settings.json",
+    }
 
-    try:
+    protected_directories = {
+        "saves",
+    }
 
-        for name in os.listdir(
-            UPDATE_FILES_DIR
+    game_dir = Path(GAME_DIR)
+
+    for source in UPDATE_FILES_DIR.rglob("*"):
+
+        if not source.is_file():
+            continue
+
+        relative_path = source.relative_to(UPDATE_FILES_DIR)
+
+        # Korunan klasörün içindeyse atla
+        if any(
+            part in protected_directories
+            for part in relative_path.parts
         ):
+            continue
 
-            source = os.path.join(
-                UPDATE_FILES_DIR,
-                name
-            )
+        # Korunan dosyaysa atla
+        if relative_path.name in protected_files:
+            continue
 
-            destination = os.path.join(
-                GAME_DIR,
-                name
-            )
+        destination = game_dir / relative_path
 
-            if os.path.isdir(
-                source
-            ):
-
-                shutil.copytree(
-                    source,
-                    destination,
-                    dirs_exist_ok=True
-                )
-
-            else:
-
-                shutil.copy2(
-                    source,
-                    destination
-                )
-
-        shutil.rmtree(
-            UPDATE_DIR
+        destination.parent.mkdir(
+            parents=True,
+            exist_ok=True
         )
 
-        return True
-
-    except Exception as e:
-
-        print(
-            f"Güncelleme uygulanamadı: {e}"
+        shutil.copy2(
+            source,
+            destination
         )
 
-        return False
+    shutil.rmtree(
+        UPDATE_DIR,
+        ignore_errors=True
+    )
