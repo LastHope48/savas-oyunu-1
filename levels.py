@@ -83,7 +83,7 @@ level8 = [
     collisions=False,
     arrow_image=os.path.join(BASE_DIR,r"images/arrow_gold.png"),
     scene_dialogues=[
-        ("Boss", f"Bir kedi varmış, 100'e kadar sayarmış sıfırını atarken eli kaymış bir bok yapamamış. {", ".join(str(i+1) for i in range(100))}"),
+        ("Boss", f"Bir kedi varmış, 100'e kadar sayarmış sıfırını atarken eli kaymış bir bok yapamamış. {', '.join(str(i+1) for i in range(100))}"),
         ("Player", "Ne diyon aq"),
         ("Player", "Fazla bali beyne zararlıymış demek."),
         ("Boss", "Ben balayıcı değilim sensin balayıcı!"),
