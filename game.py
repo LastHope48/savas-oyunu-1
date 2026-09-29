@@ -95,6 +95,12 @@ class Game:
 
         self.dump("last_music", None)
 
+        self.fonts = {
+            "Türkçe": "arial",
+            "English": "arial",
+            "Sanskrit": os.path.join(BASE_DIR, "fonts", "sanskrit.ttf")
+        }
+
         self.running = True
 
         self.game_data: GameData = GameData.to_gamedata(game_data_defaults)

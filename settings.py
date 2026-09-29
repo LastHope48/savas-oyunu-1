@@ -6,7 +6,8 @@ from fonts import font3
 from copy import deepcopy
 from enum import Enum
 from lang_support import Lang
-from classes import userFont
+from classes import userFont, Music
+
 from basedir import BASE_DIR
 
 
@@ -633,6 +634,8 @@ class Settings:
             "sfx": True,
             "music_volume": 0.7,
             "sfx_volume": 0.8,
+            "music_source": Lang(türkçe="Seçilen Müzik", english="Selected Music"),
+            "selected_music": "Seçilmedi",
             "other_music": "",
             "fps": 60,
             "language": "Türkçe",
@@ -648,6 +651,8 @@ class Settings:
             "sfx": bool,
             "music_volume": float,
             "sfx_volume": float,
+            "music_source": Lang,
+            "selected_music": Music,
             "other_music": str,
             "fps": int,
             "language": str,
@@ -705,6 +710,42 @@ class Settings:
                 "slide_sfx": pygame.mixer.Sound(os.path.join(BASE_DIR, r"sounds/slide_bar_sfx.wav"))
             },
 
+            "music_source": {
+                "type": "select",
+                "values": [
+                    Lang(türkçe="Seçilen Müzik", english="Selected Music"),
+                    Lang(türkçe="Bilgisayardan Müzik", english="Music Path")
+                ],
+                "font": font3
+            },
+
+            "selected_music": {
+                "type": "select",
+                "values": [
+                    Music(
+                        os.path.join(BASE_DIR, r"musics/holding_out_for_a_hero.mp3"),
+                        "Adam akıllı müzik"
+                    ),
+                    Music(
+                        os.path.join(BASE_DIR, r"musics/eba_phonk.mp3"),
+                        "Eba Fank"
+                    ),
+                    Music(
+                        os.path.join(BASE_DIR, r"musics/bouncing_seals.mp3"),
+                        "Zıplayan foklar"
+                    ),
+                    Music(
+                        os.path.join(BASE_DIR, r"musics/miguel_phonk.mp3"),
+                        "Miguel Phonk"
+                    ),
+                    Music(
+                        os.path.join(BASE_DIR, r"musics/verity_obesity.mp3"),
+                        "Obez Verity"
+                    )
+                ],
+                "font": font3
+            },
+
             "other_music": {
                 "type": "textbox",
                 "max_length": desktop_size[0] // 50,
@@ -743,6 +784,8 @@ class Settings:
             "sfx": "SFX",
             "music_volume": Lang(türkçe="Müzik Sesi", english="Music Volume"),
             "sfx_volume": Lang(türkçe="SFX Sesi", english="SFX Volume"),
+            "music_source": Lang(türkçe="Müzik Kaynağı", english="Music Source"),
+            "selected_music": Lang(türkçe="Seçilen Müzik", english="Selected Music"),
             "other_music": Lang(türkçe="Bilgisayardan Müzik", english="Music Path"),
             "fps": "FPS",
             "language": Lang(türkçe="Dil", english="Language")
@@ -759,6 +802,25 @@ class Settings:
     # =================================================
     # DEĞER İŞLEMLERİ
     # =================================================
+
+    @property
+    def height(self):
+        if not self.elements:
+            return 0
+
+        first = next(iter(self.elements.values()))
+        last = next(reversed(self.elements.values()))
+
+
+        return last.rect.bottom - first.rect.top
+
+    @property
+    def y(self):
+        if not self.elements:
+            return 0
+
+        first = next(iter(self.elements.values()))
+        return first.rect.top
 
     def get(self, name):
         return self.values[name]
@@ -977,8 +1039,10 @@ class Settings:
                     font=option["font"],
                     icons=icons
                 )
+                print(type(option["values"]))
+                print(option["values"])
 
-                size_x = max(*(element.font.font.size(val)[0] for val in option["values"]))
+                size_x = max((element.font.font.size(val.__str__())[0] for val in option["values"]))
 
                 element.rect.width=(size_x + 20)
 

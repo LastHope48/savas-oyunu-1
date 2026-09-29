@@ -4,7 +4,6 @@ import os
 pygame.font.init()
 
 class userFont:
-    fonts = []
 
     def __init__(self, name: str, size: int, bold=False, italic=False):
         self.name = name
@@ -27,7 +26,6 @@ class userFont:
             self.font = pygame.font.Font(name, size)
         else:
             self.font = pygame.font.SysFont(self.name, self.size, self.bold, self.italic)
-        self.fonts.append(self)
 
     def return_text(self, text: str, color: tuple, background: tuple = None, antialias=True):
         return self.font.render(text, antialias, color, background)

@@ -49,13 +49,13 @@ class AchievementsScreen(MenuScreen):
         )
 
         self.message_font = DynamicFont(
-            "notosans.ttf",
+            os.path.join(BASE_DIR, r"fonts/notosans.ttf"),
             20,
             50
         )
 
         self.loading_font = DynamicFont(
-            "notosans.ttf",
+            os.path.join(BASE_DIR, r"fonts/notosans.ttf"),
             20,
             50
         )

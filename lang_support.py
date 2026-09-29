@@ -1,7 +1,7 @@
 from typing import overload
 
 class Lang:
-    USING_LANG: str | None = None
+    USING_LANG: str | None = "türkçe"
 
     def __init__(self, **languages):
         self.languages = languages
@@ -30,3 +30,9 @@ class Lang:
             else:
                 return self.languages.get(language.lower(), "Unknown")
 
+    def __str__(self):
+        if Lang.USING_LANG is not None:
+            return self.__call__()
+
+        else:
+            return self.__call__("english")

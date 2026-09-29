@@ -3,14 +3,14 @@ import pygame
 from levels import level_sword_map, level_item_map, levels, bronze_gun
 import typehint_game
 import classes
-from fonts import font1, font2, font3, font4
+from fonts import font1, font2, font3, dfont1
 import colours
 from classes import Button, defaults as game_data_defaults
 from calcs import calculate_size
 from lang_support import Lang
-from ui import Bar, BarElement
-import os
+from scene import Scene, SceneDialogue
 from basedir import BASE_DIR
+import os
 
 from gamedata import GameData
 
@@ -43,6 +43,7 @@ class GameScreen(Screen):
         self.quick_gun_swap_index = 0
         self.saved_last = False
         self.save_last_cd = Cooldown(20)
+        self.typing_sound = self.game.mixer.Sound(os.path.join(BASE_DIR, r"sounds/heavy_speak.wav"))
 
 
         self.new_game_button = Button(
@@ -122,6 +123,8 @@ class GameScreen(Screen):
             design="bevel",
             border_radius=0
         )
+
+        self.scene = None
     
     def draw(self, surface: pygame.Surface):
         self.game.game_data.world.draw(surface)
@@ -187,7 +190,14 @@ class GameScreen(Screen):
             self.settings_button.draw(surface)
             self.quit_button.draw(surface)
 
+        if self.scene is not None and self.scene.active:
+            self.scene.draw(surface)
+
     def update(self, dt):
+        if self.scene is not None and self.scene.active:
+            self.scene.update(dt)
+            return
+
         if not self.esc_screen and not self.gun_choosing:
 
             self.dash_cooldown.reduce(dt)
@@ -346,6 +356,10 @@ class GameScreen(Screen):
 
     def handle_event(self, event: pygame.event.Event):
 
+        if self.scene is not None and self.scene.active:
+            self.scene.handle_event(event)
+            return
+
         for item in self.game.game_data.world.items:
             item: classes.Item
             item.handle_event(event)
@@ -497,6 +511,33 @@ class GameScreen(Screen):
             enemy: classes.Enemy
             enemy.set_pos(self.game.game_data.world, self.game.info)
 
+        dialogues = []
+
+        for enemy in self.game.game_data.enemy_data.values():
+            if type(enemy) == classes.Boss and enemy.scene_dialogues:
+                for speaker, text in enemy.scene_dialogues:
+                    if speaker == "Boss":
+                        image = enemy.uimage
+
+                    elif speaker == "Player":
+                        image = self.game.game_data.player.image
+
+                    dialogues.append(
+                        SceneDialogue(
+                            speaker,
+                            text,
+                            image
+                        )
+                    )
+
+        if dialogues:
+            self.scene = Scene(
+                font=dfont1,
+                dialogues=dialogues,
+                typing_sound=self.typing_sound
+            )
+            self.scene.start()
+
 
     def check_level(self):
         if all(not enemy.living for enemy in self.game.game_data.enemy_data.values()):
@@ -543,9 +584,17 @@ class GameScreen(Screen):
         if self.game.settings.get("music"):
             try:
 
-                self.game.mixer.music.load(
-                    self.game.settings.get("other_music")
-                )
+                filename = ""
+
+                if self.game.settings.get("music_source").get("english").lower() == "music path":
+                    filename = self.game.settings.get("other_music")
+
+                elif self.game.settings.get("music_source").get("english").lower() == "selected music":
+
+                    if isinstance(self.game.settings.get("selected_music"), classes.Music):
+                        filename = self.game.settings.get("selected_music").filename
+
+                self.game.mixer.music.load(filename)
 
                 self.game.mixer.music.play(-1)
 

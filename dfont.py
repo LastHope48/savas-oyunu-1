@@ -137,50 +137,51 @@ class DynamicFont:
         low = self.min_size
         high = self.max_size
         best_size = self.min_size
+        best_lines = [text]
 
         while low <= high:
             size = (low + high) // 2
             self.load(size)
 
             if breaklines:
-                # ÖNEMLİ:
-                # Bu font boyutunda tekrar wrap yapılıyor.
                 lines = self.wrap_text(text, max_width)
             else:
                 lines = [text]
 
             line_height = self._font.get_height()
-
-            text_width = max(
-                (self._font.size(line)[0] for line in lines),
-                default=0
-            )
-
             text_height = line_height * len(lines)
 
-            fits = (
-                text_width <= max_width
-                and text_height <= max_height
+            # Her satırın gerçekten genişliğini kontrol et
+            fits_width = all(
+                self._font.size(line)[0] <= max_width
+                for line in lines
             )
 
-            if fits:
+            fits_height = text_height <= max_height
+
+            if fits_width and fits_height:
+                # Bu boyut kutuya sığıyor.
+                # Daha büyük font deneyelim.
                 best_size = size
+                best_lines = lines
                 low = size + 1
+
             else:
+                # Sığmadıysa fontu küçült.
                 high = size - 1
 
-        # En uygun font boyutuna dön
+        # Bulduğumuz en büyük uygun font boyutuna dön
         self.load(best_size)
 
         if breaklines:
-            # Burada da SON font boyutuna göre tekrar wrap
-            lines = self.wrap_text(text, max_width)
+            # Son font boyutuna göre tekrar wrap
+            best_lines = self.wrap_text(text, max_width)
 
             line_height = self._font.get_height()
 
             renders = [
                 self._font.render(line, True, color)
-                for line in lines
+                for line in best_lines
             ]
 
             return renders, line_height
@@ -188,7 +189,6 @@ class DynamicFont:
         rendered = self._font.render(text, True, color)
 
         return rendered, self._font.get_height()
-
 
 class MsgBox:
 

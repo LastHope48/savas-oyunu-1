@@ -344,6 +344,21 @@ class Button:
         self.rect.topleft = (x, y)
 
 
+class Music:
+    def __init__(self, filename: str | os.PathLike, name: str | None = None):
+        self.filename = filename
+        self.name = name or self.filename
+
+    def play(self, volume: float, loops: int = -1):
+        pygame.mixer.music.load(self.filename)
+        pygame.mixer.music.set_volume(volume)
+
+        pygame.mixer.music.play(loops=loops)
+
+    def __str__(self):
+        return self.name
+
+
 class InputBox:
     def __init__(self, x, y, width, height, color: tuple, font: userFont, waiting_font: userFont = None):
         self.x = x
@@ -1593,10 +1608,10 @@ class Player:
 
             elif element == "heal":
 
-                percent_heal = (
+                percent_heal = min((
                     self.heal_cooldown /
                     self.heal_cooldown_orig
-                )
+                ), 1)
 
                 pygame.draw.rect(
                     surface,
@@ -1967,48 +1982,134 @@ class Bomb:
 
 
 class SplitGround:
-    def __init__(self, attack: int, x, y, image_name: os.PathLike, angle: int, player_x, player_y, copy_cd=0.01):
+    __slots__ = (
+        "x", "y", "pos",
+        "attack",
+        "image_name",
+        "image",
+        "angle",
+        "destroyed",
+        "copy_cd",
+        "orig_copy_cd",
+        "player_x",
+        "player_y",
+        "speed",
+        "copies",
+        "copy_master",
+        "image_rect",
+        "destroy_cd",
+        "vx",
+        "vy",
+        "copied",
+    )
+
+    def __init__(
+        self,
+        attack: int,
+        x,
+        y,
+        image_name: os.PathLike,
+        angle: int,
+        player_x,
+        player_y,
+        copy_cd=0.01,
+        *,
+        image=None,
+        copied=False
+    ):
         self.x = x
         self.y = y
         self.pos = (x, y)
+
         self.attack = attack
         self.image_name = image_name
-        self.image = pygame.image.load(image_name).convert_alpha()
-        self.image = pygame.transform.rotate(self.image, angle)
         self.angle = angle
+
+        # Aynı image Surface'i paylaş
+        if image is None:
+            image = pygame.image.load(image_name).convert_alpha()
+            image = pygame.transform.rotate(image, angle)
+
+        self.image = image
+
         self.destroyed = False
+
         self.copy_cd = copy_cd
         self.orig_copy_cd = copy_cd
+
         self.player_x = player_x
         self.player_y = player_y
-        self.copied = False
+
+        self.copied = copied
+        self.copy_master = None
+
+        # Sadece ana SplitGround kopya listesi tutar
+        self.copies = [] if not copied else None
+
         self.speed = 700
-        if not self.copied:
-            self.copies = []
-        else:
-            self.copy_master = None
-        self.image_rect = self.image.get_rect(midtop=(self.x, self.y))
         self.destroy_cd = 2.3
-        dx = self.player_x - self.x
-        dy = self.player_y - self.y
+
+        self.image_rect = self.image.get_rect(
+            midtop=(x, y)
+        )
+
+        dx = player_x - x
+        dy = player_y - y
         distance = math.hypot(dx, dy)
 
-        if distance != 0:
+        if distance:
             self.vx = dx / distance
             self.vy = dy / distance
         else:
             self.vx = 0
             self.vy = 0
-    
-    def copy(self):
-        return copy.deepcopy(self)
+
+    def create_copy(self):
+        """
+        deepcopy yerine sadece gerekli bilgileri kullanarak
+        hafif bir kopya oluşturur.
+        """
+
+        dx = self.player_x - self.x
+        dy = self.player_y - self.y
+
+        distance = math.hypot(dx, dy)
+
+        if distance:
+            x = self.x + (dx / distance) * 10
+            y = self.y + (dy / distance) * 10
+        else:
+            x = self.x
+            y = self.y
+
+        return SplitGround(
+            attack=self.attack,
+            x=x,
+            y=y,
+            image_name=self.image_name,
+            angle=self.angle,
+            player_x=self.player_x,
+            player_y=self.player_y,
+            copy_cd=self.orig_copy_cd,
+            image=self.image,
+            copied=True
+        )
 
     def draw(self, surface: pygame.Surface):
-        if not self.destroyed: surface.blit(self.image, self.image_rect)
-        for sg in self.copies:
-            sg: SplitGround
-            sg.draw(surface)
-    
+        if self.destroyed:
+            return
+
+        surface.blit(self.image, self.image_rect)
+
+        # Recursive draw yerine düz liste
+        if self.copies:
+            for sg in self.copies:
+                if not sg.destroyed:
+                    surface.blit(
+                        sg.image,
+                        sg.image_rect
+                    )
+
     def update(self, dt):
 
         if self.destroyed:
@@ -2018,79 +2119,90 @@ class SplitGround:
 
         if self.destroy_cd <= 0:
             self.destroyed = True
+
+            # Ana objenin kopyalarını da temizle
+            if self.copies:
+                self.copies.clear()
+
             return
 
-        # Her frame hareket et
-        self.x += self.vx * self.speed * dt
-        self.y += self.vy * self.speed * dt
+        # Hareket
+        movement = self.speed * dt
+
+        self.x += self.vx * movement
+        self.y += self.vy * movement
 
         self.image_rect.midtop = (
             self.x,
             self.y
         )
 
-        # Kopya oluşturma süresi
+        # Kopyalama
         self.copy_cd -= dt
 
         if self.copy_cd <= 0:
 
-            if len(self.copies) > 0:
-                _self = self.copies[-1].copy()
-            else:
-                _self = self.copy()
+            new_copy = self.create_copy()
 
-            _self.copied = True
-            _self.copy_master = self
-
-            # Fırlatıldığı anda kaydedilmiş oyuncu konumuna göre
-            # kopyanın başlangıç konumunu hesapla
-            dx = self.player_x - self.x
-            dy = self.player_y - self.y
-
-            distance = math.hypot(dx, dy)
-
-            if distance != 0:
-                _self.x = self.x + (dx / distance) * 10
-                _self.y = self.y + (dy / distance) * 10
-
-            _self.image_rect = _self.image.get_rect(
-                midtop=(_self.x, _self.y)
-            )
-            _self.angle = self.angle
-            _self.image = pygame.transform.rotate(_self.image, _self.angle)
-
-            self.copies.append(_self)
+            self.copies.append(new_copy)
 
             self.copy_cd = self.orig_copy_cd
-    
+
     def update_collision(self, player: Player):
+
+        if self.destroyed:
+            return
+
+        # Ana obje
         if player.image_rect.colliderect(self.image_rect):
             player.hp -= self.attack
             self.destroyed = True
             return
-        else:
-            for sg in self.copies:
-                sg: SplitGround
-                if not sg.copy_master.destroyed:
-                    if player.image_rect.colliderect(sg.image_rect) and not sg.destroyed:
-                        player.hp -= sg.attack
-                        sg.destroyed = True
-                        sg.copy_master.destroyed = True
-                        del sg
-                        break
-                else:
-                    sg.destroyed = True
+
+        # Kopyalar
+        if not self.copies:
+            return
+
+        for sg in self.copies:
+
+            if sg.destroyed:
+                continue
+
+            if player.image_rect.colliderect(sg.image_rect):
+                player.hp -= sg.attack
+                sg.destroyed = True
+
+                # Senin eski kodundaki davranışı koruyor:
+                # ana obje de yok oluyor.
+                self.destroyed = True
+
+                break
 
     def __getstate__(self):
-        state = self.__dict__.copy()
+        state = {}
 
-        del state["image"]
+        for slot in self.__slots__:
+            value = getattr(self, slot)
+
+            # pygame Surface pickle edilmesin
+            if slot != "image":
+                state[slot] = value
 
         return state
-    
+
     def __setstate__(self, state):
-        self.__dict__.update(state)
-        self.image = pygame.image.load(self.image_name).convert_alpha()
+
+        for key, value in state.items():
+            setattr(self, key, value)
+
+        self.image = pygame.image.load(
+            self.image_name
+        ).convert_alpha()
+
+        self.image = pygame.transform.rotate(
+            self.image,
+            self.angle
+        )
 
 
 class SCRLazerBeam:
@@ -2103,6 +2215,9 @@ class SCRLazerBeam:
         self.dark_color = colours.darker(self.color, 50)
         self.rect = None
         self.destroyed = False
+
+        self.damage_cd = Cooldown(0.3)
+        self.damage_cd.cooldown = 0
 
     def draw(self, surface: pygame.Surface):
         if self.destroyed: return
@@ -2125,15 +2240,16 @@ class SCRLazerBeam:
 
     def update(self, player: Player, dt):
         self.duration.reduce(dt)
+        self.damage_cd.reduce(dt)
 
         if self.duration.check():
             self.destroyed = True
             return
 
         if self.rect is not None:
-            if self.rect.colliderect(player.rect) and not self.destroyed:
+            if self.rect.colliderect(player.rect) and not self.destroyed and self.damage_cd.check():
                 player.hp -= self.attack
-                self.destroyed = True
+                self.damage_cd.refresh()
 
 
 class EnemyAbilities(Enum):
@@ -2147,7 +2263,6 @@ print(type(EnemyAbilities.ABILITY_ARROWS))
 
 
 class Enemy:
-    enemies = []
     DAMAGE_SWORD_DASH = "4"
     DAMAGE_BULLET = "5"
     DAMAGE_BRONZE_BULLET = "6"
@@ -2221,7 +2336,7 @@ class Enemy:
         self.cat_jump_cd = self.origin_cooldown + 4
 
         self.scr_lazer_beam_cd = self.origin_cooldown + 6
-        self.lazer_beam_inside_cd = Cooldown(0.3)
+        self.lazer_beam_inside_cd = Cooldown(0.1)
         self.scr_lazer_beam_counter = 0
 
         self.cat_jumping = False
@@ -2419,7 +2534,7 @@ class Enemy:
                         self.lazer_beam_inside_cd.refresh()
                         self.scr_lazer_beam_counter += 1
                 
-                if self.scr_lazer_beam_counter >= 5:
+                if self.scr_lazer_beam_counter >= 10:
                     self.scr_lazer_beam_cd.refresh()
                     self.lazer_beam_inside_cd.refresh()
                     self.scr_lazer_beam_counter = 0
@@ -2716,6 +2831,7 @@ class Boss(Enemy):
             cooldown_bagimsiz_summons: Cooldown=Cooldown(10),
             summons: list = None,
             cooldown_summons = Cooldown(3),
+            scene_dialogues=None,
         ):
 
         super().__init__(
@@ -2744,9 +2860,10 @@ class Boss(Enemy):
         self.summons = summons or []
         self.summon_cooldown = cooldown_summons
 
+        self.scene_dialogues = scene_dialogues or []
+
 
     def update(self, player: Player, world: World, dt, level: list):
-
 
         if not self.cat_jumping:
 
@@ -2833,6 +2950,8 @@ class Boss(Enemy):
             if enemy.living:
                 if type(enemy) == Boss:
                     bosses.append(enemy)
+
+
                 surface.blit(enemy.uimage, (enemy.x, enemy.y))
         for i, enemy in enumerate(bosses):
 
@@ -2903,7 +3022,16 @@ class Boss(Enemy):
             cooldown=Cooldown(7),
             summons=[Enemy.miguel(), Enemy.miguel(), Enemy.morty()],
             after_max_hp = 2000,
-            collisions=False
+            collisions=False,
+            scene_dialogues=[
+                ("Boss", "Lityum pilli kırmızı saçlı bi ablamız var işte sonra bi anda bi canavar geliyo bunlar dövüşüyo falan sonra bizimki lityum ablayı şarj ediyo"),
+                ("Player", "Alayına Cubuloggo"),
+                ("Boss", "At kafasi"),
+                ("Boss", "At"),
+                ("Player", "Yat Kafası"),
+                ("Boss", "Ter gafaso"),
+                ("Player", "balorant")
+            ]
         )
 
     def summon(self, dt, level: dict, world, pending_enemies: list):

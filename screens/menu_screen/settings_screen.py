@@ -1,6 +1,6 @@
 from .menu_screen import MenuScreen
 import pygame
-from fonts import font2, font3
+from fonts import font2, font3, update_fonts
 from console import Console
 import os
 from basedir import BASE_DIR
@@ -10,6 +10,7 @@ import colours
 from screens.types import ScreenType
 from update_manager import check_for_update, prepare_update
 import threading
+from userfont import userFont
 
 
 class SettingsScreen(MenuScreen):
@@ -54,7 +55,7 @@ class SettingsScreen(MenuScreen):
 
         self.update_button = Button(
             700,
-            750,
+            self.game.settings.y + self.game.settings.height + 100,
             300,
             50,
             "Güncellemeleri Kontrol Et",
@@ -195,7 +196,18 @@ class SettingsScreen(MenuScreen):
 
             self.game.settings.get_element("other_music").showing_icons = []
 
+        old_lang = Lang.USING_LANG
+
         Lang.USING_LANG = self.game.settings.get("language")
+
+        new_lang = Lang.USING_LANG
+
+        if old_lang != new_lang:
+            print("Updated fonts")
+            update_fonts(
+                self.game.fonts,
+                Lang.USING_LANG
+            )
 
 
     def handle_event(self, event: pygame.event.Event):

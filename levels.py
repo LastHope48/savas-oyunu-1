@@ -40,7 +40,11 @@ level3 = [
 ]
 
 level4 = [
-    classes.Boss(200, 30, size=200, after_max_hp=350, name="Fondöten")
+    classes.Boss(200, 30, size=200, after_max_hp=350, name="Fondöten", scene_dialogues=[
+        ("Boss", "Seni yeneceğim AHAHHAHAHAH!"),
+        ("Player", "Klasik uyduruk kötü karakter gibi olma biraz orjinal ol yeter bıktı insanlar böyle boş beleş karakterlerden."),
+        ("Boss", "Ama benim tek anlamım sıradan olmak :(")
+    ])
 ]
 
 level5 = [
@@ -77,7 +81,16 @@ level8 = [
     ],
 
     collisions=False,
-    arrow_image=os.path.join(BASE_DIR,r"images/arrow_gold.png"))
+    arrow_image=os.path.join(BASE_DIR,r"images/arrow_gold.png"),
+    scene_dialogues=[
+        ("Boss", f"Bir kedi varmış, 100'e kadar sayarmış sıfırını atarken eli kaymış bir bok yapamamış. {", ".join(str(i+1) for i in range(100))}"),
+        ("Player", "Ne diyon aq"),
+        ("Player", "Fazla bali beyne zararlıymış demek."),
+        ("Boss", "Ben balayıcı değilim sensin balayıcı!"),
+        ("Player", "Balayıcı ne aw"),
+        ("Player", "Tamam susta döviyim seni.")
+    ]
+    )
 ]
 
 level9 = [
@@ -113,7 +126,15 @@ level11 = [
         cooldown_arrow=Cooldown(0.75),
         bagimsiz_summons=[classes.Enemy.prepared_old(True, 10)],
         cooldown_bagimsiz_summons=Cooldown(1),
-        arrow_image=os.path.join(BASE_DIR,r"images/ampul_adam_arrow.png")
+        arrow_image=os.path.join(BASE_DIR,r"images/ampul_adam_arrow.png"),
+        scene_dialogues=[
+            ("Player", "Aboo ampul adam gelmiş favori adamın valla dosta korku düşmana güven salıyor favım idolüm bee oyunların da en büyük korkusu 10 numara 5 yıldız adam valla."),
+            ("Boss", "Ampul"),
+            ("Player", "LAN DOLAR 2000 OLMUŞ"),
+            ("Boss", "Ampul"),
+            ("Player", "Allah belanı versin Kılıçdaroğlu"),
+            ("Boss", "Ampul")
+        ]
     ),
     classes.Boss(
         900,

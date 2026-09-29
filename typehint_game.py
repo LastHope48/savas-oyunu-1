@@ -15,6 +15,7 @@ from sfx_manager import SFXManager
 from achievements import Achievements
 from device_id import DeviceID
 from dump import Dump
+import os
 
 class Game:
     def __init__(self):
@@ -41,6 +42,7 @@ class Game:
         self.illegal: bool
         self.offline: bool
         self.console_used: bool
+        self.fonts: dict[str, str | os.PathLike]
 
         self.game_data: GameData
         self.screen_manager: ScreenManager
