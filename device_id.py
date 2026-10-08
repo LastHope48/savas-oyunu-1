@@ -31,7 +31,8 @@ class DeviceID:
                     "device_id": device_id,
                     "hmac": hmac_value
                 },
-                timeout=10
+                timeout=10,
+                verify=False
             )
 
             response.raise_for_status()
@@ -57,7 +58,8 @@ class DeviceID:
                 json={
                     "device_id": device_id
                 },
-                timeout=10
+                timeout=10,
+                verify=False
             )
 
             response.raise_for_status()

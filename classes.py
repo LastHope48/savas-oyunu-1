@@ -14,10 +14,15 @@ import _pickle
 from cooldown import Cooldown
 from helper_funcs import draw_aa_line
 from screens.types import ScreenType
-from fonts import font2
 from userfont import userFont
 from basedir import BASE_DIR
-
+from val_manager import ValueManager
+from animations import AnimationController
+from sound_manager import SoundPoolFX, SoundFX
+from lang_support import Lang
+from dfont import DynamicFont
+from combo_meter import ComboMeter
+from enemy_telegraph import EnemyTelegraph
 
 manager = settings_manager.SettingsManager("settings", os.path.join(BASE_DIR,"settings"), "TEST", "2.0")
 
@@ -30,6 +35,7 @@ logging.basicConfig(
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG if manager.get_attribute("DEBUG") else logging.INFO)
+pygame.mixer.pre_init(44100, -16, 2, 512)
 pygame.init()
 info = pygame.display.Info()
 
@@ -94,14 +100,14 @@ class Slot:
             logging.debug(slot.info)
 
     @staticmethod
-    def create_slots(save_manager):
+    def create_slots(save_manager, font):
         for i in range(70):
             # Zaten otomatik listeye ekliyor
             Slot(
                 i,
                 display=Button(
                         0, 0, 600, 200, f"Slot {i+1}",
-                        font2,
+                        font,
                         colours.BLUE,
                         colours.WHITE,
                         [ScreenType.LOAD, ScreenType.SAVE],
@@ -110,6 +116,10 @@ class Slot:
                         )
             )
         Slot.update_infos(save_manager)
+
+    @classmethod
+    def delete_slots(cls):
+        cls.slots.clear()
 
 
 class AlignedRect:
@@ -431,21 +441,14 @@ class Sword:
         self.material = material
         self.color = color
         self.dash_speed = dash_speed
-        print("RENK:",self.color)
 
-    def draw(self, surface, x, y, dashing: bool, angle):
-        blade_length = 60
+    def draw(self, surface, x, y, angle: float):
+        blade_length = 55
         blade_width = 8
-        handle_length = 18
-        guard_width = 24
-        if not dashing:
-            rad = math.radians(-90)
-        else:
-            if angle < 90 and angle > -90:
-                rad = math.radians(0)
-            else:
-                rad = math.radians(180)
+        handle_length = 16
+        guard_width = 22
 
+        rad = math.radians(angle)
         dx = math.cos(rad)
         dy = math.sin(rad)
 
@@ -457,50 +460,32 @@ class Sword:
         tip_y = y + dy * blade_length
 
         blade = [
-            (x + px * blade_width/2, y + py * blade_width/2),
-            (x - px * blade_width/2, y - py * blade_width/2),
-            (tip_x - px * blade_width/2, tip_y - py * blade_width/2),
+            (x + px * blade_width / 2, y + py * blade_width / 2),
+            (x - px * blade_width / 2, y - py * blade_width / 2),
+            (tip_x - px * blade_width / 2, tip_y - py * blade_width / 2),
             (tip_x, tip_y),
-            (tip_x + px * blade_width/2, tip_y + py * blade_width/2)
+            (tip_x + px * blade_width / 2, tip_y + py * blade_width / 2)
         ]
 
         # Bıçak
         pygame.draw.polygon(surface, self.color, blade)
 
-        # Kabza
+        # Kabza (Geriye uzanan sap)
         handle_x = x - dx * handle_length
         handle_y = y - dy * handle_length
+        pygame.draw.line(surface, (110, 70, 30), (x, y), (handle_x, handle_y), 6)
 
-        pygame.draw.line(
-            surface,
-            (110, 70, 30),
-            (x, y),
-            (handle_x, handle_y),
-            6
-        )
-
-        # El koruması
+        # El koruması (Guard)
         pygame.draw.line(
             surface,
             (255, 215, 0),
-            (
-                x + px * guard_width/2,
-                y + py * guard_width/2
-            ),
-            (
-                x - px * guard_width/2,
-                y - py * guard_width/2
-            ),
+            (x + px * guard_width / 2, y + py * guard_width / 2),
+            (x - px * guard_width / 2, y - py * guard_width / 2),
             5
         )
 
         # Kabza ucu
-        pygame.draw.circle(
-            surface,
-            (180, 180, 180),
-            (int(handle_x), int(handle_y)),
-            4
-        )
+        pygame.draw.circle(surface, (180, 180, 180), (int(handle_x), int(handle_y)), 4)
 
 
 class SwapValue:
@@ -664,7 +649,6 @@ class Bullet:
             "__deflected__": 100_000
         }
 
-        print(material)
 
         self.range = range or range_map[material]
         self.travelled = 0
@@ -690,7 +674,7 @@ class Bullet:
     def get_mouse_pos(self):
         self.mx, self.my = pygame.mouse.get_pos()
 
-    def update(self, world, dt, enemies: list):
+    def update(self, world, dt, enemies: list, player=None, gun_combo=False):
         if self.mx is not None and self.my is not None:
             self.dx = self.mx - self.x
             self.dy = self.my - self.y
@@ -735,16 +719,22 @@ class Bullet:
                             enemy.hp -= self.attack
 
                     self.deleted = True
+
+                    if gun_combo:
+                        if getattr(player, "combo_meter", None):
+                            player.combo_meter.add_hit(count=1, swidth=info.current_w, sheight=info.current_h) # Kombo + 1
                     break
 
-                for arrow in enemy.arrows:
-                    arrow: Arrow
-                    arrow_rect = arrow.rotated_rect or arrow.image_rect
+                if self.material != "__deflected__":
+                    for arrow in enemy.arrows:
 
-                    if rect.colliderect(arrow_rect):
-                        enemy.arrows.remove(arrow)
-                        self.deleted = True
-                        break
+                        arrow: Arrow
+                        arrow_rect = arrow.rotated_rect or arrow.image_rect
+
+                        if rect.colliderect(arrow_rect):
+                            enemy.arrows.remove(arrow)
+                            self.deleted = True
+                            break
 
             self.rotated = pygame.transform.rotate(self.image, self.angle)
             self.rotated_rect = self.rotated.get_rect(center=(self.x, self.y))
@@ -768,14 +758,17 @@ class Bullet:
 
 
 class Gun:
-    def __init__(self, name: str, color: tuple, attack: int, bullet_speed: int, image_name: os.PathLike, bullet_name: os.PathLike, cooldown: int, material):
+    def __init__(self, name: str, color: tuple, attack: int, bullet_speed: int, image_name: os.PathLike, bullet_name: os.PathLike, cooldown: int, material, img_size: float=1.0):
         self.name = name
         self.color = color
         self.attack = attack
         self.bullet_speed = bullet_speed
         self.image_name = image_name
+        self.image_size = img_size
+
         image = pygame.image.load(self.image_name)
         self.image = pygame.transform.scale_by(image, 0.5)
+        self.image = pygame.transform.scale_by(self.image, self.image_size)
         self.bullet_name = bullet_name
         self.bullets = []
         self.rotated = None
@@ -788,7 +781,6 @@ class Gun:
         self.cooldown = self.origin_cooldown
         self.dashing = False
         self.material = material
-        print(material)
 
     def draw(self, surface: pygame.Surface, x: int, y: int):
         self.x = x
@@ -802,8 +794,7 @@ class Gun:
         #     self.image_name = self.image_name.replace("l.png", "r.png")
         # else:
         #     self.image_name = self.image_name.replace("r.png", "l.png")
-        image = pygame.image.load(self.image_name)
-        self.image = pygame.transform.scale_by(image, 0.5)
+
         for bullet in self.bullets:
             bullet: Bullet
             bullet.draw(surface)
@@ -811,7 +802,7 @@ class Gun:
     def draw_copy(self, surface: pygame.Surface, x: int, y: int):
         surface.blit(self.image, (x, y))
     
-    def update(self, world, dt, enemies: list, player):
+    def update(self, world, dt, enemies: list, player, gun_combo=False):
         self.cooldown -= dt
         self.dash_duration.reduce(dt)
 
@@ -829,7 +820,7 @@ class Gun:
             return
         for bullet in self.bullets:
             bullet: Bullet
-            bullet.update(world, dt, enemies)
+            bullet.update(world, dt, enemies, player, gun_combo)
             if bullet.deleted:
                 self.bullets.remove(bullet)
         if not self.dashing:
@@ -840,7 +831,6 @@ class Gun:
     def fire(self):
         if self.cooldown <= 0:
             if self.x is not None:
-                print(self.material)
                 self.bullets.append(
                     Bullet(
                         self.x,
@@ -891,6 +881,7 @@ class Gun:
 
         image = pygame.image.load(self.image_name)
         self.image = pygame.transform.scale(image, (image.get_width() / 2, image.get_height() / 2))
+        self.image = pygame.transform.scale_by(self.image, self.image_size)
         self.rotated = None
         self.rotated_rect = None
 
@@ -1130,16 +1121,100 @@ class Item:
 
 
 class Player:
-    def __init__(self, hp, using_gun: Sword, image_name: os.PathLike, speed_normal=400, speed_max=600):
+    SETTINGS = None
+
+    # Her kare için: (el_x, el_y, kılıç_açısı)
+    # Açı referansı: 0 = düz sağa uzanmış, 90 = dik yukarı, -45 = aşağı eğik
+    SWORD_SOCKETS = {
+        # Saldırı komboları (Tam istediğin gibi, kesinlikle dokunulmadı)
+        "attack": [
+            {"pos": (33, 58), "angle": -75},
+            {"pos": (80, 52), "angle": 15},
+            {"pos": (60, 26), "angle": -80},
+            {"pos": (89, 58), "angle": 0},
+        ],
+
+        # --- NORMAL HAREKETLER (ARTIK TERS / SIRTA VE ARKAYA DÖNÜK) ---
+        "idle": [
+            # Beklerken kılıç omzun gerisinde / sırtta dinlenir (yukarı-arkaya doğru)
+            {"pos": (44, 60), "angle": -135},
+        ],
+        "run": [
+            # Koşarken kılıç anime/ninja koşusu gibi gövdenin arkasına yatar
+            {"pos": (45, 58), "angle": 155},
+        ],
+        "dash": [
+            # Atılırken mermi hızında tam arkaya doğru yatay uzanır
+            {"pos": (45, 55), "angle": 175},
+        ],
+
+        # --- DEFLECT (OK SEKTİRME / KARŞILAMA) SOKETLERİ ---
+        # 1. Q'ya basıp bekleme anı (Kılıç göğüs hizasında 55° çapraz gardda)
+        "deflect_ready": [
+            {"pos": (69, 51), "angle": 55},
+        ],
+
+        # 2. Ok çarptığı an oynayan 10 karelik karşılama savurması:
+        "deflect": [
+            {"pos": (68, 51), "angle": 55},    # 0: Temas anı (Darbe garda vurur)
+            {"pos": (71, 49), "angle": 68},    # 1: Şok dalgası (Kılıç dikleşir)
+            {"pos": (78, 40), "angle": 35},    # 2: Karşı savurma ivmesi başlar
+            {"pos": (85, 33), "angle": -15},   # 3: Tam savurma (Kılıç oku ileri-yukarı biçer)
+            {"pos": (86, 39), "angle": -48},   # 4: Hamle uzanışı
+            {"pos": (81, 48), "angle": -75},   # 5: Enerji dağılımı
+            {"pos": (74, 54), "angle": -102},  # 6: Geri toparlanma
+            {"pos": (69, 56), "angle": -120},  # 7: Kılıç sırta doğru çekilir
+            {"pos": (65, 58), "angle": -130},  # 8: Garda yaklaşma
+            {"pos": (64, 56), "angle": -135},  # 9: Normal bekleme (idle) açısına kilitlenme
+        ],
+    }
+
+    def __init__(
+        self,
+        hp,
+        using_gun: Sword,
+        image_name: os.PathLike,
+        val_manager: ValueManager | None,
+        speed_normal=400,
+        speed_max=600,
+        anim_dir: os.PathLike | None = None,
+        anim_speeds: dict | None = None
+    ):
         self.max_hp = 200
         self.hp = hp
+        self.val_manager = val_manager
         self.items = []
         self.using_gun = using_gun
         self.speed = speed_normal
         self.speed_normal = speed_normal
         self.speed_max = speed_max
         self.image_name = image_name
-        self.image = pygame.image.load(self.image_name)
+
+        # Dinamik Animasyon Kontrolcüsü
+        self.anim_dir = anim_dir
+        # Animasyon hızlarına deflect ekle (10 kare için saniyede 18 kare akıcı bir hızdır)
+        self.anim_speeds = anim_speeds or {
+            "idle": 4.0,
+            "run": 8.0,
+            "dash": 12.0,
+            "combat": 6.0,
+            "attack": 10.0,
+            "deflect": 18.0,        # <-- YENİ
+            "deflect_ready": 6.0     # <-- YENİ
+        }
+
+        # Sektirme animasyon durum değişkenleri
+        self.is_deflecting_anim = False
+        self.deflect_anim_frame = 0.0
+        
+        if self.anim_dir and os.path.exists(self.anim_dir):
+            self.anim = AnimationController(self.anim_dir, speeds=self.anim_speeds, target_scale=0.9)
+            initial_frame = self.anim.get_frame()
+            self.image = initial_frame if initial_frame is not None else pygame.image.load(self.image_name)
+        else:
+            self.anim = None
+            self.image = pygame.image.load(self.image_name)
+
         self.image_rect = self.image.get_rect()
         self.rotated = None
         self.rotated_rect = None
@@ -1165,6 +1240,13 @@ class Player:
         self.sword_angle = None
         self.cd_deflect = 0
         self.cd_deflect_orig = 2
+        # Saldırı Kombo Sistemi
+        self.attack_frame_idx = 0
+        self.attack_idle_timer = 0.0     # Tıklama yapılmadığında sayan sayaç
+        self.ATTACK_TIMEOUT = 0.7       # 0.7 saniye sonra normale dön
+
+        self._init_sounds()
+
         self.parlama_image_orig = pygame.image.load(os.path.join(BASE_DIR,r"images/parlama.png"))
         self.parlama_image = pygame.transform.scale_by(self.parlama_image_orig, 0.18)
         self.parlama_image2 = pygame.transform.scale_by(self.parlama_image_orig, 0.12)
@@ -1183,6 +1265,13 @@ class Player:
         self.movable = True
         self.deflect_bullets = []
 
+        self.combo_meter = ComboMeter()
+
+    @classmethod
+    def set_settings_manager(cls, settings):
+
+        cls.SETTINGS = settings
+
     def set_pos(self, world):
         world: World
         while True:
@@ -1194,45 +1283,83 @@ class Player:
                 self.y = y
                 break
 
-    def draw(self, surface: pygame.Surface):
-        surface.blit(self.image, (self.x, self.y))
+    def perform_attack_click(self):
+            if self.drawing:
+                return
 
-        if self.deflecting:
-            if self.parlama_rect is None: self.parlama_rect = self.parlama_image.get_rect()
-            if self.parlama_rect2 is None: self.parlama_rect2 = self.parlama_image2.get_rect()
+            total_attack_frames = len(self.anim.animations.get("attack", []))
+            if total_attack_frames == 0:
+                return
 
-            if self.drawing or self.sword_attacking:
-                if self.look_dir == "right":
-                    self.parlama_rect.center = (self.x + 105, self.y)
-                    self.parlama_rect2.center = (self.x + 80, self.y + 10)
-                elif self.look_dir == "left":
-                    self.parlama_rect.center = (self.x - 68, self.y)
-                    self.parlama_rect2.center = (self.x - 50, self.y + 10)
+            if not self.sword_attacking:
+                self.sword_attacking = True
+                self.attack_frame_idx = 0
             else:
-                self.parlama_rect.center = (self.x + 20, self.y - 40)
-                self.parlama_rect2.center = (self.x + 32, self.y - 25)
+                self.attack_frame_idx = (self.attack_frame_idx + 1) % total_attack_frames
 
-            center = self.parlama_rect.center
-            center2 = self.parlama_rect2.center
-            rotated = pygame.transform.rotate(
-                self.parlama_image,
-                self.parlama_image_angle
-            )
-            
-            rotated2 = pygame.transform.rotate(
-                self.parlama_image2,
-                self.parlama_image_angle2
-            )
+            self.attack_idle_timer = 0.0
 
-            rect = rotated.get_rect(center=center)
-            rect2 = rotated2.get_rect(center=center2)
-            surface.blit(rotated, rect)
-            surface.blit(rotated2, rect2)
+            # O anki karenin (0, 1, 2 veya 3) sesini çal:
+            swing_sound = self.attack_swings.get(self.attack_frame_idx)
+            if swing_sound:
+                if Player.SETTINGS is not None:
+                    swing_sound.set_volume(Player.SETTINGS.get("sfx_volume"))
+
+                if Player.SETTINGS is not None:
+                    if Player.SETTINGS.get("sfx"):
+                        swing_sound.play()
+
+                else:
+                    swing_sound.play()
+
+    def draw(self, surface: pygame.Surface):
+        # 1. Mevcut animasyon durumunu kontrol et
+        curr_state = getattr(self.anim, "current_state", "idle") if getattr(self, "anim", None) else "idle"
+        is_deflecting = curr_state in ("deflect", "deflect_ready") or getattr(self, "is_deflecting_anim", False)
+
+        def draw_sword():
+            if isinstance(self.using_gun, Sword) and getattr(self, "anim", None):
+                state = self.anim.current_state
+                sockets = Player.SWORD_SOCKETS.get(state, Player.SWORD_SOCKETS.get("idle", []))
+                if not sockets:
+                    return
+
+                frame_idx = int(self.anim.frame_index) % len(sockets)
+                socket = sockets[frame_idx]
+
+                hand_rel_x, hand_rel_y = socket["pos"]
+                base_angle = socket["angle"]
+
+                if self.look_dir == "left":
+                    hand_x = self.image_rect.right - hand_rel_x
+                    final_angle = 180 - base_angle
+                else:
+                    hand_x = self.image_rect.left + hand_rel_x
+                    final_angle = base_angle
+
+                hand_y = self.image_rect.top + hand_rel_y
+                self.using_gun.draw(surface, hand_x, hand_y, final_angle)
+
+        # 2. Katman sıralaması
+        if is_deflecting:
+            # Deflect anında: Önce kılıç çizilir, ardından karakter + beyaz çizgi kılıcın ÜSTÜNE basılır
+            draw_sword()
+            if self.image:
+                surface.blit(self.image, self.image_rect)
+        else:
+            # Normal durumlarda: Karakter gövdesi altta, kılıç elde üstte durur
+            if self.image:
+                surface.blit(self.image, self.image_rect)
+            draw_sword()
+
+        # 3. Sektirilen mermiler
         for bullet in self.deflect_bullets:
-            bullet: Bullet
             bullet.draw(surface)
 
+        self.combo_meter.draw(surface)
+
     def update(self, mouse_pos, world, dt, swidth: int, sheight: int, enemies: list):
+        # 1. Mermi sektirme (Deflect) güncellemeleri
         for bullet in self.deflect_bullets:
             bullet: Bullet
             bullet.update(world, dt, enemies)
@@ -1242,92 +1369,183 @@ class Player:
         if not self.drawing:
             self.speed = self.speed_normal
 
+        # 2. Hareket ve Pozisyon Hesaplamaları
+        is_moving = False
+
         if self.movable:
             if type(self.using_gun) == Sword or type(self.using_gun) == Charm:
                 if self.change_angle:
                     self.mx, self.my = mouse_pos
-
                     self.dx = self.mx - self.x
                     self.dy = self.my - self.y
-
                     self.distance = math.hypot(self.dx, self.dy)
+
                 if not self.teleporting:
-                    if int(self.distance) > 0:
+                    # 0 yerine 8 piksel eşik (mikro titremeyi engeller)
+                    if self.distance is not None and self.distance > 8:
                         self.touching = False
-                        new_x = self.x + (self.dx / self.distance) * self.speed * dt
-                        new_y = self.y + (self.dy / self.distance) * self.speed * dt
-                        self.image_rect = pygame.image.load(self.image_name).get_rect(topleft=(new_x, new_y))
-                        self.rect = pygame.image.load(self.image_name).get_rect(topleft=(new_x, new_y))
+                        move_dist = self.speed * dt
+                        # Hedefi aşmamak için min kontrolü
+                        step = min(move_dist, self.distance)
+                        new_x = self.x + (self.dx / self.distance) * step
+                        new_y = self.y + (self.dy / self.distance) * step
+                        
+                        test_rect = self.image_rect.copy()
+                        test_rect.topleft = (new_x, new_y)
+
                         if self.rotated_rect is None:
-                            if not self.image_rect.collidelist(world.rocks_rects) != -1 and not self.image_rect.colliderect(world.dirt_rect):
-                                self.x += (self.dx / self.distance) * self.speed * dt
-                                self.y += (self.dy / self.distance) * self.speed * dt
+                            if not test_rect.collidelist(world.rocks_rects) != -1 and not test_rect.colliderect(world.dirt_rect):
+                                self.x = new_x
+                                self.y = new_y
+                                is_moving = True
                         else:
                             self.rotated_rect.topleft = (new_x, new_y)
                             if not self.rotated_rect.collidelist(world.rocks_rects) != -1 and not self.rotated_rect.colliderect(world.dirt_rect):
-                                self.x += (self.dx / self.distance) * self.speed * dt
-                                self.y += (self.dy / self.distance) * self.speed * dt
+                                self.x = new_x
+                                self.y = new_y
+                                is_moving = True
                     else:
                         self.touching = True
+                        is_moving = False
+
+                    # Fareye göre bakış yönü
                     if self.change_angle and not self.sword_attacking:
                         self.angle = math.degrees(math.atan2(-self.dy, self.dx))
-                    if self.angle < 45 and self.angle > -45:
-                        self.image_name = os.path.join(BASE_DIR,r"images/stickmanr.png")
+                    
+                    if -45 < self.angle < 45:
                         self.look_dir = "right"
-                    if self.angle < 180 and self.angle < -135 or self.angle < 180 and self.angle > 135:
-                        self.image_name = os.path.join(BASE_DIR,r"images/stickmanl.png")
+                    elif self.angle > 135 or self.angle < -135:
                         self.look_dir = "left"
-                    self.image = pygame.image.load(self.image_name)
+
             elif type(self.using_gun) == Gun:
+                keys = pygame.key.get_pressed()
                 if not self.drawing:
-                    keys = pygame.key.get_pressed()
                     if keys[pygame.K_w]:
-                        self.image_rect.center = (self.x, self.y - self.speed * dt)
-                        if not self.image_rect.collidelist(world.rocks_rects) != -1 and not self.image_rect.colliderect(world.dirt_rect):
+                        test_rect = self.image_rect.copy()
+                        test_rect.center = (self.x, self.y - self.speed * dt)
+                        if not test_rect.collidelist(world.rocks_rects) != -1 and not test_rect.colliderect(world.dirt_rect):
                             self.y = max(self.y - self.speed * dt, 0)
                             self.last_pressed = "w"
+                            is_moving = True
                     if keys[pygame.K_s]:
-                        self.image_rect.center = (self.x, self.y + self.speed * dt)
-                        if not self.image_rect.collidelist(world.rocks_rects) != -1 and not self.image_rect.colliderect(world.dirt_rect):
+                        test_rect = self.image_rect.copy()
+                        test_rect.center = (self.x, self.y + self.speed * dt)
+                        if not test_rect.collidelist(world.rocks_rects) != -1 and not test_rect.colliderect(world.dirt_rect):
                             self.y = min(self.y + self.speed * dt, sheight)
                             self.last_pressed = "s"
+                            is_moving = True
                     if keys[pygame.K_d]:
-                        self.image_rect.center = (self.x + self.speed * dt, self.y)
-                        if not self.image_rect.collidelist(world.rocks_rects) != -1 and not self.image_rect.colliderect(world.dirt_rect):
+                        test_rect = self.image_rect.copy()
+                        test_rect.center = (self.x + self.speed * dt, self.y)
+                        if not test_rect.collidelist(world.rocks_rects) != -1 and not test_rect.colliderect(world.dirt_rect):
                             self.x = min(self.x + self.speed * dt, swidth)
                             self.last_pressed = "d"
-                        self.image_name = os.path.join(BASE_DIR,r"images/stickmanr.png")
+                            is_moving = True
+                        self.look_dir = "right"
                     if keys[pygame.K_a]:
-                        self.image_rect.center = (self.x - self.speed * dt, self.y)
-                        if not self.image_rect.collidelist(world.rocks_rects) != -1 and not self.image_rect.colliderect(world.dirt_rect):
+                        test_rect = self.image_rect.copy()
+                        test_rect.center = (self.x - self.speed * dt, self.y)
+                        if not test_rect.collidelist(world.rocks_rects) != -1 and not test_rect.colliderect(world.dirt_rect):
                             self.x = max(self.x - self.speed * dt, 0)
                             self.last_pressed = "a"
-                        self.image_name = os.path.join(BASE_DIR,r"images/stickmanl.png")
-                    self.image = pygame.image.load(self.image_name)
-                    self.image_rect = self.image.get_rect(center=(self.x, self.y))
+                            is_moving = True
+                        self.look_dir = "left"
                 else:
                     if self.last_pressed is not None:
                         pressing = getattr(pygame, f"K_{self.last_pressed}")
                         if pressing == pygame.K_w:
-                            self.image_rect.center = (self.x, self.y - self.speed * dt)
-                            if not self.image_rect.collidelist(world.rocks_rects) != -1 and not self.image_rect.colliderect(world.dirt_rect):
+                            test_rect = self.image_rect.copy()
+                            test_rect.center = (self.x, self.y - self.speed * dt)
+                            if not test_rect.collidelist(world.rocks_rects) != -1 and not test_rect.colliderect(world.dirt_rect):
                                 self.y = max(self.y - self.speed * dt, 0)
+                                is_moving = True
                         if pressing == pygame.K_s:
-                            self.image_rect.center = (self.x, self.y + self.speed * dt)
-                            if not self.image_rect.collidelist(world.rocks_rects) != -1 and not self.image_rect.colliderect(world.dirt_rect):
+                            test_rect = self.image_rect.copy()
+                            test_rect.center = (self.x, self.y + self.speed * dt)
+                            if not test_rect.collidelist(world.rocks_rects) != -1 and not test_rect.colliderect(world.dirt_rect):
                                 self.y = min(self.y + self.speed * dt, sheight)
+                                is_moving = True
                         if pressing == pygame.K_d:
-                            self.image_rect.center = (self.x + self.speed * dt, self.y)
-                            if not self.image_rect.collidelist(world.rocks_rects) != -1 and not self.image_rect.colliderect(world.dirt_rect):
+                            test_rect = self.image_rect.copy()
+                            test_rect.center = (self.x + self.speed * dt, self.y)
+                            if not test_rect.collidelist(world.rocks_rects) != -1 and not test_rect.colliderect(world.dirt_rect):
                                 self.x = min(self.x + self.speed * dt, swidth)
-                            self.image_name = os.path.join(BASE_DIR,r"images/stickmanr.png")
+                                is_moving = True
+                            self.look_dir = "right"
                         if pressing == pygame.K_a:
-                            self.image_rect.center = (self.x - self.speed * dt, self.y)
-                            if not self.image_rect.collidelist(world.rocks_rects) != -1 and not self.image_rect.colliderect(world.dirt_rect):
+                            test_rect = self.image_rect.copy()
+                            test_rect.center = (self.x - self.speed * dt, self.y)
+                            if not test_rect.collidelist(world.rocks_rects) != -1 and not test_rect.colliderect(world.dirt_rect):
                                 self.x = max(self.x - self.speed * dt, 0)
-                            self.image_name = os.path.join(BASE_DIR,r"images/stickmanl.png")
-                        self.image = pygame.image.load(self.image_name)
-                        self.image_rect = self.image.get_rect(center=(self.x, self.y))
+                                is_moving = True
+                            self.look_dir = "left"
+
+            # 3. Animasyon Durumu ve Görsel Güncellemesi (TÜM HAREKETLER BİTTİKTEN SONRA)
+            # --- Saldırı Zaman Aşımı (Timeout) Kontrolü ---
+            # 1. 2 saniye tıklanmazsa saldırıdan çık
+            if self.sword_attacking:
+                safe_dt = dt / 1000.0 if dt > 1.0 else dt
+                self.attack_idle_timer += safe_dt
+                if self.attack_idle_timer >= self.ATTACK_TIMEOUT:
+                    self.sword_attacking = False
+                    self.attack_idle_timer = 0.0
+                    self.attack_frame_idx = 0
+
+            # 2. Durum Belirleme ve Animasyon
+            if getattr(self, "anim", None) is not None:
+                # ÖNCELİK 1: Ok sektirme animasyonu (10 kare tamamlanana kadar oynar)
+                if self.is_deflecting_anim:
+                    target_state = "deflect"
+                    self.anim.current_state = "deflect"
+                    self.deflect_anim_frame += self.anim_speeds["deflect"] * dt
+                    
+                    if int(self.deflect_anim_frame) >= 10:
+                        self.is_deflecting_anim = False
+                        self.deflect_anim_frame = 0.0
+                        self.anim.frame_index = 0.0
+                    else:
+                        self.anim.frame_index = self.deflect_anim_frame
+
+                # ÖNCELİK 2: Q basılıyken gardda bekleme
+                elif self.deflecting:
+                    target_state = "deflect_ready"
+                    self.anim.frame_index = 0.0
+                    self.anim.update(target_state, dt)
+
+                # ÖNCELİK 3: Dash hareketi
+                elif self.drawing:
+                    target_state = "dash"
+                    self.anim.update(target_state, dt)
+
+                # ÖNCELİK 4: Kılıç tıklama kombosu
+                elif self.sword_attacking:
+                    target_state = "attack"
+                    self.anim.current_state = "attack"
+                    self.anim.frame_index = float(self.attack_frame_idx)
+
+                # ÖNCELİK 5: Koşma ve Bekleme
+                elif is_moving:
+                    target_state = "run"
+                    self.anim.speeds["run"] = (self.speed / self.speed_normal) * 14.0
+                    self.anim.update(target_state, dt)
+                else:
+                    target_state = "idle"
+                    self.anim.update(target_state, dt)
+
+                # Kareyi al ve gövdeyi güncelle
+                frame = self.anim.get_frame(facing_left=(self.look_dir == "left"))
+                if frame is not None:
+                    self.image = frame
+                    self.image_rect = self.image.get_rect(center=(self.x, self.y))
+
+            self.combo_meter.update(dt)
+
+    def handle_event(self, event: pygame.event.Event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+
+                if type(self.using_gun) == Sword:
+                    self.perform_attack_click()
         
     def heal(self, dt):
         if self.ability_healing:
@@ -1336,84 +1554,78 @@ class Player:
                 self.hp = min(self.max_hp, self.hp + 10)
                 self.heal_cooldown = self.heal_cooldown_orig
 
-    def sword_attack(self, dt):
-        if not type(self.using_gun) == Sword:
-            return
-        if pygame.mouse.get_pressed()[0]:
-            self.sword_attacking = True
-            self.change_angle = False
-            if self.image_name == os.path.join(BASE_DIR,r"images/stickmanl.png"):
-                self.hand_spot = -5
-                
-
-        if self.sword_attacking:
-            if self.image_name == os.path.join(BASE_DIR,r"images/stickmanr.png"):
-                self.sword_rect = pygame.Rect(self.x + self.hand_spot, self.y + 10, 70, self.image.get_height() - 10)
-                self.hand_spot += 200 * dt
-                if self.hand_spot > 70:
-                    self.hand_spot = 30
-                    self.sword_attacking = False
-                    self.change_angle = True
-                    self.sword_rect = None
-            else:
-                self.sword_rect = pygame.Rect(self.x - 5 - 70, self.y + 10, 70, self.image.get_height() - 10)
-                self.hand_spot -= 200 * dt
-                if self.hand_spot < -30:
-                    self.hand_spot = 30
-                    self.sword_attacking = False
-                    self.change_angle = True
-                    self.sword_rect = None
-
     def deflect(self, enemies: list, dt):
-        if type(self.using_gun) != Sword: return
+        if type(self.using_gun) != Sword:
+            return
+
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_q] and not self.deflecting:
+        # Q tuşuna basıldığında gard (deflect_ready) başlar
+        if keys[pygame.K_q] and not self.deflecting and not self.is_deflecting_anim:
             self.deflecting = True
             self.cd_deflect = self.cd_deflect_orig
-            self.parlama_rotate_speed = self.parlama_rotate_speed_conf[0]
-    
+
         if self.deflecting:
             self.cd_deflect -= dt
             if self.cd_deflect > 0:
+                rect = pygame.Rect(self.x - 100, self.y - 100, 250, 250)
+                rect.center = (self.x, self.y)
+
                 for enemy in enemies:
                     enemy: Enemy
                     for arrow in enemy.arrows:
                         arrow: Arrow
                         arrow_rect = arrow.rotated_rect or arrow.image_rect
-                        rect = pygame.Rect(self.x - 100, self.y - 100, 250, 250)
-                        rect.center = (self.x, self.y)
                         if rect.colliderect(arrow_rect):
                             enemy.arrows.remove(arrow)
-                            new_bullet = Bullet(self.x, self.y, arrow.image_name, arrow.attack * 3, arrow.speed + 700, enemy.x, enemy.y, 2000, "__deflected__",)
+
+                            # 1. Yeni mermiyi yönlendirip oluştur
+                            new_bullet = Bullet(
+                                self.x, self.y, arrow.image_name,
+                                arrow.attack * 3, arrow.speed + 700,
+                                enemy.x, enemy.y, 2000, "__deflected__"
+                            )
                             new_bullet.angle = math.degrees(math.atan2(-(enemy.y - self.y), (pygame.mouse.get_pos()[0] - self.x)))
                             new_bullet.rotated = pygame.transform.rotate(new_bullet.image, new_bullet.angle)
                             new_bullet.rotated_rect = new_bullet.rotated.get_rect(center=(new_bullet.x, new_bullet.y))
                             self.deflect_bullets.append(new_bullet)
+
+                            # 2. Beklemeyi bitir, 10 KARELİK SEKTİRME VURUŞUNU BAŞLAT!
                             self.deflecting = False
                             self.cd_deflect = 0
-                self.parlama_image_angle += self.parlama_rotate_speed * dt
-                self.parlama_image_angle2 += (self.parlama_rotate_speed + 600) * dt
-                self.parlama_rotate_speed = max(self.parlama_rotate_speed_conf[1], self.parlama_rotate_speed - 800 * dt)
+                            self.is_deflecting_anim = True
+                            self.deflect_anim_frame = 0.0
+
+                            # Varsa sektirme sesini patlat
+                            if getattr(self, "sfx_deflect", None):
+                                self.sfx_deflect.play()
+                            break
             else:
                 self.deflecting = False
 
     def dash(self):
-        if type(self.using_gun) == Sword:
-            def reduce():
-                nonlocal self
-                if not self._maximized:
-                    self.speed = self.speed_normal
-                else:
-                    self.speed = self.speed_max
-                self.change_angle = True
-                self.drawing = False
-            self.old_x = self.x
-            self.old_y = self.y
-            self.speed += self.using_gun.dash_speed
-            self.change_angle = False
-            self.drawing = True
-            self.damaged = False
-            after(reduce, secs=0.2)
+            if type(self.using_gun) == Sword:
+                # Saldırıyı anında iptal et ve sıfırla
+                self.sword_attacking = False
+                self.attack_frame_idx = 0
+                self.attack_idle_timer = 0.0
+                self.sword_rect = None
+
+                def reduce():
+                    nonlocal self
+                    if not self._maximized:
+                        self.speed = self.speed_normal
+                    else:
+                        self.speed = self.speed_max
+                    self.change_angle = True
+                    self.drawing = False
+
+                self.old_x = self.x
+                self.old_y = self.y
+                self.speed += self.using_gun.dash_speed
+                self.change_angle = False
+                self.drawing = True
+                self.damaged = False
+                after(reduce, secs=0.2)
     
     def teleport(self, world):
 
@@ -1447,33 +1659,92 @@ class Player:
             draw_aa_line(surface, colours.WHITE, (int(self.old_x), int(self.old_y)), (int(self.x), int(self.y)), 5)
     
     def damage(self, enemies: list, dt, menu=False):
-        if menu: return
+        if menu:
+            return
 
         self.damaged_cooldown -= dt
 
         if type(self.using_gun) == Sword:
+            # 1. DASH SALDIRISI
             if self.drawing:
                 if self.damaged_cooldown <= 0:
+                    hit_anyone = False
                     for enemy in enemies:
                         enemy: Enemy
+
+                        if not enemy.living: continue
+
                         if Enemy.DAMAGE_SWORD_DASH in enemy.damagables:
                             if self.image_rect.colliderect(enemy.image_rect):
                                 enemy.hp -= self.using_gun.attack
-                                self.damaged_cooldown = 0.2
 
+                                hit_anyone = True
+
+                                # Dash vuruşunda hafif geri tepme
+                                if hasattr(enemy, "recoil_vx"):
+                                    dx = enemy.x - self.x
+                                    dy = enemy.y - self.y
+                                    dist = math.hypot(dx, dy) or 1.0
+                                    enemy.recoil_vx = (dx / dist) * 600.0
+                                    enemy.recoil_vy = (dy / dist) * 300.0
+
+                    if hit_anyone:
+                        self.damaged_cooldown = 0.2
+                        if getattr(self, "hit_sfx_pool", None):
+                            if Player.SETTINGS is not None:
+                                self.hit_sfx_pool.play(Player.SETTINGS.get("sfx_volume"), Player.SETTINGS.get("sfx"))
+
+                            else:
+                                self.hit_sfx_pool.play()
+
+            # 2. NORMAL KILIÇ KOMBO SALDIRISI
             elif self.sword_attacking:
-                if self.damaged_cooldown <= 0:
-                    for enemy in enemies:
-                        enemy: Enemy
-                        if Enemy.DAMAGE_SWORD in enemy.damagables:
-                            if self.sword_rect.colliderect(enemy.image_rect) or self.image_rect.colliderect(enemy.image_rect):
-                                enemy.hp -= self.using_gun.attack
-                                enemy.recoil = 0.43
-                                if self.image_name == os.path.join(BASE_DIR, r"images/stickmanr.png"):
-                                    enemy.recoil_dir = "right"
-                                elif self.image_name == os.path.join(BASE_DIR, r"images/stickmanl.png"):
-                                    enemy.recoil_dir = "left"
-                                self.damaged_cooldown = 0.2
+                # Sadece vuruş savurma karelerinde (Kare 1 ve Kare 3) hasar ver
+                if self.attack_frame_idx in (1, 3):
+                    if self.damaged_cooldown <= 0:
+                        hit_anyone = False
+
+                        # Vurma alanı (Hitbox)
+                        if self.look_dir == "right":
+                            hit_box = pygame.Rect(self.x, self.y - 35, 85, 70)
+                        else:
+                            hit_box = pygame.Rect(self.x - 85, self.y - 35, 85, 70)
+
+                        for enemy in enemies:
+                            enemy: Enemy
+
+                            if not enemy.living: continue
+
+                            if Enemy.DAMAGE_SWORD in enemy.damagables:
+                                if hit_box.colliderect(enemy.image_rect):
+                                    enemy.hp -= self.using_gun.attack
+
+                                    hit_anyone = True
+
+                                    # Geri tepme (Kare 3 bitirici vuruş ise daha sert iter)
+                                    force = 900.0 if self.attack_frame_idx == 3 else 550.0
+                                    dx = enemy.x - self.x
+                                    dy = enemy.y - self.y
+                                    dist = math.hypot(dx, dy) or 1.0
+
+                                    if hasattr(enemy, "recoil_vx"):
+                                        enemy.recoil_vx = (dx / dist) * force
+                                        enemy.recoil_vy = ((dy / dist) - 0.2) * (force * 0.4)
+                                    else:
+                                        enemy.recoil = 0.43
+                                        enemy.recoil_dir = self.look_dir
+
+                        # En az bir düşmana isabet ettiyse sesi patlat
+                        if hit_anyone:
+                            self.damaged_cooldown = 0.15
+                            if getattr(self, "combo_meter", None):
+                                self.combo_meter.add_hit(count=1, swidth=info.current_w, sheight=info.current_h) # Kombo + 1
+
+                            if getattr(self, "hit_sfx_pool", None):
+                                if Player.SETTINGS is not None:
+                                    self.hit_sfx_pool.play(Player.SETTINGS.get("sfx_volume"), Player.SETTINGS.get("sfx"))
+                                else:
+                                    self.hit_sfx_pool.play()
 
         if type(self.using_gun) == Gun:
             if self.drawing:
@@ -1486,6 +1757,7 @@ class Player:
                                 if enemy.image_rect is not None and self.using_gun.rotated_rect is not None:
                                     if self.using_gun.rotated_rect.colliderect(enemy.image_rect):
                                         enemy.hp -= self.using_gun.attack + 12
+
                                         self.damaged_cooldown = 0.2
                                         break
 
@@ -1511,6 +1783,12 @@ class Player:
         self.available_guns.append(self.using_gun)
     
     def draw_statistics(self, surface: pygame.Surface, font: userFont, info, clock: pygame.time.Clock):
+
+        langs = {
+            "hp": Lang(türkçe="Can", english="Hp", arabic="حياة", sanskrit="जीवनम्‌"),
+            "weapon": Lang(türkçe="Silah", english="Weapon", arabic="سلاح", sanskrit="अस्त्रम्"),
+            "speed": Lang(türkçe="Hız", english="Speed", arabic="سرعة", sanskrit="गति")
+        }
 
         y = info.current_h - 225
         h = 60
@@ -1544,7 +1822,7 @@ class Player:
         weapon_rect = pygame.Rect(
             0,
             y,
-            font.font.size(f"Silah: {self.using_gun.name}")[0],
+            font.font.size(f"{langs['weapon']()}: {self.using_gun.name}")[0],
             h
         )
         weapon_rect.left = elements[-1][1].midright[0] + padding
@@ -1555,7 +1833,7 @@ class Player:
         speed_rect = pygame.Rect(
             0,
             y,
-            font.font.size(f"Hız: {self.speed}")[0],
+            font.font.size(f"{langs['speed']()}: {self.speed}")[0],
             h
         )
         speed_rect.left = elements[-1][1].midright[0] + padding
@@ -1599,7 +1877,7 @@ class Player:
                 )
 
                 font.draw_text(
-                    f"Can: {self.hp}",
+                    f"{langs['hp']()}: {self.hp}",
                     rect.center,
                     surface,
                     colours.WHITE,
@@ -1643,7 +1921,7 @@ class Player:
             elif element == "weapon":
 
                 font.draw_text(
-                    f"Silah: {self.using_gun.name}",
+                    f"{langs['weapon']()}: {self.using_gun.name}",
                     rect.midleft,
                     surface,
                     colours.WHITE,
@@ -1653,7 +1931,7 @@ class Player:
             elif element == "speed":
 
                 font.draw_text(
-                    f"Hız: {int(self.speed / 100)}",
+                    f"{langs['speed']}: {int(self.speed / 100)}",
                     rect.midleft,
                     surface,
                     colours.WHITE,
@@ -1696,7 +1974,7 @@ class Player:
 
                 y2 = center[1] + math.sin(radyan) * r
                 if type(gun) == Sword:
-                    gun.draw(surface, int(x2), int(y2), angle=0, dashing=False)
+                    gun.draw(surface, int(x2), int(y2), -90)
                 elif type(gun) == Gun:
                     gun.draw_copy(surface, int(x2), int(y2))
                 elif type(gun) == Charm:
@@ -1750,27 +2028,78 @@ class Player:
             return None
 
 
+    def _init_sounds(self):
+        """Kayıttan yükleme veya başlatma anında sesleri sıfırdan bağlar."""
+
+        sfx_dir = os.path.join(BASE_DIR, "sounds")
+        self.step_timer = 0.0
+
+        def load_sfx(filename, volume=1.0, pitch_range=(0.92, 1.08)):
+            path = os.path.join(sfx_dir, filename)
+            return SoundFX(path, volume=volume, pitch_range=pitch_range) if os.path.exists(path) else None
+
+        # 1. Saldırı sesleri
+        self.attack_swings = {
+            0: load_sfx("swing_0.wav", volume=0.7, pitch_range=(0.95, 1.05)),
+            1: load_sfx("swing_1.wav", volume=0.85, pitch_range=(0.90, 1.10)),
+            2: load_sfx("swing_2.wav", volume=0.75, pitch_range=(0.92, 1.08)),
+            3: load_sfx("swing_3.wav", volume=1.0, pitch_range=(0.85, 1.05)),
+        }
+
+        # 2. Tekil hareketler
+        '''
+        self.sfx_dash = load_sfx("dash.wav", volume=0.85, pitch_range=(0.95, 1.05))
+        self.sfx_deflect = load_sfx("deflect.wav", volume=1.0, pitch_range=(0.90, 1.10))
+        self.sfx_teleport_start = load_sfx("teleport_start.wav", volume=0.6)
+        self.sfx_teleport_end = load_sfx("teleport_end.wav", volume=0.9)
+        self.sfx_heal = load_sfx("heal.wav", volume=0.6)
+        self.sfx_step = load_sfx("step.wav", volume=0.3, pitch_range=(0.85, 1.15))       
+        '''
+
+
+        # 3. Vuruş havuzu
+        hit_files = [
+            os.path.join(sfx_dir, f"stab_{i}.wav")
+            for i in (1, 2, 3)
+            if os.path.exists(os.path.join(sfx_dir, f"stab_{i}.wav"))
+        ]
+        self.hit_sfx_pool = SoundPoolFX(hit_files, volume=0.95, pitch_range=(0.88, 1.12)) if hit_files else None
+
+
     def __getstate__(self):
         state = self.__dict__.copy()
-        if state.get("image"):
-            del state["image"]
+        state.pop("image", None)
         state.pop("rotated", None)
         state.pop("rotated_rect", None)
         state.pop("parlama_image", None)
         state.pop("parlama_image2", None)
         state.pop("parlama_image_orig", None)
+        state.pop("anim", None)
         
-        return state
-    
-    def __setstate__(self, state):
+        # Tüm ses değişkenlerini pickle dışı bırakıyoruz:
+        state.pop("attack_swings", None)
+        state.pop("hit_sfx_pool", None)
+        for sfx_name in ["sfx_dash", "sfx_deflect", "sfx_teleport_start", "sfx_teleport_end", "sfx_heal", "sfx_step"]:
+            state.pop(sfx_name, None)
 
+        return state
+
+    def __setstate__(self, state):
         self.__dict__.update(state)
-        self.image = pygame.image.load(self.image_name)
+        if self.anim_dir and os.path.exists(self.anim_dir):
+            self.anim = AnimationController(self.anim_dir, speeds=self.anim_speeds, target_scale=0.9)
+            self.image = self.anim.get_frame(facing_left=(self.look_dir == "left"))
+        else:
+            self.anim = None
+            self.image = pygame.image.load(self.image_name)
+
         self.rotated = None
         self.rotated_rect = None
-        self.parlama_image_orig = pygame.image.load(os.path.join(BASE_DIR,r"images/parlama.png"))
+        self.parlama_image_orig = pygame.image.load(os.path.join(BASE_DIR, r"images/parlama.png"))
         self.parlama_image = pygame.transform.scale_by(self.parlama_image_orig, 0.18)
         self.parlama_image2 = pygame.transform.scale_by(self.parlama_image_orig, 0.12)
+
+        self._init_sounds()
 
 
 class World:
@@ -1846,6 +2175,7 @@ class World:
                 if deneme > 50:
                     logging.error("Creating rocks limit.")
                     break
+
     def draw(self, screen: pygame.Surface):
         if self.terrain_image_name:
             screen.blit(self.terrain_image, (0, 0))
@@ -1854,8 +2184,35 @@ class World:
         if self.dirt_image_name:
             screen.blit(self.dirt_image, (0, info.current_h/5*4))
         for rock in self.rocks:
+
             rockRect = pygame.Rect(rock["x"], rock["y"], rock["width"], rock["height"])
+
             pygame.draw.rect(screen, rock["color"], rockRect)
+
+            pygame.draw.rect(
+                screen,
+                colours.darker(rock["color"], 50),
+                rockRect,
+                width=4 
+            )
+
+            lineRect = rockRect.inflate(rock["width"] * -0.4, rock["height"] * -0.5)
+
+            pygame.draw.line(
+                screen,
+                colours.lighter(rock["color"], 50),
+                lineRect.midtop,
+                lineRect.topright,
+                width=5
+            )
+
+            pygame.draw.line(
+                screen,
+                colours.lighter(rock["color"], 50),
+                lineRect.topright,
+                lineRect.midright,
+                width=5
+            )
     
     def draw_items(self, surface: pygame.Surface, font: userFont, player):
         for item in self.items:
@@ -2216,7 +2573,7 @@ class SCRLazerBeam:
         self.rect = None
         self.destroyed = False
 
-        self.damage_cd = Cooldown(0.3)
+        self.damage_cd = Cooldown(0.9)
         self.damage_cd.cooldown = 0
 
     def draw(self, surface: pygame.Surface):
@@ -2247,14 +2604,76 @@ class SCRLazerBeam:
             return
 
         if self.rect is not None:
-            if self.rect.colliderect(player.rect) and not self.destroyed and self.damage_cd.check():
+            if self.rect.colliderect(player.image_rect) and not self.destroyed and self.damage_cd.check():
                 player.hp -= self.attack
                 self.damage_cd.refresh()
+
+
+class Sneeze:
+    def __init__(self):
+        self.x = random.randint(0, info.current_w)
+        self.y = random.randint(0, info.current_h)
+
+        self.radius = info.current_w // 100
+
+        self.rect = pygame.Rect(
+            self.x, self.y, self.radius, self.radius
+        )
+
+        self.moving = False
+
+        self.deleted = False
+        self.wait_cd = Cooldown(3)
+
+    def draw(self, surface: pygame.Surface):
+        if self.deleted: return
+
+        pygame.draw.circle(
+            surface,
+            colours.darker((0, 255, 0), random.randint(3, 70)),
+            (self.x, self.y),
+            self.radius
+        )
+
+        pygame.draw.circle(
+            surface,
+            colours.darker((0, 255, 0), 120),
+            (self.x, self.y),
+            self.radius,
+            4
+        )
+
+    def update(self, dt, player: Player):
+        if self.deleted: return
+
+        self.wait_cd.reduce(dt)
+
+        if self.wait_cd.check():
+            self.moving = True
+
+        if self.moving:
+            # 1. Oyuncunun merkezine olan uzaklık farkı
+            dx = player.x - self.x
+            dy = player.y - self.y
+
+            # 2. Aradaki açıyı hesapla (radyan cinsinden)
+            angle = math.atan2(dy, dx)
+
+            # 3. cos yatay ekseni, sin dikey ekseni temsil eder
+            self.x += math.cos(angle) * 700 * dt
+            self.y += math.sin(angle) * 700 * dt
+
+            self.rect.center = (self.x, self.y)
+
+            if player.image_rect.colliderect(self.rect):
+                player.hp -= 0.02
+                self.deleted = True
 
 
 class EnemyAbilities(Enum):
     ABILITY_BOMBING = auto()
     ABILITY_ARROWS = auto()
+    ABILITY_SNEEZE = auto()
     ABILITY_SPLIT_GROUND = auto()
     ABILITY_CAT_JUMP = auto()
     ABILITY_SCR_LAZER_BEAM = auto()
@@ -2263,6 +2682,36 @@ print(type(EnemyAbilities.ABILITY_ARROWS))
 
 
 class Enemy:
+    THEMES = {
+        "arrow": {
+            "core": (255, 60, 60),      # Kırmızı (Standart ok)
+            "glow": (255, 20, 40),
+            "duration": 2
+        },
+        "bombing": {
+            "core": (255, 170, 30),     # Turuncu / Altın (Ağır darbe)
+            "glow": (255, 110, 0),
+            "duration": 1.75
+        },
+        "split_ground": {
+            "core": (60, 58, 58),     # Mor / Eflatun (Büyü atışı)
+            "glow": (43, 39, 39),
+            "duration": 1.3
+        },
+        "cat_jump": {
+            "core": (70, 245, 110),     # Zehir Yeşili
+            "glow": (30, 200, 70),
+            "duration": 0.9
+        },
+        "scr_lazer_beam": {
+            "core": (80, 220, 255),     # Neon Cyan (Hızlı elektrik atışı)
+            "glow": (20, 160, 255),
+            "duration": 3.2
+        }
+    }
+
+    VAL_MNGR = None
+
     DAMAGE_SWORD_DASH = "4"
     DAMAGE_BULLET = "5"
     DAMAGE_BRONZE_BULLET = "6"
@@ -2352,7 +2801,22 @@ class Enemy:
         self.c_jump_player_pos = None
         self.c_jumping_duration = Cooldown(2)
         self.c_jump_dx = None
+
         self.scr_lazers: list[SCRLazerBeam] = []
+        self.scr_lazer_beam_firing = False  # Lazerler yaylım ateşindeyken True olur
+
+        self.claimed_death = False
+
+        self.mx = 0
+        self.my = 0
+        self.telegraph = EnemyTelegraph()
+        self.charging_ability = None
+
+        self.sneeze: list[Sneeze] = []
+
+    @classmethod
+    def set_val_manager(cls, val_manager: ValueManager):
+        cls.VAL_MNGR = val_manager
 
     def set_pos(self, world, info):
         for _ in range(1000):
@@ -2428,6 +2892,10 @@ class Enemy:
         for scr_l_b in self.scr_lazers:
             scr_l_b.update(player, dt)
     
+    def update_sneezes(self, player: Player, dt):
+        for sneeze in self.sneeze:
+            sneeze.update(dt, player)
+    
     def draw_arrows(self, surface: pygame.Surface):
         for arrow in self.arrows:
             arrow.draw(surface)
@@ -2445,102 +2913,175 @@ class Enemy:
     def draw_scr_lazers(self, surface: pygame.Surface):
         for scr_l_b in self.scr_lazers:
             scr_l_b.draw(surface)
+
+    def draw_sneezes(self, surface):
+        for sneeze in self.sneeze:
+            sneeze.draw(surface)
     
     def use_arrow(self, dt):
-        if self.arrow_cooldown is not None:
-            if EnemyAbilities.ABILITY_ARROWS in self.abilities and self.living:
-                self.arrow_cooldown.reduce(dt)
-                if self.arrow_cooldown.check():
-                    self.arrows.append(Arrow(
-                        self.x,
-                        self.y,
-                        self.arrow_image_name
-                    ))
-                    self.arrow_cooldown.refresh()
-        else:
-            if EnemyAbilities.ABILITY_ARROWS in self.abilities and self.living:
-                self.cooldown.reduce(dt)
-                if self.cooldown.check():
-                    self.arrows.append(Arrow(
-                        self.x,
-                        self.y,
-                        self.arrow_image_name
-                    ))
-                    self.cooldown.refresh()
-    
+            if EnemyAbilities.ABILITY_ARROWS not in self.abilities or not self.living:
+                return
+
+            cd = self.arrow_cooldown if self.arrow_cooldown is not None else self.cooldown
+
+            # Eğer başka bir yeteneğin ünlemi yanıyorsa bekle
+            if self.charging_ability is not None and self.charging_ability != "arrow":
+                return
+
+            # Ünlem şarjı devrede mi?
+            if self.charging_ability == "arrow":
+                if self.telegraph.update(dt):
+                    # Ünlem doldu -> Oku fırlat, Cooldown yenile ve ünlemi kapat!
+                    self.arrows.append(Arrow(self.x, self.y, self.arrow_image_name))
+                    cd.refresh()
+                    self.charging_ability = None
+                return
+
+            # Normal Cooldown sayacı
+            cd.reduce(dt)
+            if cd.check():
+                # Cooldown bitti! Hemen oku atmak yerine kafasında KIRMIZI ÜNLEM yak
+                self.charging_ability = "arrow"
+                self.telegraph.start_charge("arrow", self.THEMES)
+
     def use_bombing(self, dt, player: Player):
-        if EnemyAbilities.ABILITY_BOMBING in self.abilities and self.living:
-            self.bombing_cooldown.reduce(dt)
-            if self.bombing_cooldown.check():
-                self.bombs.append(
-                    Bomb(
-                        24,
-                        player.x,
-                        player.y
+        if EnemyAbilities.ABILITY_BOMBING not in self.abilities or not self.living:
+            return
+
+        if self.charging_ability is not None and self.charging_ability != "bombing":
+            return
+
+        if self.charging_ability == "bombing":
+            if self.telegraph.update(dt):
+                self.bombs.append(Bomb(24, player.x, player.y))
+                self.bombing_cooldown.refresh()
+                self.charging_ability = None
+            return
+
+        self.bombing_cooldown.reduce(dt)
+        if self.bombing_cooldown.check():
+            self.charging_ability = "bombing"
+            self.telegraph.start_charge("bombing", self.THEMES)
+
+    def use_split_ground(self, dt, player: Player):
+        if EnemyAbilities.ABILITY_SPLIT_GROUND not in self.abilities or not self.living:
+            return
+
+        if self.charging_ability is not None and self.charging_ability != "split_ground":
+            return
+
+        if self.charging_ability == "split_ground":
+            if self.telegraph.update(dt):
+                dx, dy = self.x - player.x, self.y - player.y
+                self.sgrounds.append(
+                    SplitGround(
+                        46, self.x, self.y,
+                        os.path.join(BASE_DIR, r"images/splitground_noback.png"),
+                        math.degrees(math.atan2(-dy, dx)),
+                        player.x, player.y
                     )
                 )
-                self.bombing_cooldown.refresh()
-    def use_split_ground(self, dt, player: Player):
-        if self.living:
-            if EnemyAbilities.ABILITY_SPLIT_GROUND in self.abilities:
-                mx, my = player.x, player.y
-                dx, dy = self.x - mx, self.y - my
-                self.split_ground_cd.reduce(dt)
-                if self.split_ground_cd.check():
-                    self.sgrounds.append(
-                        SplitGround(
-                            46,
-                            self.x,
-                            self.y,
-                            os.path.join(BASE_DIR,r"images/splitground_noback.png"),
-                            math.degrees(math.atan2(-dy, dx)),
-                            player.x,
-                            player.y
+                self.split_ground_cd.refresh()
+                self.charging_ability = None
+            return
 
-                        )
-                    )
-                    self.split_ground_cd.refresh()
+        self.split_ground_cd.reduce(dt)
+        if self.split_ground_cd.check():
+            self.charging_ability = "split_ground"
+            self.telegraph.start_charge("split_ground", self.THEMES)
+
+    # -------------------------------------------------------------
+    # 4. KEDİ ZIPLAMASI (YEŞİL LAZER)
+    # -------------------------------------------------------------
     def use_cat_jump(self, dt, player: Player):
-        if self.living:
-            if EnemyAbilities.ABILITY_CAT_JUMP in self.abilities:
-                self.cat_jump_cd.reduce(dt)
+            if EnemyAbilities.ABILITY_CAT_JUMP not in self.abilities or not self.living:
+                return
 
-                if self.cat_jump_cd.check():
+            # Kedi zaten havada zıplıyorsa yeni bir ünlem açma
+            if getattr(self, "cat_jumping", False):
+                return
+
+            if self.charging_ability is not None and self.charging_ability != "cat_jump":
+                return
+
+            if self.charging_ability == "cat_jump":
+                if self.telegraph.update(dt):
                     self.c_jump_player_pos = (player.x, player.y)
                     self.cat_jumping = True
                     self.c_jump_dx = self.c_jump_player_pos[0] - self.x
                     self.c_jumping_duration.refresh()
                     self.cat_jump_cd.refresh()
+                    self.charging_ability = None
+                return
 
-    def use_scr_lazer_beam(self, dt):
-        if self.living:
-            if EnemyAbilities.ABILITY_SCR_LAZER_BEAM in self.abilities:
-                self.scr_lazer_beam_cd.reduce(dt)
+            self.cat_jump_cd.reduce(dt)
+            if self.cat_jump_cd.check():
+                self.charging_ability = "cat_jump"
+                self.telegraph.start_charge("cat_jump", self.THEMES)
 
-                if self.scr_lazer_beam_cd.check():
-                    self.lazer_beam_inside_cd.reduce(dt)
+    # -------------------------------------------------------------
+    # 5. SCR LAZER YAĞMURU (CYAN LAZER)
+    # -------------------------------------------------------------
+    def use_scr_lazer_beam(self, dt, player: Player = None):
+        if EnemyAbilities.ABILITY_SCR_LAZER_BEAM not in self.abilities or not self.living:
+            return
 
-                    if self.lazer_beam_inside_cd.check():
+        # Başka bir yeteneğin ünlemi devredeyse bekle
+        if self.charging_ability is not None and self.charging_ability != "scr_lazer_beam":
+            return
 
-                        self.scr_lazers.append(
-                            SCRLazerBeam(
-                                5,
-                                colours.lighter(colours.BLUE, 75),
-                                (0, random.randint(0, info.current_h)),
-                                (info.current_w, random.randint(0, info.current_h))
-                            )
-                        )
+        # AŞAMA 1: TELEGRAPH / ÜNLEM ŞARJI
+        if self.charging_ability == "scr_lazer_beam":
+            if self.telegraph.update(dt):
+                # Ünlem bitti -> Ateşleme modunu aç, ünlem durumunu kapat!
+                self.charging_ability = None
+                self.scr_lazer_beam_firing = True
+            return
 
-                        self.lazer_beam_inside_cd.refresh()
-                        self.scr_lazer_beam_counter += 1
-                
-                if self.scr_lazer_beam_counter >= 10:
-                    self.scr_lazer_beam_cd.refresh()
-                    self.lazer_beam_inside_cd.refresh()
-                    self.scr_lazer_beam_counter = 0
+        # AŞAMA 2: ATEŞLEME MODU (10 Tane Lazer Tek Tek Çıkıyor)
+        if getattr(self, "scr_lazer_beam_firing", False):
+            self.lazer_beam_inside_cd.reduce(dt)
+
+            if self.lazer_beam_inside_cd.check():
+                self.scr_lazers.append(
+                    SCRLazerBeam(
+                        5,
+                        colours.lighter(colours.BLUE, 75),
+                        (0, random.randint(0, info.current_h)),
+                        (info.current_w, random.randint(0, info.current_h))
+                    )
+                )
+                self.lazer_beam_inside_cd.refresh()
+                self.scr_lazer_beam_counter += 1
+
+            # 10 Lazer tamamlandı mı?
+            if self.scr_lazer_beam_counter >= 10:
+                self.scr_lazer_beam_cd.refresh()
+                self.lazer_beam_inside_cd.refresh()
+                self.scr_lazer_beam_counter = 0
+                self.scr_lazer_beam_firing = False  # Ateşleme bitti, cooldown başladı
+            return
+
+        # AŞAMA 3: NORMAL COOLDOWN SAYACI
+        self.scr_lazer_beam_cd.reduce(dt)
+        if self.scr_lazer_beam_cd.check():
+            # Cooldown bitti -> Ateşlemeye geçmeden önce kafada Mavi Ünlem yak!
+            self.charging_ability = "scr_lazer_beam"
+            self.telegraph.start_charge("scr_lazer_beam", self.THEMES)
+
+    def use_sneeze(self):
+        if EnemyAbilities.ABILITY_SNEEZE not in self.abilities or not self.living: return
+
+        if random.randint(0, 150) == 150:
+            for i in range(10):
+                self.sneeze.append(
+                    Sneeze()
+                )
 
     def copy(self):
-        return copy.deepcopy(self)
+        new_copy = copy.deepcopy(self)
+        new_copy.id = str(uuid.uuid4())  # Her klona benzersiz yeni bir ID verilir
+        return new_copy
 
     def summon(self, dt, level: dict, world, pending_enemies: list):
         pass
@@ -2553,6 +3094,10 @@ class Enemy:
             if enemy.living:
 
                 if type(enemy) == Boss: continue
+
+                head_x = enemy.x + (enemy.uimage.get_width() / 2)
+                head_y = enemy.y
+                enemy.telegraph.draw(surface, (head_x, head_y))
 
                 font.draw_text(str(enemy.hp), (enemy.x+enemy.uimage.get_width()/2, enemy.y-10), surface, colours.BLACK, hiza="center")
                 surface.blit(enemy.uimage, (enemy.x, enemy.y))
@@ -2591,14 +3136,14 @@ class Enemy:
     def dinosaur(cls):
         return cls(
             1000,
-            120,
+            60,
             r_image_name=os.path.join(BASE_DIR,r"images/urasr.png"),
             l_image_name=os.path.join(BASE_DIR,r"images/urasl.png"),
             speed=210,
             size=40,
             abilities=[EnemyAbilities.ABILITY_SPLIT_GROUND],
             collisions=False,
-            cooldown=Cooldown(1)
+            cooldown=Cooldown(4)
         )
 
     @classmethod
@@ -2640,7 +3185,7 @@ class Enemy:
             20
         )
 
-    def update(self, player: Player, world: World, dt, level: list):
+    def update(self, player: Player, world: World, dt, level: list, cheated=False):
 
 
         if not self.cat_jumping:
@@ -2701,6 +3246,12 @@ class Enemy:
         self.sgrounds = [sg for sg in self.sgrounds if not sg.destroyed]
         self.scr_lazers = [scr_lazer for scr_lazer in self.scr_lazers if not scr_lazer.destroyed]
         if self.hp <= 0:
+            self.telegraph.cancel()
+
+            if not self.claimed_death and Enemy.VAL_MNGR is not None and not cheated:
+                Enemy.VAL_MNGR("kill", 1, "change")
+                self.claimed_death = True
+
             self.living = False
             self.summoned = False
             self.drops: list
@@ -2752,7 +3303,8 @@ class Enemy:
                 Enemy.DAMAGE_BULLET,
                 Enemy.DAMAGE_BRONZE_GUN,
                 Enemy.DAMAGE_SILVER_GUN,
-                Enemy.DAMAGE_SWORD_DASH
+                Enemy.DAMAGE_SWORD_DASH,
+                Enemy.DAMAGE_SWORD
             ]
         )
 
@@ -2768,13 +3320,20 @@ class Enemy:
                     player.hp -= self.attack
                     self.damaged = True
                     self.damage_cooldown.refresh()
+                    player.combo_meter.break_combo()
 
     def reset(self, world: World):
+        self.telegraph.cancel()
         self.set_pos(world, info)
         self.living = True
         self.hp = self.origin_hp
         self.recoil = 0
         self.recoil_dir = None
+        self.charging_ability = None
+        self.scr_lazer_beam_firing = False
+        self.scr_lazer_beam_counter = 0
+        if getattr(self, "telegraph", None):
+            self.telegraph.cancel()
 
     def __getstate__(self):
         state = self.__dict__.copy()
@@ -2863,7 +3422,7 @@ class Boss(Enemy):
         self.scene_dialogues = scene_dialogues or []
 
 
-    def update(self, player: Player, world: World, dt, level: list):
+    def update(self, player: Player, world: World, dt, level: list, cheated=False):
 
         if not self.cat_jumping:
 
@@ -2922,9 +3481,14 @@ class Boss(Enemy):
         self.sgrounds = [sg for sg in self.sgrounds if not sg.destroyed]
         self.scr_lazers = [scr_lazer for scr_lazer in self.scr_lazers if not scr_lazer.destroyed]
         if self.hp <= 0:
+            self.telegraph.cancel()
             self.living = False
             self.summoned = False
             self.drops: list
+
+            if Enemy.VAL_MNGR is not None and not cheated:
+                Enemy.VAL_MNGR("kill", 1, "change")
+
             for drop in self.drops:
                 if type(drop) == Sword or type(drop) == Gun:
                     player.available_guns.append(drop)
@@ -2942,7 +3506,7 @@ class Boss(Enemy):
             return
 
     @staticmethod
-    def draw(surface: pygame.Surface, font: userFont, level: list, bossFont: userFont = None):
+    def draw(surface: pygame.Surface, font: userFont, level: list, bossFont: DynamicFont = None):
         bosses=[]
         padding = 160
         for enemy in level:
@@ -2951,7 +3515,9 @@ class Boss(Enemy):
                 if type(enemy) == Boss:
                     bosses.append(enemy)
 
-
+                head_x = enemy.x + (enemy.uimage.get_width() / 2)
+                head_y = enemy.y
+                enemy.telegraph.draw(surface, (head_x, head_y))
                 surface.blit(enemy.uimage, (enemy.x, enemy.y))
         for i, enemy in enumerate(bosses):
 
@@ -2971,6 +3537,10 @@ class Boss(Enemy):
                 bar_height + 50 + i * padding,
                 info.current_w - info.current_w // 6,
                 bar_height
+            )
+
+            unfill_surface = pygame.Surface(
+                (info.current_w - info.current_w // 6, bar_height)
             )
 
             unfill_rect.center = (
@@ -3006,7 +3576,15 @@ class Boss(Enemy):
                 border_radius=20
             )
 
-            bossFont.draw_text(f"{enemy.origin_hp}/{enemy.hp}", (info.current_w/2, 150+i*padding), surface, colours.BLACK, hiza="center")
+            rendered, _ = bossFont.render(f"{enemy.origin_hp}/{enemy.hp}", colours.BLACK, unfill_surface,gap=10)
+
+            surface.blit(
+                rendered,
+                (
+                    unfill_rect.center[0] - rendered.get_width() // 2,
+                    unfill_rect.center[1] - rendered.get_height() // 2
+                )
+            )
     
     @classmethod
     def demirbt(cls):
@@ -3104,17 +3682,34 @@ level1 = [
 ]
 
 
+def create_player():
+    return Player(
+        200,
+        Sword(
+            "Tahta Kılıç",
+            15,
+            colours.BROWN,
+            700,
+            MaterialFlags.WOODEN,
+        ),
+        os.path.join(BASE_DIR,r"images/stickmanr.png"),
+        anim_dir=os.path.join(BASE_DIR, r"images/stickman_sprites"),
+        val_manager=None
+    )
+
+
 defaults = {
-    "Player": Player(200, Sword("Tahta Kılıç", 15, colours.BROWN, 700, MaterialFlags.WOODEN), os.path.join(BASE_DIR, r"images/stickmanr.png")),
+    "Player": create_player(),
     "World": World(colours.darker(colours.GREEN, 75), colours.YELLOW, colours.darker(colours.YELLOW, 40), list(item_map[item] for item in item_map.keys()), os.path.join(BASE_DIR,"images/green_pattern.png"), os.path.join(BASE_DIR,"images/dirt_pattern.png")),
     "Level": "level1",
     "Win": False,
     "EnemyData": {}
 }
+
 logging.info("Created reference defaults.")
+
 for enemy in level1:
     defaults["EnemyData"][enemy.id] = enemy
-print(defaults["EnemyData"])
 
 defaults["Player"].set_pos(defaults["World"])
 for item in defaults["World"].items:
@@ -3124,7 +3719,7 @@ for enemy in globals()[defaults["Level"]]:
     enemy.set_pos(defaults["World"], info)
 
 # hileli silah
-defaults["Player"].available_guns.append(Gun("At Kafası", colours.lighter(colours.BLACK, 30), 40, 800, os.path.join(BASE_DIR,r"images/silver_silahr.png"), os.path.join(BASE_DIR,r"images/silver_silah_mermi.png"), 0.03, "__deflected__"))
+defaults["Player"].available_guns.append(Gun("At Kafası", colours.lighter(colours.BLACK, 30), 40, 10, os.path.join(BASE_DIR,r"images/silver_silahr.png"), os.path.join(BASE_DIR,r"images/silver_silah_mermi.png"), 0.03, "__deflected__"))
 
 def reset(screen_x: int, screen_y: int, game: dict):
     logging.info("Called reset.")
@@ -3178,6 +3773,10 @@ def reset(screen_x: int, screen_y: int, game: dict):
     print("PLAYER DICT")
     for key, value in game["Player"].__dict__.items():
         print(key, type(value))
-    game["Player"]=Player(200, Sword("Tahta Kılıç", 15, colours.BROWN, 700, MaterialFlags.WOODEN), os.path.join(BASE_DIR,r"images/stickmanr.png"))
+
+    game["Player"] = create_player()
+
     game["Player"].set_pos(game["World"])
+
+
     return game

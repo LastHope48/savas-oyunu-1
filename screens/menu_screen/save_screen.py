@@ -3,7 +3,7 @@ import pygame
 import colours
 from classes import Slot, LimitedNumber, Button
 import math
-from fonts import font2, font3
+from fonts import get_font
 from calcs import calculate_size
 from screens.types import ScreenType
 from lang_support import Lang
@@ -18,20 +18,41 @@ class SaveScreen(MenuScreen):
         self.page = LimitedNumber(0, 0, 1000)
 
         self.langs = {
-            "empty_slot": Lang(türkçe="Boş Slot", english="Empty Slot"),
-            "unknown_error_slot": Lang(türkçe="Bilinmeyen Hata", english="Unknown Error"),
-            "corrupted_slot": Lang(türkçe="Bozuk Slot", english="Corrupted Slot"),
-            "unusable_slot": Lang(türkçe="Kullanılamaz Slot", english="Unusable Slot"),
-            "version_slot": Lang(türkçe="Sürüm", english="Version"),
-            "previous": Lang(türkçe="Önceki", english="Previous"),
-            "next": Lang(türkçe="Sonraki", english="Next"),
-            "page": Lang(türkçe="Sayfa", english="Page")
+            "empty_slot": Lang(türkçe="Boş Slot", english="Empty Slot", arabic="خانة فارغة", sanskrit="रिक्त स्लॉट्"),
+            "unknown_error_slot": Lang(türkçe="Bilinmeyen Hata", english="Unknown Error", arabic="خطأ غير معروف", sanskrit="अज्ञातदोषः"),
+            "corrupted_slot": Lang(türkçe="Bozuk Slot", english="Corrupted Slot", sanskrit="भग्न स्लॉट", arabic="فتحة معطلة"),
+            "unusable_slot": Lang(türkçe="Kullanılamaz Slot", english="Unusable Slot", arabic="فتحة غير قابلة للاستخدام", sanskrit="अनुपयोगी स्लॉट्"),
+            "version_slot": Lang(türkçe="Sürüm", english="Version", sanskrit="संस्करण", arabic="إصدار"),
+            "previous": Lang(türkçe="Önceki", english="Previous", arabic="سابق", sanskrit="पूर्व"),
+            "next": Lang(türkçe="Sonraki", english="Next", sanskrit="अग्रिम", arabic="التالي"),
+            "page": Lang(türkçe="Sayfa", english="Page", arabic="صفحة", sanskrit="पृष्ठ")
         }
+
+        self.font2 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            2,
+            "userFont"
+        )
+
+        self.font3 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            3,
+            "userFont"
+        )
+
+        self.font4 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            4,
+            "userFont"
+        )
 
         self.sonraki_button = Button(
             0, 0, 300, 80,
             "Sonraki",
-            font3,
+            self.font3,
             colours.GRAY,
             colours.WHITE,
             [ScreenType.LOAD, ScreenType.SAVE],
@@ -43,7 +64,7 @@ class SaveScreen(MenuScreen):
         self.onceki_button = Button(
             0, 0, 300, 80,
             "Önceki",
-            font3,
+            self.font3,
             colours.GRAY,
             colours.WHITE,
             [ScreenType.LOAD, ScreenType.SAVE],
@@ -55,7 +76,7 @@ class SaveScreen(MenuScreen):
         self.return_button = Button(
             0, 0, 50, 50,
             "<-",
-            font2,
+            self.font2,
             colours.RED,
             colours.WHITE,
             [ScreenType.LOAD, ScreenType.SAVE]
@@ -140,7 +161,7 @@ class SaveScreen(MenuScreen):
         self.sonraki_button.draw(surface)
         self.return_button.draw(surface)
 
-        font2.draw_text(
+        self.font2.draw_text(
             f"{self.page.deger + 1}. {self.langs['page'].get(self.game.settings.get('language'))}",
             (width * 0.5, height * 0.93),
             surface,
@@ -203,7 +224,8 @@ class SaveScreen(MenuScreen):
                 self.game.save_manager.save(
                     slot.id,
                     self.game.game_data,
-                    self.game.GAME_VERSION
+                    self.game.GAME_VERSION,
+                    self.game.cheated
                 )
                 Slot.update_infos(self.game.save_manager)
                 return
@@ -241,6 +263,60 @@ class SaveScreen(MenuScreen):
         return sayfa_basina, sayfa_sayisi
 
     def on_enter(self, transfer_datas):
+        self.font2 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            2,
+            "userFont"
+        )
+
+        self.font3 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            3,
+            "userFont"
+        )
+
+        self.font4 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            4,
+            "userFont"
+        )
+
+        self.sonraki_button = Button(
+            0, 0, 300, 80,
+            "Sonraki",
+            self.font3,
+            colours.GRAY,
+            colours.WHITE,
+            [ScreenType.LOAD, ScreenType.SAVE],
+            colours.darker(colours.GRAY, 20),
+            colours.darker(colours.GRAY, 50),
+            20
+        )
+
+        self.onceki_button = Button(
+            0, 0, 300, 80,
+            "Önceki",
+            self.font3,
+            colours.GRAY,
+            colours.WHITE,
+            [ScreenType.LOAD, ScreenType.SAVE],
+            colours.darker(colours.GRAY, 20),
+            colours.darker(colours.GRAY, 50),
+            20
+        )
+
+        self.return_button = Button(
+            0, 0, 50, 50,
+            "<-",
+            self.font2,
+            colours.RED,
+            colours.WHITE,
+            [ScreenType.LOAD, ScreenType.SAVE]
+        )
+
         self.return_button.plus_data = transfer_datas['screen_type_before']
 
         if self.game.dump("last_music") != os.path.join(BASE_DIR, r"musics/menu_theme.mp3"):

@@ -8,7 +8,7 @@ import pygame
 from cooldown import Cooldown
 import os
 from basedir import BASE_DIR
-from fonts import notofont
+from fonts import font3_arabic
 
 pygame.font.init()
 
@@ -295,7 +295,7 @@ level_item_map = {
             classes.Item.TUP_IKSIR,
             classes.Item.EQUALER,
             pickable=False,
-            font=notofont
+            font=font3_arabic
         ),
         classes.Item(
             "Can İksiri",

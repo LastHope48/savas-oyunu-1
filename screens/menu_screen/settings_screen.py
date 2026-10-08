@@ -1,10 +1,11 @@
 from .menu_screen import MenuScreen
 import pygame
-from fonts import font2, font3, update_fonts
+from fonts import get_font
 from console import Console
 import os
 from basedir import BASE_DIR
 from classes import Button
+import classes
 from lang_support import Lang
 import colours
 from screens.types import ScreenType
@@ -18,10 +19,10 @@ class SettingsScreen(MenuScreen):
         super().__init__(game)
 
         self.langs = {
-            "update_button_text": Lang(türkçe="Güncellemeleri Kontrol Et", english="Check Updates"),
-            "checking_updates": Lang(türkçe="Güncellemeler kontrol ediliyor...", english="Checking updates..."),
-            "update_up_on_date": Lang(türkçe="Oyun zaten güncel.", english="The game is up-on-date."),
-            "new_ver_found": Lang(türkçe="Yeni sürüm bulundu: ", english="New Version Found: "),
+            "update_button_text": Lang(türkçe="Güncellemeleri Kontrol Et", english="Check Updates", arabic="التحقق من وجود تحديثات", sanskrit="Updates इति पश्यन्तु"),
+            "checking_updates": Lang(türkçe="Güncellemeler kontrol ediliyor...", english="Checking updates...", arabic="جارٍ التحقق من وجود تحديثات...", sanskrit="अपडेट् कृते जाँचः क्रियते..."),
+            "update_up_on_date": Lang(türkçe="Oyun zaten güncel.", english="The game is up-on-date.", arabic="اللعبة محدثة بالفعل.", sanskrit="क्रीडा पूर्वमेव अद्यतनम् अस्ति।"),
+            "new_ver_found": Lang(türkçe="Yeni sürüm bulundu: ", english="New Version Found: ", arabic="تم العثور على إصدار جديد: ", sanskrit="नवीनं संस्करणं प्राप्तम् : १."),
             "update_is_ready": Lang(
                 türkçe=(
                 "Güncelleme hazır. "
@@ -30,15 +31,37 @@ class SettingsScreen(MenuScreen):
                 english=(
                 "Update is ready. "
                 "Going to applyed when you quit game."
+                ),
+                arabic=(
+                "التحديث جاهز."
+                "سيتم تطبيقه عند إغلاق اللعبة."
+                ),
+                sanskrit=(
+                "अद्यतनं सज्जम् अस्ति।"
+                "यदा क्रीडा निरुद्धा भविष्यति तदा तस्य प्रयोगः भविष्यति।"
                 )
             ),
-            "update_error": Lang(türkçe="Güncelleme hatası: Beklenmeyen bir hata oluştu.", english="Update Error: An unexpected error raised.")
+            "update_error": Lang(türkçe="Güncelleme hatası: Beklenmeyen bir hata oluştu.", english="Update Error: An unexpected error raised.", arabic="خطأ في التحديث: حدث خطأ غير متوقع.", sanskrit="अद्यतनदोषः : अप्रत्याशितदोषः अभवत् ।")
         }
+
+        self.font2 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            2,
+            "userFont"
+        )
+
+        self.font3 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            3,
+            "userFont"
+        )
 
         self.console = Console(
             self.game.command_parser,
-            font3,
-            font3
+            self.font3,
+            self.font3
         )
 
         self.quit_icon = pygame.image.load(os.path.join(BASE_DIR,r"images/quit_icon.png")).convert_alpha()
@@ -59,7 +82,7 @@ class SettingsScreen(MenuScreen):
             300,
             50,
             "Güncellemeleri Kontrol Et",
-            font3,
+            self.font3,
             colours.YELLOW,
             colours.WHITE,
             [ScreenType.SETTINGS]
@@ -74,7 +97,7 @@ class SettingsScreen(MenuScreen):
     def draw(self, surface: pygame.Surface):
         surface.fill('black')
 
-        self.game.settings.draw(surface, font2)
+        self.game.settings.draw(surface, self.font2)
 
         surface.blit(self.quit_icon, (0, 0))
 
@@ -84,7 +107,7 @@ class SettingsScreen(MenuScreen):
         )
 
         if self.update_status:
-            status_text = font3.return_text(
+            status_text = self.font3.return_text(
                 self.update_status,
                 (255, 255, 255)
             )
@@ -143,7 +166,7 @@ class SettingsScreen(MenuScreen):
                 )
 
             # Yüzde
-            percentage_text = font3.return_text(
+            percentage_text = self.font3.return_text(
                 f"%{self.update_progress:.1f}",
                 (255, 255, 255)
             )
@@ -203,11 +226,36 @@ class SettingsScreen(MenuScreen):
         new_lang = Lang.USING_LANG
 
         if old_lang != new_lang:
-            print("Updated fonts")
-            update_fonts(
+            self.font2 = get_font(
                 self.game.fonts,
-                Lang.USING_LANG
+                Lang.USING_LANG,
+                2,
+                "userFont"
             )
+
+            self.font3 = get_font(
+                self.game.fonts,
+                Lang.USING_LANG,
+                3,
+                "userFont"
+            )
+
+            self.update_status = ""
+
+            self.update_button = Button(
+                700,
+                self.game.settings.y + self.game.settings.height + 100,
+                300,
+                50,
+                "Güncellemeleri Kontrol Et",
+                self.font3,
+                colours.YELLOW,
+                colours.WHITE,
+                [ScreenType.SETTINGS]
+            )
+
+            classes.Slot.delete_slots()
+            classes.Slot.create_slots(self.game.save_manager, self.font2)
 
 
     def handle_event(self, event: pygame.event.Event):
@@ -315,6 +363,35 @@ class SettingsScreen(MenuScreen):
         self.update_progress = progress
 
     def on_enter(self, transfer_datas: dict):
+        self.font2 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            2,
+            "userFont"
+        )
+
+        self.font3 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            3,
+            "userFont"
+        )
+
+        self.update_button = Button(
+            700,
+            self.game.settings.y + self.game.settings.height + 100,
+            300,
+            50,
+            "Güncellemeleri Kontrol Et",
+            self.font3,
+            colours.YELLOW,
+            colours.WHITE,
+            [ScreenType.SETTINGS]
+        )
+
+        self.update_status = ""
+
+
         self.game.mixer.music.load(os.path.join(BASE_DIR,r"musics/settings_theme.mp3"))
 
         self.game.mixer.music.play(-1)

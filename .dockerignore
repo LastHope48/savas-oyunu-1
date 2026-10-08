@@ -1,6 +1,28 @@
-.venv
-__pycache__
-*.pyc
+# Sürüm kontrolü
+.git
+.gitignore
+
+# Python derleme ve bytecode kalıntıları
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# PyInstaller çıktıları (Localde oluşanların içeri girmesini engeller)
+build/
+dist/
+*.spec.bak
+
+# Sanal ortamlar
+.venv/
+venv/
+ENV/
+
+# IDE ve işletim sistemi kalıntıları
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
 
 build
 dist
@@ -12,6 +34,8 @@ dist
 
 game.log
 
+test.py
+
 Dockerfile
 build.sh
 
@@ -20,6 +44,8 @@ settings.json
 
 achievements.dat
 device_id.dat
+values.dat
+game_data.dat
 
 saves
 secret_keys

@@ -1,0 +1,49 @@
+# THIRD-PARTY CONTENT NOTICES
+
+This project contains third-party content that is not covered by the
+project's MIT License.
+
+1. PROJECT QT CONTENT
+
+---
+
+The project contains the following content originating from Project QT:
+
+* World Select music
+* Portal music
+* Play Room music
+* Alberta chibi character artwork
+
+Copyright and other rights to these materials belong to their respective
+copyright holders.
+
+These materials are NOT licensed under the MIT License included with this
+project.
+
+No ownership of these third-party materials is claimed by this project.
+
+2. GNU UNIFONT
+
+---
+
+This project uses GNU Unifont.
+
+GNU Unifont is distributed under its applicable font licenses, including the
+SIL Open Font License 1.1 and GNU GPL v2 or later with the GNU Font
+Embedding Exception, as applicable to the distributed font files.
+
+The GNU Unifont license text is included separately with the font files.
+
+Project website:
+https://unifoundry.com/unifont/
+
+3. GENERAL NOTICE
+
+---
+
+Third-party content listed above is provided separately from the original
+project code and is not intended to be relicensed under this project's
+MIT License.
+
+Users redistributing this project should review and comply with the
+applicable license and copyright terms for all third-party content.

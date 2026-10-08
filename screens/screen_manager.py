@@ -1,10 +1,12 @@
 import pygame
 from .types import ScreenType
+
 from .menu_screen.main_menu_screen import MainMenuScreen
 from .menu_screen.load_screen import LoadScreen
 from .menu_screen.save_screen import SaveScreen
 from .menu_screen.settings_screen import SettingsScreen
 from .menu_screen.achievements_screen import AchievementsScreen
+from .menu_screen.world_select_screen import WorldSelectScreen
 
 from .win_screen import WinScreen
 from .lose_screen import LoseScreen
@@ -20,6 +22,7 @@ class ScreenManager:
         self.screens = {
             ScreenType.MENU: MainMenuScreen(self.game),
             ScreenType.GAME: GameScreen(self.game),
+            ScreenType.WORLD_SELECT: WorldSelectScreen(self.game),
             ScreenType.LOAD: LoadScreen(self.game),
             ScreenType.SAVE: SaveScreen(self.game),
             ScreenType.SETTINGS: SettingsScreen(self.game),

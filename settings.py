@@ -2,7 +2,6 @@ import pygame
 import json
 import sys
 import os
-from fonts import font3
 from copy import deepcopy
 from enum import Enum
 from lang_support import Lang
@@ -441,7 +440,7 @@ class Slider(SettingElement):
 
 
 class TextBox(SettingElement):
-    default_size = (0.01, 0.009)
+    default_size = (300, 50)
 
     def __init__(
         self,
@@ -634,8 +633,8 @@ class Settings:
             "sfx": True,
             "music_volume": 0.7,
             "sfx_volume": 0.8,
-            "music_source": Lang(türkçe="Seçilen Müzik", english="Selected Music"),
-            "selected_music": "Seçilmedi",
+            "music_source": Lang(türkçe="Seçilen Müzik", english="Selected Music", arabic="موسيقى مختارة", sanskrit="चयनितं सङ्गीतम्"),
+            "selected_music": Lang(türkçe="Seçilmedi", english="Not Selected", arabic="لم يتم اختياره", sanskrit="न चयनितः आसीत्"),
             "other_music": "",
             "fps": 60,
             "language": "Türkçe",
@@ -713,10 +712,10 @@ class Settings:
             "music_source": {
                 "type": "select",
                 "values": [
-                    Lang(türkçe="Seçilen Müzik", english="Selected Music"),
-                    Lang(türkçe="Bilgisayardan Müzik", english="Music Path")
+                    Lang(türkçe="Seçilen Müzik", english="Selected Music", arabic="موسيقى مختارة", sanskrit="चयनितं सङ्गीतम्"),
+                    Lang(türkçe="Bilgisayardan Müzik", english="Music Path", arabic="موسيقى من الكمبيوتر", sanskrit="सङ्गणकात् सङ्गीतम्")
                 ],
-                "font": font3
+                "font_size": 30
             },
 
             "selected_music": {
@@ -743,13 +742,12 @@ class Settings:
                         "Obez Verity"
                     )
                 ],
-                "font": font3
+                "font_size": 30
             },
 
             "other_music": {
                 "type": "textbox",
                 "max_length": desktop_size[0] // 50,
-                "font": font3,
                 "icons": {
                     "path_found": Icon(resource_path(r"settings_images/tick.png"), 0.1),
                     "path_not_found": Icon(resource_path(r"settings_images/x.png"), 0.1)
@@ -768,9 +766,11 @@ class Settings:
                 "type": "select",
                 "values": [
                     "Türkçe",
-                    "English"
+                    "English",
+                    "Arabic",
+                    "Sanskrit"
                 ],
-                "font": font3
+                "font_size": 30
             }
         }
 
@@ -779,16 +779,16 @@ class Settings:
         # ---------------------------------
 
         self.names = {
-            "fullscreen": Lang(türkçe="Tam Ekran", english="Full Screen"),
-            "music": Lang(türkçe="Müzik", english="Music"),
+            "fullscreen": Lang(türkçe="Tam Ekran", english="Full Screen", arabic="ملء الشاشة", sanskrit="पूर्णपर्दे"),
+            "music": Lang(türkçe="Müzik", english="Music", arabic="موسيقى", sanskrit="संगीतं"),
             "sfx": "SFX",
-            "music_volume": Lang(türkçe="Müzik Sesi", english="Music Volume"),
-            "sfx_volume": Lang(türkçe="SFX Sesi", english="SFX Volume"),
-            "music_source": Lang(türkçe="Müzik Kaynağı", english="Music Source"),
-            "selected_music": Lang(türkçe="Seçilen Müzik", english="Selected Music"),
-            "other_music": Lang(türkçe="Bilgisayardan Müzik", english="Music Path"),
+            "music_volume": Lang(türkçe="Müzik Sesi", english="Music Volume", arabic="صوت الموسيقى",sanskrit="संगीतध्वनिः"),
+            "sfx_volume": Lang(türkçe="SFX Sesi", english="SFX Volume", arabic="مؤثر صوتي", sanskrit="SFX शब्दः"),
+            "music_source": Lang(türkçe="Müzik Kaynağı", english="Music Source", arabic="مصدر الموسيقى", sanskrit="सङ्गीतस्य स्रोतः"),
+            "selected_music": Lang(türkçe="Seçilen Müzik",english="Selected Music", arabic="موسيقى مختارة", sanskrit="चयनितं सङ्गीतम्"),
+            "other_music": Lang(türkçe="Bilgisayardan Müzik", english="Music Path", arabic="موسيقى من الكمبيوتر", sanskrit="सङ्गणकात् सङ्गीतम्"),
             "fps": "FPS",
-            "language": Lang(türkçe="Dil", english="Language")
+            "language": Lang(türkçe="Dil", english="Language", arabic="لغة", sanskrit="भाषा")
         }
 
         self.active_textbox = None
@@ -1032,11 +1032,13 @@ class Settings:
             elif element_type == "select":
 
                 icons = option.get("icons", {})
+
+                font = userFont(os.path.join(BASE_DIR, r"fonts/unifont-18.0.01.otf"), option.get("font_size", 30))
     
                 element = Select(
                     (element_x, y),
                     option["values"],
-                    font=option["font"],
+                    font=font,
                     icons=icons
                 )
                 print(type(option["values"]))
@@ -1050,10 +1052,12 @@ class Settings:
 
                 icons = option.get("icons", {})
 
+                font = userFont(os.path.join(BASE_DIR, r"fonts/unifont-18.0.01.otf"), option.get("font_size", TextBox.default_size[1]))
+
                 element = TextBox(
                     (element_x, y),
                     option.get("max_length", 20),
-                    font=option.get("font", None),
+                    font=font,
                     icons=icons
                 )
 

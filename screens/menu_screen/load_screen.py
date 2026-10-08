@@ -3,7 +3,7 @@ import pygame
 import colours
 from classes import Slot, LimitedNumber, Button
 import math
-from fonts import font2, font3
+from fonts import get_font
 from calcs import calculate_size
 from screens.types import ScreenType
 from lang_support import Lang
@@ -19,20 +19,34 @@ class LoadScreen(MenuScreen):
         self.page = LimitedNumber(0, 0, 1000)
 
         self.langs = {
-            "empty_slot": Lang(türkçe="Boş Slot", english="Empty Slot"),
-            "unknown_error_slot": Lang(türkçe="Bilinmeyen Hata", english="Unknown Error"),
-            "corrupted_slot": Lang(türkçe="Bozuk Slot", english="Corrupted Slot"),
-            "unusable_slot": Lang(türkçe="Kullanılamaz Slot", english="Unusable Slot"),
-            "version_slot": Lang(türkçe="Sürüm", english="Version"),
-            "previous": Lang(türkçe="Önceki", english="Previous"),
-            "next": Lang(türkçe="Sonraki", english="Next"),
-            "page": Lang(türkçe="Sayfa", english="Page")
+            "empty_slot": Lang(türkçe="Boş Slot", english="Empty Slot", arabic="خانة فارغة", sanskrit="रिक्त स्लॉट्"),
+            "unknown_error_slot": Lang(türkçe="Bilinmeyen Hata", english="Unknown Error", arabic="خطأ غير معروف", sanskrit="अज्ञातदोषः"),
+            "corrupted_slot": Lang(türkçe="Bozuk Slot", english="Corrupted Slot", sanskrit="भग्न स्लॉट", arabic="فتحة معطلة"),
+            "unusable_slot": Lang(türkçe="Kullanılamaz Slot", english="Unusable Slot", arabic="فتحة غير قابلة للاستخدام", sanskrit="अनुपयोगी स्लॉट्"),
+            "version_slot": Lang(türkçe="Sürüm", english="Version", sanskrit="संस्करण", arabic="إصدار"),
+            "previous": Lang(türkçe="Önceki", english="Previous", arabic="سابق", sanskrit="पूर्व"),
+            "next": Lang(türkçe="Sonraki", english="Next", sanskrit="अग्रिम", arabic="التالي"),
+            "page": Lang(türkçe="Sayfa", english="Page", arabic="صفحة", sanskrit="पृष्ठ")
         }
+
+        self.font3 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            3,
+            "userFont"
+        )
+
+        self.font2 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            4,
+            "userFont"
+        )
 
         self.sonraki_button = Button(
             0, 0, 300, 80,
             "Sonraki",
-            font3,
+            self.font3,
             colours.GRAY,
             colours.WHITE,
             [ScreenType.LOAD, ScreenType.SAVE],
@@ -44,7 +58,7 @@ class LoadScreen(MenuScreen):
         self.onceki_button = Button(
             0, 0, 300, 80,
             "Önceki",
-            font3,
+            self.font3,
             colours.GRAY,
             colours.WHITE,
             [ScreenType.LOAD, ScreenType.SAVE],
@@ -56,7 +70,7 @@ class LoadScreen(MenuScreen):
         self.return_button = Button(
             0, 0, 50, 50,
             "<-",
-            font2,
+            self.font2,
             colours.RED,
             colours.WHITE,
             [ScreenType.SAVE, ScreenType.LOAD]
@@ -128,7 +142,7 @@ class LoadScreen(MenuScreen):
         self.onceki_button.draw(surface)
         self.sonraki_button.draw(surface)
         self.return_button.draw(surface)
-        font2.draw_text(f"{self.page.deger+1}. {self.langs['page'].get(self.game.settings.get('language'))}", (width * 0.5, height * 0.93), surface, (255, 255, 255), "center")
+        self.font2.draw_text(f"{self.page.deger+1}. {self.langs['page'].get(self.game.settings.get('language'))}", (width * 0.5, height * 0.93), surface, (255, 255, 255), "center")
 
     def update(self, dt):
         width = self.game.width
@@ -182,7 +196,7 @@ class LoadScreen(MenuScreen):
                 if not slot.used or slot.corrupted or slot.unknown:
                     continue
 
-                data = self.game.save_manager.load(slot.id)
+                data, cheated = self.game.save_manager.load(slot.id)
                 version = self.game.save_manager.get_version(slot.id)
 
                 if data is None:
@@ -195,6 +209,7 @@ class LoadScreen(MenuScreen):
                     return
 
                 self.game.game_data = data
+                self.game.cheated = cheated
 
                 game_screen = self.game.screen_manager.get_screen(ScreenType.GAME)
                 game_screen.load_game()
@@ -203,6 +218,53 @@ class LoadScreen(MenuScreen):
                 return
 
     def on_enter(self, transfer_datas):
+        self.font3 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            3,
+            "userFont"
+        )
+
+        self.font2 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            4,
+            "userFont"
+        )
+
+        self.sonraki_button = Button(
+            0, 0, 300, 80,
+            "Sonraki",
+            self.font3,
+            colours.GRAY,
+            colours.WHITE,
+            [ScreenType.LOAD, ScreenType.SAVE],
+            colours.darker(colours.GRAY, 20),
+            colours.darker(colours.GRAY, 50),
+            20
+        )
+
+        self.onceki_button = Button(
+            0, 0, 300, 80,
+            "Önceki",
+            self.font3,
+            colours.GRAY,
+            colours.WHITE,
+            [ScreenType.LOAD, ScreenType.SAVE],
+            colours.darker(colours.GRAY, 20),
+            colours.darker(colours.GRAY, 50),
+            20
+        )
+
+        self.return_button = Button(
+            0, 0, 50, 50,
+            "<-",
+            self.font2,
+            colours.RED,
+            colours.WHITE,
+            [ScreenType.SAVE, ScreenType.LOAD]
+        )
+
         if transfer_datas.get("warning", False):
             if transfer_datas.get("accepted_continue", False):
                 data = self.game.save_manager.load(transfer_datas["slot_id"])

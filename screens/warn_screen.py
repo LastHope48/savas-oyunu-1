@@ -1,7 +1,7 @@
 from .screen import Screen
 import pygame
 import colours
-from fonts import font1, font2, font3, dfont1, dfont2
+from fonts import get_font
 import classes
 from calcs import calculate_size
 from .types import ScreenType
@@ -12,6 +12,41 @@ pygame.init()
 class WarnScreen(Screen):
     def __init__(self, game):
         super().__init__(game)
+
+        self.font1 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            1,
+            "userFont"
+        )
+
+        self.font2 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            2,
+            "userFont"
+        )
+
+        self.font3 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            3,
+            "userFont"
+        )
+
+        self.dfont1 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            1,
+            "DynamicFont"
+        )
+
+        self.dfont2 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            2,
+            "DynamicFont"
+        )
 
         self.langs = {
             "continue": Lang(türkçe="Devam Et", english="Continue"),
@@ -26,7 +61,7 @@ class WarnScreen(Screen):
         self.warn_continue_button = classes.Button(
             0, 0, 200, 55,
             "Devam Et",
-            font3,
+            self.font3,
             colours.lighter(colours.BLACK, 30),
             colours.WHITE,
             [ScreenType.WARN],
@@ -37,7 +72,7 @@ class WarnScreen(Screen):
         self.warn_return_button = classes.Button(
             0, 0, 200, 55,
             "Geri Dön",
-            font3,
+            self.font3,
             colours.lighter(colours.BLACK, 30),
             colours.WHITE,
             [ScreenType.WARN],
@@ -78,13 +113,13 @@ class WarnScreen(Screen):
             border_radius=20
         )
 
-        warn_header_render, _ = dfont1.render(self.langs["warning"].get(self.game.settings.get("language")), colours.WHITE, warn_surface_header, 40)
+        warn_header_render, _ = self.dfont1.render(self.langs["warning"].get(self.game.settings.get("language")), colours.WHITE, warn_surface_header, 40)
 
         surface.blit(warn_header_render,(self.game.width / 2 - warn_header_render.get_width() / 2, self.game.height / 2 - warn_header_render.get_height() * 2))
 
         # font1.draw_text("UYARI!", (self.game.width / 2, self.game.height / 2 - 120), surface, colours.WHITE, hiza="center")
 
-        messages, line_height = dfont2.render(
+        messages, line_height = self.dfont2.render(
             self.langs["warn_text"].get(self.game.settings.get("language")),
             colours.WHITE,
             warn_surface,
@@ -126,6 +161,41 @@ class WarnScreen(Screen):
             self.game.screen_manager.set_screen(ScreenType.LOAD, accepted_continue=False, slot_id=self.slot_id, warning=True)
 
     def on_enter(self, transfer_datas: dict):
+        self.font1 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            1,
+            "userFont"
+        )
+
+        self.font2 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            2,
+            "userFont"
+        )
+
+        self.font3 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            3,
+            "userFont"
+        )
+
+        self.dfont1 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            1,
+            "DynamicFont"
+        )
+
+        self.dfont2 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            2,
+            "DynamicFont"
+        )
+
         self.slot_id = transfer_datas["slot_id"]
 
     def on_exit(self):

@@ -1,6 +1,7 @@
 import pygame
 import sys
 from dataclasses import dataclass
+import string
 
 pygame.init()
 pygame.mixer.init()
@@ -266,7 +267,7 @@ class MsgBox:
         if self.typing:
             self.stop_typing()
 
-    def update(self, dt: float, sound: pygame.mixer.Sound = None):
+    def update(self, dt: float, sound: pygame.mixer.Sound = None, volume=None, play=True):
         if not self.typing:
             return
 
@@ -276,9 +277,13 @@ class MsgBox:
 
         new_chars = min(int(self.visible_chars), len(self.text))
 
-        if sound is not None:
-            for _ in range(new_chars - old_chars):
-                sound.play()
+        if play:
+            if sound is not None:
+                for _ in range(new_chars - old_chars):
+                    if volume is not None:
+                        sound.set_volume(volume)
+
+                    sound.play()
 
         if self.visible_chars >= len(self.text):
             self.visible_chars = len(self.text)

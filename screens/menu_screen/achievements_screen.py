@@ -8,6 +8,7 @@ from ui import Bar, BarElement
 from lang_support import Lang
 from screens.types import ScreenType
 import threading
+from fonts import get_font
 
 
 class AchievementsScreen(MenuScreen):
@@ -21,43 +22,47 @@ class AchievementsScreen(MenuScreen):
         self.achievements = []
 
         self.langs = {
-            "achievement_counter": Lang(türkçe="Başarı", english="Achievement"),
-            "datas_could_not_verified": Lang(türkçe="Achievement verileri doğrulanamadı.", english="Achievement datas could not be verified."),
-            "verifying_achievements": Lang(türkçe="Başarımlar Doğrulanıyor", english="Verifying Achievements"),
-            "no_internet_connection": Lang(türkçe="İnternet bağlantısı gerekli.", english="No Internet Connection")
+            "achievement_counter": Lang(türkçe="Başarı", english="Achievement", sanskrit="सफलता", arabic="نجاح"),
+            "datas_could_not_verified": Lang(türkçe="Achievement verileri doğrulanamadı.", english="Achievement datas could not be verified.", arabic="تعذّر التحقق من بيانات الإنجاز.", sanskrit="उपलब्धिदत्तांशस्य सत्यापनं कर्तुं न शक्यते स्म ।"),
+            "verifying_achievements": Lang(türkçe="Başarımlar Doğrulanıyor", english="Verifying Achievements", sanskrit="उपलब्धीनां सत्यापनम्", arabic="يتم التحقق من الإنجازات."),
+            "no_internet_connection": Lang(türkçe="İnternet bağlantısı gerekli.", english="No Internet Connection", arabic="يلزم الاتصال بالإنترنت", sanskrit="अन्तर्जालसम्पर्कः आवश्यकः")
         }
 
         self.achievement_images = {}
         self.achievement_card_cache = {}
 
-        self.achievement_title_font = DynamicFont(
-            "arial",
-            20,
-            60
+        # Achievement title font
+        self.font3 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            3,
+            "DynamicFont"
         )
 
-        self.achievement_description_font = DynamicFont(
-            "arial",
-            12,
-            30
+        # Achievement description font
+
+        self.font4 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            4,
+            "DynamicFont"
         )
 
-        self.achievements_counter_f = DynamicFont(
-            "arial",
-            10,
-            50
-        )
+        # counter_f
 
-        self.message_font = DynamicFont(
-            os.path.join(BASE_DIR, r"fonts/notosans.ttf"),
-            20,
-            50
+        self.font5 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            5,
+            "DynamicFont"
         )
-
-        self.loading_font = DynamicFont(
-            os.path.join(BASE_DIR, r"fonts/notosans.ttf"),
-            20,
-            50
+        # message / loading
+        
+        self.font7 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            7,
+            "DynamicFont"
         )
 
         self.orig_quit_icon = pygame.image.load(os.path.join(BASE_DIR, r"images/quit.png")).convert_alpha()
@@ -156,7 +161,7 @@ class AchievementsScreen(MenuScreen):
             (width - 20, 60)
         )
 
-        title_render, title_height = self.achievement_title_font.render(
+        title_render, title_height = self.font3.render(
             title,
             "white",
             title_area,
@@ -187,7 +192,7 @@ class AchievementsScreen(MenuScreen):
         )
 
         description_renders, line_height = (
-            self.achievement_description_font.render(
+            self.font4.render(
                 description,
                 (180, 180, 180),
                 description_area,
@@ -272,7 +277,7 @@ class AchievementsScreen(MenuScreen):
     def draw(self, surface: pygame.Surface):
         surface.fill(colours.BLACK)
 
-        if self.verifying:
+        if self.verifying or self.initing_online:
             self.draw_loading(surface)
             self.offline_bar.draw(surface)
             return
@@ -280,7 +285,7 @@ class AchievementsScreen(MenuScreen):
         if self.offline:
             message = self.langs["no_internet_connection"]()
 
-            message_font = self.message_font
+            message_font = self.font7
 
             message_area = pygame.Surface(
                 (
@@ -289,7 +294,7 @@ class AchievementsScreen(MenuScreen):
                 )
             )
 
-            renders, line_height = message_font.render(
+            renders, line_height = self.font7.render(
                 message,
                 "white",
                 message_area,
@@ -312,7 +317,7 @@ class AchievementsScreen(MenuScreen):
 
 
         elif self.illegal:
-            message_font = self.message_font
+            message_font = self.font7
 
             message_area = pygame.Surface(
                 (
@@ -374,6 +379,9 @@ class AchievementsScreen(MenuScreen):
 
 
     def update_achievements(self):
+        if self.offline or self.illegal:
+            return
+
         self.achievements = []
 
         for achievement_id, achievement in self.game.achievements.achievements.items():
@@ -401,10 +409,12 @@ class AchievementsScreen(MenuScreen):
         surface.blit(card, rect)
 
     def update(self, dt):
+        self.initing_online = self.game.initing_online_data
+
         self.bar.update()
         self.offline_bar.update()
 
-        if self.verifying:
+        if self.verifying or self.initing_online:
             self.loading_time += dt
 
         bar_height = self.game.screen.get_height() // 10
@@ -434,7 +444,7 @@ class AchievementsScreen(MenuScreen):
 
 
     def handle_event(self, event: pygame.event.Event):
-        if self.verifying or self.illegal or self.offline:
+        if self.verifying or self.illegal or self.offline or self.initing_online:
             self.offline_bar.handle_event(event)
 
         else:
@@ -445,7 +455,7 @@ class AchievementsScreen(MenuScreen):
 
         message = f"{self.langs['verifying_achievements']()}{dots}"
 
-        font = self.loading_font
+        font = self.font7
         area = pygame.Surface(
             (
                 surface.get_width() - 100,
@@ -484,7 +494,7 @@ class AchievementsScreen(MenuScreen):
 
         total = len(self.game.achievements.achievements.keys())
 
-        return self.achievements_counter_f.render(
+        return self.font5.render(
             f"{self.langs['achievement_counter'](self.game.settings.get('language'))} {unlocked}/{total}",
             colours.BLACK,
             pygame.Surface((self.bar._per_width_for_element(), self.bar.rect.h))
@@ -511,6 +521,43 @@ class AchievementsScreen(MenuScreen):
         self.verifying = False
 
     def on_enter(self, transfer_datas):
+        # 3
+        self.font3 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            3,
+            "DynamicFont"
+        )
+
+        self.font4 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            4,
+            "DynamicFont"
+        )
+
+        self.font5 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            5,
+            "DynamicFont"
+        )
+        # message / loading
+        
+        self.font7 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            7,
+            "DynamicFont"
+        )
+
+        self.illegal = self.game.illegal
+        self.offline = self.game.offline
+        self.initing_online = self.game.initing_online_data
+
+        if self.initing_online or self.illegal or self.offline:
+            return
+
         self.achievement_counter = self.create_achievement_surface()
 
         if self.game.dump("last_music") != os.path.join(BASE_DIR, r"musics/menu_theme.mp3"):
@@ -522,12 +569,6 @@ class AchievementsScreen(MenuScreen):
             )
 
             self.game.mixer.music.play(-1)
-
-        self.illegal = self.game.illegal
-        self.offline = self.game.offline
-
-        if self.illegal or self.offline:
-            return
 
         self.start_verify()
         self.update_achievements()

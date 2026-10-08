@@ -136,7 +136,7 @@ class Scene:
     # UPDATE
     # =========================================================
 
-    def update(self, dt: float):
+    def update(self, dt: float, volume=None, play=True):
 
         if not self.active:
             return
@@ -148,7 +148,9 @@ class Scene:
         if self.msgbox is not None:
             self.msgbox.update(
                 dt,
-                self.typing_sound
+                self.typing_sound,
+                volume,
+                play
             )
 
         # ---------------------------------

@@ -3,7 +3,7 @@ import pygame
 from classes import defaults as game_data_defaults
 from classes import Button
 import classes
-from fonts import font1, font2, font3, font4
+from fonts import get_font
 import colours
 from calcs import calculate_size
 from screens.types import ScreenType
@@ -17,20 +17,44 @@ class MainMenuScreen(MenuScreen):
         super().__init__(game)
 
         self.langs = {
-            "new_game_button": Lang(türkçe="Yeni Oyun", english="New Game"),
-            "continue_button": Lang(türkçe="Devam Et", english="Continue"),
-            "load_button": Lang(türkçe="Yükle", english="Load"),
-            "achivements_button": Lang(türkçe="Başarılar", english="Achivements"),
-            "settings_button": Lang(türkçe="Ayarlar", english="Settings"),
-            "quit_button": Lang(türkçe="Çık", english="Quit"),
-            "date_info": Lang(türkçe="Tarih", english="Date"),
-            "version_info": Lang(türkçe="Sürüm", english="Version")
+            "new_game_button": Lang(türkçe="Yeni Oyun", english="New Game", arabic="لعبة جديدة", sanskrit="नूतनः क्रीडा"),
+            "continue_button": Lang(türkçe="Devam Et", english="Continue", arabic="يكمل", sanskrit="अनुवर्तते"),
+            "world_select_button": Lang(türkçe="Dünya Seç", english="World Select", sanskrit="जगत् चयन करें", arabic="اختر العالم"),
+            "load_button": Lang(türkçe="Yükle", english="Load", sanskrit="अपलोड् कुर्वन्तु", arabic="رفع"),
+            "achivements_button": Lang(türkçe="Başarılar", english="Achivements", arabic="حظ سعيد", sanskrit="शुभकामना"),
+            "settings_button": Lang(türkçe="Ayarlar", english="Settings", sanskrit="सेटिंग्स्", arabic="إعدادات"),
+            "quit_button": Lang(türkçe="Çık", english="Quit", arabic="مخرج", sanskrit="निर्गम"),
         }
 
+        self.font1 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            1,
+            "userFont"
+        )
+
+        self.font2 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            2,
+            "userFont"
+        )
+
+        self.font4 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            4,
+            "userFont"
+        )
+
+        button_number = 6 + (1 if self.game.const_game_data["worlds_accessable"] else 0)
+
+        self.button_height = 800 // (button_number // 0.6)
+
         self.new_game_button = Button(
-            0, 0, 300, 80,
+            0, 0, 300, self.button_height,
             "Yeni Oyun",
-            font1,
+            self.font1,
             colours.YELLOW,
             colours.WHITE,
             [ScreenType.MENU],
@@ -43,7 +67,7 @@ class MainMenuScreen(MenuScreen):
         self.continue_button = Button(
             0, 0, 300, 80,
             "Devam Et",
-            font1,
+            self.font1,
             colours.YELLOW,
             colours.WHITE,
             [ScreenType.MENU],
@@ -53,10 +77,21 @@ class MainMenuScreen(MenuScreen):
             border_radius=0
         )
 
+        self.worlds_button = Button(
+            0, 0, 300, 80,
+            "Dünya Seç",
+            self.font1,
+            colours.LIGHT_BLUE,
+            colours.WHITE,
+            [ScreenType.MENU],
+            design="bevel",
+            border_radius=0
+        )
+
         self.load_button = Button(
             0, 0, 300, 80,
             "Yükle",
-            font1,
+            self.font1,
             colours.YELLOW,
             colours.WHITE,
             [ScreenType.MENU],
@@ -69,7 +104,7 @@ class MainMenuScreen(MenuScreen):
         self.achivements_button = Button(
             0, 0, 300, 80,
             "Başarılar",
-            font1,
+            self.font1,
             colours.YELLOW,
             colours.WHITE,
             [ScreenType.MENU],
@@ -82,7 +117,7 @@ class MainMenuScreen(MenuScreen):
         self.settings_button = Button(
             0, 0, 300, 80,
             "Ayarlar",
-            font1,
+            self.font1,
             colours.YELLOW,
             colours.WHITE,
             [ScreenType.MENU],
@@ -95,7 +130,7 @@ class MainMenuScreen(MenuScreen):
         self.quit_button = Button(
             0, 0, 300, 80,
             "Çık",
-            font1,
+            self.font1,
             colours.RED,
             colours.WHITE,
             [ScreenType.MENU],
@@ -107,25 +142,6 @@ class MainMenuScreen(MenuScreen):
 
         self.last = self.game.save_manager.get_info_last_slot()
 
-        self.info_button = Button(
-            0, 0, 80, 80,
-            "i",
-            font2,
-            colours.BLUE,
-            colours.WHITE,
-            [ScreenType.MENU],
-            plus_data=False
-        )
-
-        self.info_rect = classes.AlignedRect(
-            0, 0, 200, 200,
-            font4,
-            colours.WHITE,
-            f"Tarih: {self.last['date'] if self.last else ''}\nSürüm: {self.last['version'] if self.last else ''}",
-            colours.BLACK,
-            plus_data=False
-        )
-
         self.title_font = None
         self.title_font_size = None
 
@@ -135,75 +151,122 @@ class MainMenuScreen(MenuScreen):
 
         if self.title_font is None or self.title_font_size != int(_bolum):
             self.title_font_size = int(_bolum)
-            self.title_font = classes.userFont("arial", self.title_font_size)
 
-        self.title_font.draw_text(
-            "SAVAŞ OYUNU",
-            (self.game.width // 2, int(self.game.height * 0.11)),
-            surface,
-            colours.WHITE,
-            "center"
-        )
+            if Lang.USING_LANG.lower() == "türkçe" or Lang.USING_LANG.lower() == "english":
+                clarity_city = os.path.join(BASE_DIR, r"fonts/Clarity-city.ttf")
+                self.title_font = classes.userFont(clarity_city, self.title_font_size)
+
+            elif Lang.USING_LANG.lower() == "arabic":
+                self.title_font = classes.userFont(
+                    os.path.join(BASE_DIR, r"fonts/arabica.ttf"),
+                    self.title_font_size
+                )
+
+            elif Lang.USING_LANG.lower() == "sanskrit":
+                self.title_font = classes.userFont(
+                    os.path.join(BASE_DIR, r"fonts/arabica.ttf"),
+                    self.title_font_size
+                )
+        if self.title_font is not None:
+            self.title_font.draw_text(
+                "SAVAŞ OYUNU",
+                (self.game.width // 2, int(self.game.height * 0.11)),
+                surface,
+                colours.WHITE,
+                "center"
+            )
+
         self.new_game_button.draw(surface)
         self.continue_button.draw(surface)
+
+        if self.game.const_game_data["worlds_accessable"]:
+            self.worlds_button.draw(surface)
+
         self.load_button.draw(surface)
         self.achivements_button.draw(surface)
         self.settings_button.draw(surface)
         self.quit_button.draw(surface)
-        if self.last:
-            if self.info_rect.plus_data:
-                self.info_button.draw(surface)
-                if self.info_button.plus_data:
-                    self.info_rect.draw(surface)
 
     def update(self, dt):
         width = self.game.width
         height = self.game.height
 
-        self.new_game_button.set_center(width * 0.5, height * 0.27)
-        self.new_game_button.width = calculate_size(300, 800, width) # bu butonların genişliği 300 yüksekliği 800
-        self.new_game_button.height = calculate_size(80, 800, height)
-        self.new_game_button.text = self.langs['new_game_button'].get(self.game.settings.get('language'))
+        btn_w = calculate_size(300, 800, width)
+        btn_h = calculate_size(self.button_height, 800, height)
+        gap = calculate_size(50, 2160, height)
+        step = btn_h + gap
 
-        self.continue_button.set_center(width * 0.5, height * 0.4)
-        self.continue_button.width = calculate_size(300, 800, width)
-        self.continue_button.height = calculate_size(80, 800, height)
-        self.continue_button.text = self.langs['continue_button'].get(self.game.settings.get('language'))
+        # Quit butonunun ekranın alt kenarından bırakacağı boşluk (px):
+        bottom_padding = 40  
+        quit_y = height - bottom_padding - (btn_h / 2)
 
-        self.load_button.set_center(width * 0.5, height * 0.53)
-        self.load_button.width = calculate_size(300, 800, width)
-        self.load_button.height = calculate_size(80, 800, height)
-        self.load_button.text = self.langs['load_button'].get(self.game.settings.get('language'))
+        step_counter = 0
 
-        self.achivements_button.set_center(width * 0.5, height * 0.66)
-        self.achivements_button.width = calculate_size(300, 800, width)
-        self.achivements_button.height = calculate_size(80, 800, height)
-        self.achivements_button.text = self.langs['achivements_button'].get(self.game.settings.get('language'))
+        # 7. Quit (En altta, tabandan biraz yüksekte)
+        self.quit_button.set_center(width * 0.5, quit_y - step * step_counter)
+        self.quit_button.width = btn_w
+        self.quit_button.height = btn_h
 
-        self.settings_button.set_center(width * 0.5, height * 0.79)
-        self.settings_button.width = calculate_size(300, 800, width)
-        self.settings_button.height = calculate_size(80, 800, height)
+        step_counter += 1
+
+        # 6. Settings
+        self.settings_button.set_center(width * 0.5, quit_y - step * step_counter)
+        self.settings_button.width = btn_w
+        self.settings_button.height = btn_h
         self.settings_button.text = self.langs['settings_button'].get(self.game.settings.get('language'))
 
-        self.quit_button.set_center(width * 0.5, height * 0.92)
-        self.quit_button.width = calculate_size(300, 800, width)
-        self.quit_button.height = calculate_size(80, 800, height)
-        self.quit_button.text = self.langs['quit_button'].get(self.game.settings.get('language'))
+        step_counter += 1
 
-        if self.last:
-            self.info_button.set_center(self.continue_button.rect.center[0] + self.continue_button.width / 2 + 50, height * 0.53)
-            self.info_rect.set_center(self.continue_button.rect.center[0] + self.continue_button.width / 2 + 300, height * 0.53)
-            self.info_rect.width = calculate_size(200, 800, self.game.width)
-            self.info_rect.height = calculate_size(200, 800, self.game.height)
-            self.info_rect.text = f"{self.langs['date_info'].get(self.game.settings.get('language'))}: {self.last['date']}\n{self.langs['version_info'].get(self.game.settings.get('language'))}: {self.last['version']}"
+        # 5. Achievements
+        self.achivements_button.set_center(width * 0.5, quit_y - step * step_counter)
+        self.achivements_button.width = btn_w
+        self.achivements_button.height = btn_h
+        self.achivements_button.text = self.langs['achivements_button'].get(self.game.settings.get('language'))
 
-        for button in classes.Button.buttons:
-            button: Button
-            button.on_mouse()
+        step_counter += 1
+
+        # 4. Load
+        self.load_button.set_center(width * 0.5, quit_y - step * step_counter)
+        self.load_button.width = btn_w
+        self.load_button.height = btn_h
+        self.load_button.text = self.langs['load_button'].get(self.game.settings.get('language'))
+
+        # 3. World Select
+        if self.game.const_game_data["worlds_accessable"]:
+            step_counter += 1
+            self.worlds_button.set_center(width * 0.5, quit_y - step * step_counter)
+            self.worlds_button.width = btn_w
+            self.worlds_button.height = btn_h
+            self.worlds_button.text = self.langs["world_select_button"]()
+
+        step_counter += 1
+
+        # 2. Continue
+        self.continue_button.set_center(width * 0.5, quit_y - step * step_counter)
+        self.continue_button.width = btn_w
+        self.continue_button.height = btn_h
+        self.continue_button.text = self.langs['continue_button'].get(self.game.settings.get('language'))
+
+        step_counter += 1
+
+        # 1. New Game (En üstte)
+        self.new_game_button.set_center(width * 0.5, quit_y - step * step_counter)
+        self.new_game_button.width = btn_w
+        self.new_game_button.height = btn_h
+        self.new_game_button.text = self.langs['new_game_button'].get(self.game.settings.get('language'))
+
+        self.new_game_button.on_mouse()
+        self.continue_button.on_mouse()
+        self.worlds_button.on_mouse()
+        self.achivements_button.on_mouse()
+        self.load_button.on_mouse()
+        self.settings_button.on_mouse()
+        self.quit_button.on_mouse()
 
 
     def handle_event(self, event: pygame.event.Event):
         if self.new_game_button.clicked(event, ScreenType.MENU):
+            self.game.dump("new_game", True)
 
             if self.game.settings.get("sfx"):
                 self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
@@ -220,12 +283,23 @@ class MainMenuScreen(MenuScreen):
             if self.game.settings.get("sfx"):
                 self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
 
-            continue_data = self.game.save_manager.last_slot()
+            data = self.game.save_manager.last_slot()
 
-            if continue_data is not None:
+            if data is not None:
+                continue_data, cheated = data
+
                 self.game.game_data = continue_data
+                self.game.cheated = cheated
                 self.game.screen_manager.set_screen(ScreenType.GAME)
                 return
+
+        if self.game.const_game_data["worlds_accessable"]:
+            if self.worlds_button.clicked(event, ScreenType.MENU):
+
+                if self.game.settings.get("sfx"):
+                    self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
+
+                self.game.screen_manager.set_screen(ScreenType.WORLD_SELECT)
 
         if self.achivements_button.clicked(event, ScreenType.MENU):
 
@@ -256,22 +330,122 @@ class MainMenuScreen(MenuScreen):
             self.game.running = False
             return
 
-        if event.type == pygame.WINDOWMAXIMIZED:
-            if self.last:
-                self.info_rect.plus_data = True
-
-        if event.type == pygame.WINDOWRESTORED:
-            if self.last:
-                self.info_rect.plus_data = False
-
-        if self.info_button.clicked(event, ScreenType.MENU) and self.info_rect.plus_data:
-            if self.game.settings.get("sfx"):
-                self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
-
-            self.info_button.plus_data = not self.info_button.plus_data
-
     def on_enter(self, transfer_datas):
-        self.last = self.game.save_manager.get_info_last_slot(log=False)
+        button_number = 6 + 1 if self.game.const_game_data["worlds_accessable"] else 0
+
+        self.button_height = 800 // (button_number // 0.6)
+
+        self.font1 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            1,
+            "userFont"
+        )
+
+        self.font2 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            2,
+            "userFont"
+        )
+
+        self.font4 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            4,
+            "userFont"
+        )
+
+        self.new_game_button = Button(
+            0, 0, 300, 80,
+            "Yeni Oyun",
+            self.font1,
+            colours.YELLOW,
+            colours.WHITE,
+            [ScreenType.MENU],
+            colours.darker(colours.YELLOW, 20),
+            colours.darker(colours.YELLOW, 50),
+            design="bevel",
+            border_radius=0
+        )
+
+        self.continue_button = Button(
+            0, 0, 300, 80,
+            "Devam Et",
+            self.font1,
+            colours.YELLOW,
+            colours.WHITE,
+            [ScreenType.MENU],
+            colours.darker(colours.YELLOW, 20),
+            colours.darker(colours.YELLOW, 50),
+            design="bevel",
+            border_radius=0
+        )
+
+        self.worlds_button = Button(
+            0, 0, 300, 80,
+            "Dünya Seç",
+            self.font1,
+            colours.LIGHT_BLUE,
+            colours.WHITE,
+            [ScreenType.MENU],
+            design="bevel",
+            border_radius=0
+        )
+
+        self.load_button = Button(
+            0, 0, 300, 80,
+            "Yükle",
+            self.font1,
+            colours.YELLOW,
+            colours.WHITE,
+            [ScreenType.MENU],
+            colours.darker(colours.YELLOW, 20),
+            colours.darker(colours.YELLOW, 50),
+            design="bevel",
+            border_radius=0
+        )
+
+        self.achivements_button = Button(
+            0, 0, 300, 80,
+            "Başarılar",
+            self.font1,
+            colours.YELLOW,
+            colours.WHITE,
+            [ScreenType.MENU],
+            colours.darker(colours.YELLOW, 20),
+            colours.darker(colours.YELLOW, 50),
+            design="bevel",
+            border_radius=0
+        )
+
+        self.settings_button = Button(
+            0, 0, 300, 80,
+            "Ayarlar",
+            self.font1,
+            colours.YELLOW,
+            colours.WHITE,
+            [ScreenType.MENU],
+            colours.darker(colours.YELLOW, 20),
+            colours.darker(colours.YELLOW, 50),
+            design="bevel",
+            border_radius=0
+        )
+
+        self.quit_button = Button(
+            0, 0, 300, 80,
+            "Çık",
+            self.font1,
+            colours.RED,
+            colours.WHITE,
+            [ScreenType.MENU],
+            colours.darker(colours.RED, 20),
+            colours.darker(colours.RED, 50),
+            design="bevel",
+            border_radius=0
+        )
+
+        self.title_font = None
 
         if self.game.dump("last_music") != os.path.join(BASE_DIR, r"musics/menu_theme.mp3"):
             self.game.mixer.music.load(
@@ -284,6 +458,7 @@ class MainMenuScreen(MenuScreen):
             self.game.mixer.music.play(-1)
 
     def on_exit(self):
+
         self.game.dump(
             "last_music",
             os.path.join(

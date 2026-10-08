@@ -1,5 +1,5 @@
 pygame
-opencv_python
+numpy
 arabic_reshaper
 python-bidi
 pyinstaller

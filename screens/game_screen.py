@@ -3,7 +3,7 @@ import pygame
 from levels import level_sword_map, level_item_map, levels, bronze_gun
 import typehint_game
 import classes
-from fonts import font1, font2, font3, dfont1
+from fonts import get_font
 import colours
 from classes import Button, defaults as game_data_defaults
 from calcs import calculate_size
@@ -11,6 +11,8 @@ from lang_support import Lang
 from scene import Scene, SceneDialogue
 from basedir import BASE_DIR
 import os
+import threading
+from helper_funcs import create_player_dialogue_portrait
 
 from gamedata import GameData
 
@@ -23,14 +25,41 @@ class GameScreen(Screen):
         super().__init__(game)
         self.game: typehint_game.Game
 
+        self.font1 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            1,
+            "userFont"
+        )
+        self.font2 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            2,
+            "userFont"
+        )
+        self.font3 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            3,
+            "userFont"
+        )
+        self.dfont1 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            1,
+            "DynamicFont"
+        )
+
         self.langs = {
-            "new_game_button": Lang(türkçe="Yeni Oyun", english="New Game"),
-            "continue_button": Lang(türkçe="Devam Et", english="Continue"),
-            "load_button": Lang(türkçe="Yükle", english="Load"),
-            "save_button": Lang(türkçe="Kaydet", english="Save"),
-            "settings_button": Lang(türkçe="Ayarlar", english="Settings"),
-            "quit_button": Lang(türkçe="Çık", english="Quit")
+            "new_game_button": Lang(türkçe="Yeni Oyun", english="New Game", arabic="لعبة جديدة", sanskrit="नूतनः क्रीडा"),
+            "continue_button": Lang(türkçe="Devam Et", english="Continue", arabic="يكمل", sanskrit="अनुवर्तते"),
+            "load_button": Lang(türkçe="Yükle", english="Load", sanskrit="अपलोड् कुर्वन्तु", arabic="رفع"),
+            "save_button": Lang(türkçe="Kaydet", english="Save", arabic="يحفظ", sanskrit="रक्ष्"),
+            "settings_button": Lang(türkçe="Ayarlar", english="Settings", sanskrit="सेटिंग्स्", arabic="إعدادات"),
+            "quit_button": Lang(türkçe="Çık", english="Quit", arabic="مخرج", sanskrit="निर्गम")
         }
+
+
 
         self.levels: list[list[classes.Enemy]] = levels
 
@@ -49,7 +78,7 @@ class GameScreen(Screen):
         self.new_game_button = Button(
             0, 0, 300, 80,
             "Yeni Oyun",
-            font1,
+            self.font1,
             colours.YELLOW,
             colours.WHITE,
             [ScreenType.MENU, ScreenType.GAME],
@@ -62,7 +91,7 @@ class GameScreen(Screen):
         self.continue_button = Button(
             0, 0, 300, 80,
             "Devam Et",
-            font1,
+            self.font1,
             colours.YELLOW,
             colours.WHITE,
             [ScreenType.MENU, ScreenType.GAME],
@@ -75,7 +104,7 @@ class GameScreen(Screen):
         self.load_button = Button(
             0, 0, 300, 80,
             "Yükle",
-            font1,
+            self.font1,
             colours.YELLOW,
             colours.WHITE,
             [ScreenType.MENU, ScreenType.GAME],
@@ -88,7 +117,7 @@ class GameScreen(Screen):
         self.save_button = Button(
             0, 0, 300, 80,
             "Kaydet",
-            font1,
+            self.font1,
             colours.YELLOW,
             colours.WHITE,
             [ScreenType.MENU, ScreenType.GAME],
@@ -101,7 +130,7 @@ class GameScreen(Screen):
         self.settings_button = Button(
             0, 0, 300, 80,
             "Ayarlar",
-            font1,
+            self.font1,
             colours.YELLOW,
             colours.WHITE,
             [ScreenType.MENU, ScreenType.GAME],
@@ -114,7 +143,7 @@ class GameScreen(Screen):
         self.quit_button = Button(
             0, 0, 300, 80,
             "Çık",
-            font1,
+            self.font1,
             colours.RED,
             colours.WHITE,
             [ScreenType.MENU, ScreenType.GAME],
@@ -125,20 +154,21 @@ class GameScreen(Screen):
         )
 
         self.scene = None
+        self.achievement_unlock_cd = Cooldown(3)
     
     def draw(self, surface: pygame.Surface):
         self.game.game_data.world.draw(surface)
-        self.game.game_data.world.draw_items(surface, font3, self.game.game_data.player)
+        self.game.game_data.world.draw_items(surface, self.font3, self.game.game_data.player)
 
-        if type(self.game.game_data.player.using_gun) == classes.Sword:
+        '''if type(self.game.game_data.player.using_gun) == classes.Sword:
             self.game.game_data.player.using_gun.draw(
                 surface,
                 self.game.game_data.player.x + self.game.game_data.player.hand_spot,
                 self.game.game_data.player.y + 10,
                 True if self.game.game_data.player.drawing or self.game.game_data.player.sword_attacking else False, self.game.game_data.player.angle
-            )
+            )'''
 
-        elif type(self.game.game_data.player.using_gun) == classes.Gun:
+        if type(self.game.game_data.player.using_gun) == classes.Gun:
             self.game.game_data.player.using_gun.draw(
                 surface,
                 self.game.game_data.player.x + 30,
@@ -159,22 +189,26 @@ class GameScreen(Screen):
 
         classes.Enemy.draw(
             surface,
-            font3,
+            self.font3,
             list(self.game.game_data.enemy_data.values()),
-            font1
+            self.font1
         )
 
         classes.Boss.draw(
             surface,
-            font3,
+            self.font3,
             list(self.game.game_data.enemy_data.values()),
-            font1
+            self.dfont1
         )
 
         self.game.game_data.player.draw(surface)
         self.game.game_data.player.draw_dash(surface)
         self.game.game_data.player.draw_teleport(surface)
-        self.game.game_data.player.draw_statistics(surface, font2, self.game.info, self.game.clock)
+
+        for enemy in self.game.game_data.enemy_data.values():
+            enemy.draw_sneezes(surface)
+
+        self.game.game_data.player.draw_statistics(surface, self.font2, self.game.info, self.game.clock)
 
         for enemy in self.game.game_data.enemy_data.values():
             enemy.draw_scr_lazers(surface)
@@ -194,8 +228,10 @@ class GameScreen(Screen):
             self.scene.draw(surface)
 
     def update(self, dt):
+        self.achievement_unlock_cd.reduce(dt)
+
         if self.scene is not None and self.scene.active:
-            self.scene.update(dt)
+            self.scene.update(dt, self.game.settings.get("sfx_volume"), self.game.settings.get("sfx"))
             return
 
         if not self.esc_screen and not self.gun_choosing:
@@ -248,14 +284,14 @@ class GameScreen(Screen):
                 )
 
                 self.game.game_data.player.heal(dt)
-                self.game.game_data.player.sword_attack(dt)
 
                 if type(self.game.game_data.player.using_gun) == classes.Gun:
                     self.game.game_data.player.using_gun.update(
                         self.game.game_data.world,
                         dt,
                         self.game.game_data.enemy_data.values(),
-                        self.game.game_data.player
+                        self.game.game_data.player,
+                        self.game.dump("gun_combo")
                     )
 
                 if type(self.game.game_data.player.using_gun) == classes.Charm:
@@ -269,7 +305,14 @@ class GameScreen(Screen):
 
                 for enemy in self.game.game_data.enemy_data.values():
                     enemy: classes.Enemy
-                    enemy.update(self.game.game_data.player, self.game.game_data.world, dt, self.game.game_data.enemy_data.values())
+                    enemy.update(
+                        self.game.game_data.player,
+                        self.game.game_data.world,
+                        dt,
+                        self.game.game_data.enemy_data.values(),
+                        self.game.cheated
+                    )
+
                     enemy.update_arrows(self.game.game_data.player, dt)
                     enemy.summon(
                         dt,
@@ -277,9 +320,11 @@ class GameScreen(Screen):
                         self.game.game_data.world,
                         pending_enemies
                     )
+
                     enemy.update_bombs(self.game.game_data.player, dt)
                     enemy.update_cat_jump(self.game.game_data.player, dt)
                     enemy.update_scr_lazers(self.game.game_data.player, dt)
+                    enemy.update_sneezes(self.game.game_data.player, dt)
                 
                 for enemy in pending_enemies:
                     self.game.game_data.enemy_data[enemy.id] = enemy
@@ -296,6 +341,7 @@ class GameScreen(Screen):
                         enemy.use_split_ground(dt, self.game.game_data.player)
                         enemy.use_cat_jump(dt, self.game.game_data.player)
                         enemy.use_scr_lazer_beam(dt)
+                        enemy.use_sneeze()
                 except KeyError:
                     pass
 
@@ -303,7 +349,39 @@ class GameScreen(Screen):
                 self.game.game_data.enemy_data.values(),
                 dt,
                 self.gun_choosing
-                )
+            )
+
+            if self.game.achievements is not None:
+                if self.achievement_unlock_cd.check():
+                    if not self.game.achievements.achievements.get("1_000_000_kill").get("unlock"):
+                        if self.game.val_manager("kill") >= 1_000_000:
+                            threading.Thread(
+                                target=self.game.achievements.unlock,
+                                args=("1_000_000_kill",),
+                                daemon=True
+                            ).start()
+
+                            self.achievement_unlock_cd.refresh()
+
+                    if not self.game.achievements.achievements.get("10_000_kill").get("unlock"):
+                        if self.game.val_manager("kill") >= 10_000:
+                            threading.Thread(
+                                target=self.game.achievements.unlock,
+                                args=("10_000_kill",),
+                                daemon=True
+                            ).start()
+
+                            self.achievement_unlock_cd.refresh()
+
+                    if not self.game.achievements.achievements.get("500_kill").get("unlock"):
+                        if self.game.val_manager("kill") >= 500:
+                            threading.Thread(
+                                target=self.game.achievements.unlock,
+                                args=("500_kill",),
+                                daemon=True
+                            ).start()
+
+                            self.achievement_unlock_cd.refresh()
 
             if self.game.game_data.player.hp <= 0:
                 self.game.screen_manager.set_screen(ScreenType.LOSE)
@@ -464,9 +542,27 @@ class GameScreen(Screen):
                 self.game.running = False
                 return
 
+        else:
+            self.game.game_data.player.handle_event(event)
+
     def check_win(self):
         if self.game.game_data.win:
-            self.game.achievements.unlock("win")
+
+            if not self.game.cheated:
+                if self.game.achievements is not None:
+                    self.game.achievements.unlock("win")
+
+                if self.game.const_game_data is not None:
+                    self.game.const_game_data["worlds_accessable"] = True
+
+                if self.game.dump("new_game"):
+                    self.game.val_manager("win", 1, "change")
+
+            else:
+                if self.game.last_boss == "urasin_sumuklu_pecetesi":
+                    if self.game.achievements is not None:
+                        self.game.achievements.unlock("masks_importance")
+
             self.game.screen_manager.set_screen(ScreenType.WIN)
 
     def update_level(self):
@@ -511,6 +607,16 @@ class GameScreen(Screen):
             enemy: classes.Enemy
             enemy.set_pos(self.game.game_data.world, self.game.info)
 
+        if self.game.settings.get("music"):
+            for enemy in self.game.game_data.enemy_data.values():
+                if type(enemy) == classes.Boss and enemy.name.lower() == "uras'ın sümüklü peçetesi":
+                    self.game.mixer.music.load(
+                        os.path.join(BASE_DIR, r"musics/kim_ne_derse_desin.oga")
+                    )
+
+                    self.game.mixer.music.play(-1)
+                    break
+
         dialogues = []
 
         for enemy in self.game.game_data.enemy_data.values():
@@ -520,7 +626,7 @@ class GameScreen(Screen):
                         image = enemy.uimage
 
                     elif speaker == "Player":
-                        image = self.game.game_data.player.image
+                        image = create_player_dialogue_portrait(width=380, height=430)
 
                     dialogues.append(
                         SceneDialogue(
@@ -532,7 +638,7 @@ class GameScreen(Screen):
 
         if dialogues:
             self.scene = Scene(
-                font=dfont1,
+                font=self.dfont1,
                 dialogues=dialogues,
                 typing_sound=self.typing_sound
             )
@@ -572,16 +678,128 @@ class GameScreen(Screen):
 
     def save_last(self):
         try:
-            self.game.save_manager.save_last_slot(self.game.game_data)
+            self.game.save_manager.save_last_slot(self.game.game_data, self.game.cheated)
         except KeyError:
             pass
         self.saved_last = True
         self.save_last_cd.refresh()
 
     def on_enter(self, transfer_datas):
+        self.font1 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            1,
+            "userFont"
+        )
+        self.font2 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            2,
+            "userFont"
+        )
+        self.font3 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            3,
+            "userFont"
+        )
+        self.dfont1 = get_font(
+            self.game.fonts,
+            Lang.USING_LANG,
+            1,
+            "DynamicFont"
+        )
+
+        self.new_game_button = Button(
+            0, 0, 300, 80,
+            "Yeni Oyun",
+            self.font1,
+            colours.YELLOW,
+            colours.WHITE,
+            [ScreenType.MENU, ScreenType.GAME],
+            colours.darker(colours.YELLOW, 20),
+            colours.darker(colours.YELLOW, 50),
+            design="bevel",
+            border_radius=0
+        )
+
+        self.continue_button = Button(
+            0, 0, 300, 80,
+            "Devam Et",
+            self.font1,
+            colours.YELLOW,
+            colours.WHITE,
+            [ScreenType.MENU, ScreenType.GAME],
+            colours.darker(colours.YELLOW, 20),
+            colours.darker(colours.YELLOW, 50),
+            design="bevel",
+            border_radius=0
+        )
+
+        self.load_button = Button(
+            0, 0, 300, 80,
+            "Yükle",
+            self.font1,
+            colours.YELLOW,
+            colours.WHITE,
+            [ScreenType.MENU, ScreenType.GAME],
+            colours.darker(colours.YELLOW, 20),
+            colours.darker(colours.YELLOW, 50),
+            design="bevel",
+            border_radius=0
+        )
+
+        self.save_button = Button(
+            0, 0, 300, 80,
+            "Kaydet",
+            self.font1,
+            colours.YELLOW,
+            colours.WHITE,
+            [ScreenType.MENU, ScreenType.GAME],
+            colours.darker(colours.YELLOW, 20),
+            colours.darker(colours.YELLOW, 50),
+            design="bevel",
+            border_radius=0
+        )
+
+        self.settings_button = Button(
+            0, 0, 300, 80,
+            "Ayarlar",
+            self.font1,
+            colours.YELLOW,
+            colours.WHITE,
+            [ScreenType.MENU, ScreenType.GAME],
+            colours.darker(colours.YELLOW, 20),
+            colours.darker(colours.YELLOW, 50),
+            design="bevel",
+            border_radius=0
+        )
+
+        self.quit_button = Button(
+            0, 0, 300, 80,
+            "Çık",
+            self.font1,
+            colours.RED,
+            colours.WHITE,
+            [ScreenType.MENU, ScreenType.GAME],
+            colours.darker(colours.RED, 20),
+            colours.darker(colours.RED, 50),
+            design="bevel",
+            border_radius=0
+        )
+
         self.game.mixer.music.stop()
 
         if self.game.settings.get("music"):
+            for enemy in self.game.game_data.enemy_data.values():
+                if type(enemy) == classes.Boss and enemy.name.lower() == "uras'ın sümüklü peçetesi":
+                    self.game.mixer.music.load(
+                        os.path.join(BASE_DIR, r"musics/kim_ne_derse_desin.oga")
+                    )
+
+                    self.game.mixer.music.play(-1)
+                    break
+
             try:
 
                 filename = ""

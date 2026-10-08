@@ -17,7 +17,7 @@ class SaveManager:
         os.makedirs(path, exist_ok=True)
         logging.info("Save manager initialized.")
 
-    def save(self, slot: int, data, version):
+    def save(self, slot: int, data, version, cheated):
         print("save başladı")
         save_data = {
             "info": {
@@ -25,7 +25,8 @@ class SaveManager:
                 "id": slot
             },
             "data": data,
-            "version": version
+            "version": version,
+            "cheated": cheated
         }
 
         filename = os.path.join(self.path, f"save{slot}.save")
@@ -44,10 +45,13 @@ class SaveManager:
             return None
 
         with open(filename, "rb") as file:
-            save = pickle.load(file)["data"]
+            loaded_file = pickle.load(file)
+            save = loaded_file["data"]
+            cheated = loaded_file["cheated"]
+
 
         logging.info(f"Loaded slot {slot}")
-        return save
+        return save, cheated
 
     def get_info(self, slot: int) -> dict | None:
         filename = os.path.join(self.path, f"save{slot}.save")
@@ -68,15 +72,15 @@ class SaveManager:
             os.remove(filename)
         logging.info(f"Deleted save with slot{slot}")
 
-    def save_last_slot(self, data):
-
+    def save_last_slot(self, data, cheated):
         save_data = {
             "info": {
                 "date": datetime.now().strftime("%d.%m.%Y %H:%M"),
                 "version": 1,
                 "corrupted": False
             },
-            "data": data
+            "data": data,
+            "cheated": cheated
         }
         with open(os.path.join(self.path, "last.save"), "wb") as file:
             pickle.dump(save_data, file)
@@ -100,7 +104,10 @@ class SaveManager:
             try:
                 if log:
                     logging.info("Trying to return last slot data...")
-                return pickle.load(file)["data"]
+
+                loaded_file = pickle.load(file)
+                
+                return loaded_file["data"], loaded_file["cheated"]
             except _pickle.UnpicklingError:
                 if log:
                     logging.warning("Last slot corrupted.")
