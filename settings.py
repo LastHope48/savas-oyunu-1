@@ -629,7 +629,7 @@ class Settings:
 
         self.values = {
             "fullscreen": False,
-            "music": False,
+            "music": True,
             "sfx": True,
             "music_volume": 0.7,
             "sfx_volume": 0.8,

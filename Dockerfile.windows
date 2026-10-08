@@ -1,0 +1,57 @@
+# syntax=docker/dockerfile:1
+FROM ubuntu:22.04 AS builder
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV WINEDEBUG=-all
+ENV WINEPREFIX=/root/.wine
+
+# 1. WineHQ resmi reposunu ekle ve güncel Wine'ı kur
+RUN dpkg --add-architecture i386 && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    gnupg2 \
+    unzip \
+    && mkdir -pm755 /etc/apt/keyrings \
+    && curl -sSL https://dl.winehq.org/wine-builds/winehq.key | gpg --dearmor -o /etc/apt/keyrings/winehq-archive.key \
+    && curl -sSL -o /etc/apt/sources.list.d/winehq-jammy.sources https://dl.winehq.org/wine-builds/ubuntu/dists/jammy/winehq-jammy.sources \
+    && apt-get update && apt-get install -y --install-recommends \
+    winehq-stable \
+    && rm -rf /var/lib/apt/lists/*
+
+# 2. Wine ortamını ilklendir ve Windows 10 moduna ayarla
+RUN wineboot --init && wineserver -w && \
+    wine reg add "HKEY_CURRENT_USER\\Software\\Wine" /v Version /t REG_SZ /d win10 /f && \
+    wineserver -w
+
+# 3. Windows Python 3.10 Embeddable paketini kur
+WORKDIR /root/.wine/drive_c/Python310
+RUN curl -sSL -o python.zip https://www.python.org/ftp/python/3.10.11/python-3.10.11-embed-amd64.zip && \
+    unzip python.zip && \
+    rm python.zip
+
+# site-packages desteğini aç
+RUN sed -i 's/#import site/import site/' python310._pth
+
+# 4. pip kurulumu
+RUN curl -sSL -o get-pip.py https://bootstrap.pypa.io/get-pip.py && \
+    wine C:\\Python310\\python.exe get-pip.py && \
+    wineserver -w && \
+    rm get-pip.py
+
+# 5. Bağımlılıklar ve PyInstaller kurulumu
+WORKDIR /src
+COPY requirements.txt .
+RUN wine C:\\Python310\\python.exe -m pip install --no-warn-script-location --upgrade pip && \
+    wine C:\\Python310\\python.exe -m pip install --no-warn-script-location pyinstaller && \
+    wine C:\\Python310\\python.exe -m pip install --no-warn-script-location -r requirements.txt && \
+    wineserver -w
+
+# 6. Proje kodlarını kopyala ve derle
+COPY . .
+RUN wine C:\\Python310\\python.exe -m PyInstaller --clean --noconfirm main2.spec && \
+    wineserver -w
+
+# 7. Çıktıyı dışarı aktarma katmanı
+FROM scratch AS export
+COPY --from=builder /src/dist/ /
