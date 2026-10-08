@@ -49,7 +49,7 @@ class MainMenuScreen(MenuScreen):
 
         button_number = 6 + (1 if self.game.const_game_data["worlds_accessable"] else 0)
 
-        self.button_height = 800 // (button_number // 0.6)
+        self.button_height = int((800 // button_number) * 0.6)
 
         self.new_game_button = Button(
             0, 0, 300, self.button_height,
@@ -331,9 +331,9 @@ class MainMenuScreen(MenuScreen):
             return
 
     def on_enter(self, transfer_datas):
-        button_number = 6 + 1 if self.game.const_game_data["worlds_accessable"] else 0
+        button_number = 6 + (1 if self.game.const_game_data["worlds_accessable"] else 0)
 
-        self.button_height = 800 // (button_number // 0.6)
+        self.button_height = int((800 // button_number) * 0.6)
 
         self.font1 = get_font(
             self.game.fonts,
