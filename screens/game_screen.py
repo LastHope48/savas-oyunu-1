@@ -1,24 +1,31 @@
-from .screen import Screen
+import os
+import random
+import threading
 import pygame
+
+from .screen import Screen
 from levels import level_sword_map, level_item_map, levels, bronze_gun
 import typehint_game
 import classes
 from fonts import get_font
 import colours
-from classes import Button, defaults as game_data_defaults
+from classes import Button, defaults as game_data_defaults, MaterialFlags
 from calcs import calculate_size
 from lang_support import Lang
 from scene import Scene, SceneDialogue
 from basedir import BASE_DIR
-import os
-import threading
 from helper_funcs import create_player_dialogue_portrait
+from typing import Literal
+from ready_music import Music
+from copy import deepcopy
 
 from gamedata import GameData
-
 from .types import ScreenType
-
 from cooldown import Cooldown
+
+
+GAME_MODES = Literal["campaign", "freeplay"]
+
 
 class GameScreen(Screen):
     def __init__(self, game):
@@ -59,8 +66,6 @@ class GameScreen(Screen):
             "quit_button": Lang(türkçe="Çık", english="Quit", arabic="مخرج", sanskrit="निर्गम")
         }
 
-
-
         self.levels: list[list[classes.Enemy]] = levels
 
         self.dash_cooldown = Cooldown(0.13)
@@ -73,7 +78,6 @@ class GameScreen(Screen):
         self.saved_last = False
         self.save_last_cd = Cooldown(20)
         self.typing_sound = self.game.mixer.Sound(os.path.join(BASE_DIR, r"sounds/heavy_speak.wav"))
-
 
         self.new_game_button = Button(
             0, 0, 300, 80,
@@ -155,18 +159,136 @@ class GameScreen(Screen):
 
         self.scene = None
         self.achievement_unlock_cd = Cooldown(3)
-    
+
+        self.max_combo = 0
+
+        # Oyun Modu ve Free Play Dalga Değişkenleri
+        self.mode: GAME_MODES = "campaign"
+        self.freeplay_wave = 1
+        self.wave_intermission_cd = Cooldown(1.2)
+        self._special_events_injected = False
+
+    def spawn_freeplay_wave(self, wave: int):
+        """Free Play modu için dinamik düşman dalgası üretir."""
+        self.game.game_data.enemy_data = {}
+        enemy_count = min(14, 3 + wave * 2)
+
+        pool = [
+            classes.Enemy.prepared_old,
+            classes.Enemy.default
+        ]
+
+        item_pool = [
+            classes.Item(
+                "Can İksiri",
+                (255, 0, 0),
+                [classes.Effect("hp", 50, 0, flags=(classes.Item.APPENDER))],
+                classes.Item.TUP_IKSIR
+            ),
+
+            classes.Item(
+                "Ölüm İksiri",
+                (0, 0, 255),
+                [classes.Effect("hp", 25, 0, flags=(classes.Item.REDUCER))],
+                classes.Item.YUVARLAK_IKSIR,
+                pickable=True
+            )
+        ]
+
+        if wave >= 2:
+            pool.append(classes.Enemy.default)
+        
+        if wave >= 3:
+            pool.append(classes.Enemy.prepared_old)
+            pool.append(classes.Enemy.prepared_old)
+            pool.append(classes.Enemy.prepared_old)
+            pool.append(classes.Enemy.default)
+            item_pool.append(
+                classes.Item(
+                    "Can İksiri",
+                    (255, 0, 0),
+                    [classes.Effect("hp", 50, 0, flags=(classes.Item.APPENDER))],
+                    classes.Item.TUP_IKSIR
+                )
+            )
+        
+        if wave >= 4:
+            pool.append(classes.Enemy.prepared_police)
+
+            for _ in range(6):
+                pool.append(classes.Enemy.prepared_old)
+
+            item_pool.append(
+                classes.Item(
+                    "Ölüm İksiri",
+                    (0, 0, 255),
+                    [classes.Effect("hp", 25, 0, flags=(classes.Item.REDUCER))],
+                    classes.Item.YUVARLAK_IKSIR,
+                    pickable=True
+                )
+            )
+        
+        if wave >= 6:
+            pool.append(classes.Enemy.morty)
+            pool.append(classes.Enemy.miguel)
+            pool.append(classes.Enemy.skzoo)
+
+        if wave >= 10:
+            pool.append(classes.Enemy.dinosaur)
+
+        if wave % 5 == 0:
+            self.game.game_data.player.max_hp *= 2
+
+        if wave == 5:
+            self.game.game_data.player.ability_healing = True
+
+        for _ in range(enemy_count):
+            factory = random.choice(pool)
+
+            if callable(factory):
+                enemy: classes.Enemy = factory()
+                if not isinstance(enemy, classes.Enemy):
+                    self.game.logger.warning(
+                        f"{_ + 1}. factory is not a function returns Enemy object. Skipping..."
+                    )
+                    continue
+
+            elif isinstance(factory, classes.Enemy):
+                enemy: classes.Enemy = factory.copy()
+
+            else:
+                self.game.logger.warning(
+                    f"{_ + 1}. factory is not a function or Enemy object. Skipping..."
+                )
+                continue
+            
+            enemy.reset(self.game.game_data.world)
+            enemy.set_pos(self.game.game_data.world, self.game.info)
+            self.game.game_data.enemy_data[enemy.id] = enemy
+
+        for _ in range(len(item_pool) // 2):
+            item_selected = deepcopy(random.choice(item_pool))
+            self.game.game_data.world.items.append(item_selected)
+
+        # Dalga temizlendiğinde oyuncuya ödül can tazelemesi ver
+        self.game.game_data.player.hp = min(
+            self.game.game_data.player.max_hp,
+            self.game.game_data.player.hp + 45
+        )
+
+    def check_freeplay_wave(self, dt):
+        """Free Play modunda tüm düşmanlar temizlendiğinde yeni dalgayı başlatır."""
+        all_dead = all(not enemy.living for enemy in self.game.game_data.enemy_data.values())
+        if all_dead:
+            self.wave_intermission_cd.reduce(dt)
+            if self.wave_intermission_cd.check():
+                self.freeplay_wave += 1
+                self.spawn_freeplay_wave(self.freeplay_wave)
+                self.wave_intermission_cd.refresh()
+
     def draw(self, surface: pygame.Surface):
         self.game.game_data.world.draw(surface)
         self.game.game_data.world.draw_items(surface, self.font3, self.game.game_data.player)
-
-        '''if type(self.game.game_data.player.using_gun) == classes.Sword:
-            self.game.game_data.player.using_gun.draw(
-                surface,
-                self.game.game_data.player.x + self.game.game_data.player.hand_spot,
-                self.game.game_data.player.y + 10,
-                True if self.game.game_data.player.drawing or self.game.game_data.player.sword_attacking else False, self.game.game_data.player.angle
-            )'''
 
         if type(self.game.game_data.player.using_gun) == classes.Gun:
             self.game.game_data.player.using_gun.draw(
@@ -174,7 +296,7 @@ class GameScreen(Screen):
                 self.game.game_data.player.x + 30,
                 self.game.game_data.player.y + 10
             )
-    
+
         elif type(self.game.game_data.player.using_gun) == classes.Charm:
             self.game.game_data.player.using_gun.draw(
                 surface,
@@ -213,6 +335,18 @@ class GameScreen(Screen):
         for enemy in self.game.game_data.enemy_data.values():
             enemy.draw_scr_lazers(surface)
 
+        # Free Play Modu Başlık Bilgisi
+        if self.mode == "freeplay":
+            alive_count = sum(1 for e in self.game.game_data.enemy_data.values() if e.living)
+            wave_text = f"FREE PLAY  |  WAVE {self.freeplay_wave}  |  KALAN DUSMAN: {alive_count}"
+            self.font1.draw_text(
+                wave_text,
+                (self.game.width // 2, 35),
+                surface,
+                (0, 0, 0),
+                hiza="center"
+            )
+
         if self.gun_choosing:
             self.game.game_data.player.draw_available_guns(surface)
 
@@ -235,7 +369,6 @@ class GameScreen(Screen):
             return
 
         if not self.esc_screen and not self.gun_choosing:
-
             self.dash_cooldown.reduce(dt)
         self.cd_gun_choosing.reduce(dt)
 
@@ -253,14 +386,13 @@ class GameScreen(Screen):
                 self.dash_cooldown.refresh()
 
             elif keys[pygame.K_LSHIFT] and type(self.game.game_data.player.using_gun) == classes.Gun:
-                    self.game.game_data.player.using_gun.dash_attack(self.game.game_data.player)
+                self.game.game_data.player.using_gun.dash_attack(self.game.game_data.player)
 
             varliklar = list(self.game.game_data.enemy_data.values())
             varliklar.append(self.game.game_data.player)
 
             for item in self.game.game_data.world.items:
                 item: classes.Item
-                
                 item.update(varliklar)
 
             for enemy in self.game.game_data.enemy_data.values():
@@ -325,7 +457,7 @@ class GameScreen(Screen):
                     enemy.update_cat_jump(self.game.game_data.player, dt)
                     enemy.update_scr_lazers(self.game.game_data.player, dt)
                     enemy.update_sneezes(self.game.game_data.player, dt)
-                
+
                 for enemy in pending_enemies:
                     self.game.game_data.enemy_data[enemy.id] = enemy
 
@@ -350,6 +482,12 @@ class GameScreen(Screen):
                 dt,
                 self.gun_choosing
             )
+
+            # Maksimum Kombo Takibi
+            if getattr(self.game.game_data.player, "combo_meter", None):
+                current_combo = getattr(self.game.game_data.player.combo_meter, "combo", 0)
+                if current_combo > self.max_combo:
+                    self.max_combo = current_combo
 
             if self.game.achievements is not None:
                 if self.achievement_unlock_cd.check():
@@ -387,14 +525,17 @@ class GameScreen(Screen):
                 self.game.screen_manager.set_screen(ScreenType.LOSE)
                 return
 
-            self.check_level()
+            if self.mode == "freeplay":
+                self.check_freeplay_wave(dt)
+            else:
+                self.check_level()
 
         if self.esc_screen:
             width = self.game.width
             height = self.game.height
 
             self.new_game_button.set_center(width * 0.5, height * 0.27)
-            self.new_game_button.width = calculate_size(300, 800, width) # bu butonların genişliği 300 yüksekliği 800
+            self.new_game_button.width = calculate_size(300, 800, width)
             self.new_game_button.height = calculate_size(80, 800, height)
             self.new_game_button.text = self.langs['new_game_button'].get(self.game.settings.get('language'))
 
@@ -423,14 +564,12 @@ class GameScreen(Screen):
             self.quit_button.height = calculate_size(80, 800, height)
             self.quit_button.text = self.langs['quit_button'].get(self.game.settings.get('language'))
 
+        if self.mode == "campaign":
+            self.check_win()
 
-
-        self.check_win()
-
-        if not self.saved_last:
+        if not self.saved_last and self.mode == "campaign":
             self.game.logger.info("Saving last.")
             self.save_last()
-            
 
     def handle_event(self, event: pygame.event.Event):
 
@@ -459,15 +598,16 @@ class GameScreen(Screen):
                     except IndexError:
                         self.quick_gun_swap_index = 0
                     finally:
-                        if type(self.game.game_data.player.available_guns[self.quick_gun_swap_index]) == classes.Charm:
-                                self.game.game_data.player.using_gun = self.game.game_data.player.available_guns[self.quick_gun_swap_index]
-                                self.game.game_data.player.using_gun.used = False
-                                self.game.game_data.player.using_gun.equip(self.game.game_data.player)
+                        selected_gun = self.game.game_data.player.available_guns[self.quick_gun_swap_index]
+                        if type(selected_gun) == classes.Charm:
+                            self.game.game_data.player.using_gun = selected_gun
+                            selected_gun.used = False
+                            selected_gun.equip(self.game.game_data.player)
                         else:
                             if old_gun is not None:
                                 if type(old_gun) == classes.Charm:
                                     old_gun.unequip(self.game.game_data.player)
-                                self.game.game_data.player.using_gun = self.game.game_data.player.available_guns[self.quick_gun_swap_index]
+                                self.game.game_data.player.using_gun = selected_gun
                     self.cd_gun_choosing.refresh(1)
                     self.game.game_data.player.drawing = False
 
@@ -486,15 +626,16 @@ class GameScreen(Screen):
                 if secilen is not None:
                     secilen: int
                     old_gun = self.game.game_data.player.using_gun
-                    if type(self.game.game_data.player.available_guns[secilen]) == classes.Charm:
-                        self.game.game_data.player.using_gun = self.game.game_data.player.available_guns[secilen]
-                        self.game.game_data.player.using_gun.used = False
-                        self.game.game_data.player.using_gun.equip(self.game.game_data.player)
+                    selected_gun = self.game.game_data.player.available_guns[secilen]
+                    if type(selected_gun) == classes.Charm:
+                        self.game.game_data.player.using_gun = selected_gun
+                        selected_gun.used = False
+                        selected_gun.equip(self.game.game_data.player)
                     else:
                         if old_gun is not None:
                             if type(old_gun) == classes.Charm:
                                 old_gun.unequip(self.game.game_data.player)
-                        self.game.game_data.player.using_gun = self.game.game_data.player.available_guns[secilen]
+                        self.game.game_data.player.using_gun = selected_gun
                     self.quick_gun_swap_index = secilen
 
                     self.gun_choosing = False
@@ -506,9 +647,8 @@ class GameScreen(Screen):
                     self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
 
                 self.game.game_data = GameData.to_gamedata(game_data_defaults)
-                game_screen = self.game.screen_manager.get_screen(ScreenType.GAME)
-                game_screen.start_new_game()
-                self.game.screen_manager.set_screen(ScreenType.GAME)
+                self.esc_screen = False
+                self.start_new_game(mode=self.mode)
                 return
 
             if self.continue_button.clicked(event, ScreenType.GAME):
@@ -519,24 +659,22 @@ class GameScreen(Screen):
                 return
 
             if self.save_button.clicked(event, ScreenType.GAME):
-                if self.game.settings.get("sfx"):
-                    self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
-                self.game.screen_manager.set_screen(ScreenType.SAVE, screen_type_before=ScreenType.GAME)
+                if self.mode == "campaign":
+                    if self.game.settings.get("sfx"):
+                        self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
+                    self.game.screen_manager.set_screen(ScreenType.SAVE, screen_type_before=ScreenType.GAME)
 
             if self.load_button.clicked(event, ScreenType.GAME):
-
                 if self.game.settings.get("sfx"):
                     self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
                 self.game.screen_manager.set_screen(ScreenType.LOAD, screen_type_before=ScreenType.GAME)
 
             if self.settings_button.clicked(event, ScreenType.GAME):
-
                 if self.game.settings.get("sfx"):
                     self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
                 self.game.screen_manager.set_screen(ScreenType.SETTINGS)
 
             if self.quit_button.clicked(event, ScreenType.GAME):
-
                 if self.game.settings.get("sfx"):
                     self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
                 self.game.running = False
@@ -566,7 +704,7 @@ class GameScreen(Screen):
             self.game.screen_manager.set_screen(ScreenType.WIN)
 
     def update_level(self):
-        if len(self.levels) < self.game.game_data.level: # +1 yapmamamın sebebi seviye 1den başlıyor ama indexler 0dan.
+        if len(self.levels) < self.game.game_data.level:
             self.game.game_data.win = True
             return
         
@@ -590,21 +728,23 @@ class GameScreen(Screen):
 
         except KeyError:
             pass
+
         try:
             for item in level_item_map[f"level{self.game.game_data.level}"]:
-                item.set_pos(self.game.game_data.world, self.game.game_data.player)
-                self.game.game_data.world.items.append(item)
+                new_item = item.copy()
+                new_item.set_pos(self.game.game_data.world, self.game.game_data.player)
+                self.game.game_data.world.items.append(new_item)
         except KeyError:
             pass
 
         self.game.game_data.enemy_data = {}
 
         for enemy in self.levels[self.game.game_data.level - 1]:
-            enemy: classes.Enemy
-            self.game.game_data.enemy_data[enemy.id] = enemy
+            fresh_enemy = enemy.copy()
+            fresh_enemy.reset(self.game.game_data.world)
+            self.game.game_data.enemy_data[fresh_enemy.id] = fresh_enemy
 
         for enemy in self.game.game_data.enemy_data.values():
-            enemy: classes.Enemy
             enemy.set_pos(self.game.game_data.world, self.game.info)
 
         if self.game.settings.get("music"):
@@ -644,7 +784,6 @@ class GameScreen(Screen):
             )
             self.scene.start()
 
-
     def check_level(self):
         if all(not enemy.living for enemy in self.game.game_data.enemy_data.values()):
             self.game.game_data.level += 1
@@ -653,25 +792,53 @@ class GameScreen(Screen):
 
             self.update_level()
 
-    def start_new_game(self):
+    def start_new_game(self, mode: str = "campaign"):
+        self.mode = mode
+        self.esc_screen = False
+        self.gun_choosing = False
+        self.game.game_data.win = False
+        self.max_combo = 0
 
         self.game.game_data.world.create_rocks(
             self.game.info.current_w,
             self.game.info.current_h
         )
 
-        levels[14].append(classes.Enemy.skzoo(self.game.game_data.player, special=True))
-        level_item_map["level7"][0].effects.append( # levels.py'da oluşturulamayacak effect ekleniyor
-            classes.Effect(
-                None,
-                None, 
-                -1,
-                self.game.game_data.player.available_guns,
-                [bronze_gun]
-            )
-        )
+        if self.mode == "freeplay":
+            self.freeplay_wave = 1
+            p = self.game.game_data.player
+            p.available_guns = [
+                classes.Sword("Altın Kılıç", 40, colours.YELLOW, 850, MaterialFlags.GOLDEN),
+                bronze_gun,
+                classes.Gun(
+                    "Gümüş Tabanca",
+                    colours.WHITE,
+                    35,
+                    1200,
+                    os.path.join(BASE_DIR, "images/silver_silahr.png"),
+                    os.path.join(BASE_DIR, "images/silver_silah_mermi.png"),
+                    0.25,
+                    MaterialFlags.SILVER
+                )
+            ]
+            p.using_gun = p.available_guns[0]
+            self.spawn_freeplay_wave(self.freeplay_wave)
+        else:
+            self.game.game_data.level = 1
+            if not getattr(self, "_special_events_injected", False):
+                levels[14].append(classes.Enemy.skzoo(self.game.game_data.player, special=True))
+                level_item_map["level7"][0].effects.append(
+                    classes.Effect(
+                        None,
+                        None, 
+                        -1,
+                        self.game.game_data.player.available_guns,
+                        [bronze_gun]
+                    )
+                )
+                self._special_events_injected = True
 
-        self.update_level()
+            self.update_level()
 
     def load_game(self):
         pass
@@ -801,7 +968,6 @@ class GameScreen(Screen):
                     break
 
             try:
-
                 filename = ""
 
                 if self.game.settings.get("music_source").get("english").lower() == "music path":
@@ -809,20 +975,20 @@ class GameScreen(Screen):
 
                 elif self.game.settings.get("music_source").get("english").lower() == "selected music":
 
-                    if isinstance(self.game.settings.get("selected_music"), classes.Music):
+                    if isinstance(self.game.settings.get("selected_music"), (classes.Music, Music)):
                         filename = self.game.settings.get("selected_music").filename
 
                 self.game.mixer.music.load(filename)
 
                 self.game.mixer.music.play(-1)
 
-                self.game.dump("last_music", self.game.settings.get("other_music"))
+                self.game.dump("last_music", filename)
 
             except FileNotFoundError:
-                self.game.logger.warning(f"Music {self.game.settings.get('other_music')} is not found.")
+                self.game.logger.warning(f"Music {filename} is not found.")
 
             except pygame.error as e:
-                self.game.logger.error(f"Loading File {self.game.settings.get('other_music')} caused pygame.error: {e}")
+                self.game.logger.error(f"Loading File {filename} caused pygame.error: {e}")
 
         self.game.played = True
 

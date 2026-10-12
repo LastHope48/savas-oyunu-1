@@ -4,17 +4,31 @@ import pygame
 from .menu_screen import MenuScreen
 from basedir import BASE_DIR
 from classes import Button
-from fonts import all_font1
+from fonts import all_font1, all_font3
 import colours
 from screens.types import ScreenType
+from typing import Literal
 
+MODES = Literal["campaign", "freeplay"]
 
 class CassetteWorld:
-    """Tek bir dünyanın kaset çalarını ve durumunu yöneten veri sınıfı."""
-    def __init__(self, world_id: int, title: str, preview_path: str, unlocked: bool = True):
+    """Tek bir kasetin temsil ettiği dünyayı, modu ve kuralları yöneten sınıf."""
+    def __init__(
+        self, 
+        world_id: int, 
+        title: str, 
+        tagline: str,
+        preview_path: str, 
+        mode: MODES = "campaign",      # "campaign" veya "freeplay"
+        theme: str = "default",       # "rooftop", "digital_crew", "endless_void"
+        unlocked: bool = True
+    ):
         self.world_id = world_id
         self.title = title
+        self.tagline = tagline
         self.preview_path = preview_path
+        self.mode = mode
+        self.theme = theme
         self.unlocked = unlocked
 
         # Önizleme görselini yükle
@@ -85,8 +99,33 @@ class WorldSelectScreen(MenuScreen):
 
         # 2. Dünyaları Tanımla
         self.worlds = [
-            CassetteWorld(1, "Sektör 01: Çatı Katı", os.path.join(assets_dir, "world1_preview.png"), unlocked=True),
-            # CassetteWorld(2, "Sektör 02: Siber Fabrika", os.path.join(assets_dir, "world2_preview.png"), unlocked=True),
+            CassetteWorld(
+                world_id=1,
+                title="Sector 01: Familiar Enemies",
+                tagline="MISSION: Kill them all (by your own)",
+                preview_path=os.path.join(assets_dir, "world1_preview.png"),
+                mode="campaign",
+                theme="rooftop",
+                unlocked=True
+            ),
+            #CassetteWorld(
+            #    world_id=2,
+            #    title="Sector 02: Samsung Note 7",
+            #    tagline="MECHANIC THREAT: Enemies with their eyes gouged out",
+            #    preview_path=os.path.join(assets_dir, "world1_preview.png"),
+            #    mode="campaign",
+            #    theme="digital_crew",
+            #    unlocked=True
+            #),
+            CassetteWorld(
+                world_id=99,
+                title="FREE PLAY: Play only!",
+                tagline="Stickman fight back in 2000s",
+                preview_path=os.path.join(assets_dir, "freeplay_preview.png"),
+                mode="freeplay",
+                theme="endless_neon",
+                unlocked=True
+            ),
             # CassetteWorld(3, "Sektör 03: Cehennem Hattı", os.path.join(assets_dir, "world3_preview.png"), unlocked=False),
         ]
 
@@ -327,28 +366,65 @@ class WorldSelectScreen(MenuScreen):
 
             is_active = (self.state in (self.STATE_INSERTING, self.STATE_LOCKED, self.STATE_ZOOMING)) and (self.selected_world_idx == i)
 
-            # Şeffaflık destekli (SRCALPHA) ekran yüzeyi
+            # Şeffaflık destekli (SRCALPHA) ekran
             screen_surf = pygame.Surface((self.mon_w, self.mon_h), pygame.SRCALPHA)
 
+            # 1. Taban Önizleme Görseli / Karıncalanma
             if is_active and world.preview_surf:
                 scaled_preview = pygame.transform.smoothscale(world.preview_surf, (self.mon_w, self.mon_h))
                 screen_surf.blit(scaled_preview, (0, 0))
-
-                # CRT Tarama Çizgileri (Scanlines)
-                for line_y in range(0, self.mon_h, 4):
-                    pygame.draw.line(screen_surf, (0, 0, 0, 65), (0, line_y), (self.mon_w, line_y))
+            elif world.preview_surf:
+                scaled_preview = pygame.transform.smoothscale(world.preview_surf, (self.mon_w, self.mon_h))
+                screen_surf.blit(scaled_preview, (0, 0))
+                # Üzerine hafif statik karıncalanma bindir
+                noise_copy = self.noise_frames[self.noise_idx].copy()
+                noise_copy.set_alpha(70)
+                screen_surf.blit(noise_copy, (0, 0))
             else:
-                # Aktif değilken karıncalanma
                 screen_surf.blit(self.noise_frames[self.noise_idx], (0, 0))
 
-            # Kilitli dünya ise kırmızı filtre
+            # 2. Üst Etiket (Rozet)
+            if hasattr(world, "mode") and world.mode == "freeplay":
+                badge_surf = all_font1.return_text("[FREE PLAY]", True, (0, 255, 170))
+            else:
+                badge_surf = all_font1.return_text(f"[SECTOR 0{world.world_id}]", True, (255, 200, 50))
+            screen_surf.blit(badge_surf, (12, 10))
+
+            # 3. Başlık ve Açıklama Metinleri (Fonta Göre Dinamik Yükseklik)
+            title_text = getattr(world, "title", f"World {world.world_id}")
+            tagline_text = getattr(world, "tagline", "No Mission Data")
+
+            title_surf = all_font3.return_text(title_text, True, (255, 255, 255))
+            tagline_surf = all_font3.return_text(tagline_text, True, (140, 200, 255))
+
+            # Şerit yüksekliğini fontun boyuna göre hesapla (görseli gereksiz boğmasın)
+            text_spacing = 3
+            padding_bottom = 8
+            padding_top = 6
+            overlay_h = title_surf.get_height() + tagline_surf.get_height() + text_spacing + padding_top + padding_bottom
+            
+            # Yazıların altına yarı saydam şerit çek
+            info_bar = pygame.Surface((self.mon_w, overlay_h), pygame.SRCALPHA)
+            info_bar.fill((10, 14, 20, 210))
+            bar_y = self.mon_h - overlay_h
+            screen_surf.blit(info_bar, (0, bar_y))
+
+            # Metinleri şeridin içine bas
+            title_y = bar_y + padding_top
+            tagline_y = title_y + title_surf.get_height() + text_spacing
+            screen_surf.blit(title_surf, (12, title_y))
+            screen_surf.blit(tagline_surf, (12, tagline_y))
+
+            # 4. Kilitliyse Kırmızı Filtre
             if not world.unlocked:
                 screen_surf.fill((160, 20, 20), special_flags=pygame.BLEND_MULT)
 
-            # Köşeleri maskeyle kesip yuvarlatıyoruz
-            screen_surf.blit(self.crt_mask, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+            # 5. CRT Tarama Çizgileri (Scanlines)
+            for line_y in range(0, self.mon_h, 4):
+                pygame.draw.line(screen_surf, (0, 0, 0, 45), (0, line_y), (self.mon_w, line_y))
 
-            # CRT Cam Çerçeve Vurgusu (İçbükey derinlik çizgisi)
+            # 6. SADECE BİR KEZ: Maskeleme ve Dış Çerçeve
+            screen_surf.blit(self.crt_mask, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
             pygame.draw.rect(
                 screen_surf,
                 (12, 18, 24, 180),
@@ -357,7 +433,7 @@ class WorldSelectScreen(MenuScreen):
                 border_radius=self.corner_radius
             )
 
-            # Ekrana bas (TEK SEFER!)
+            # 7. Ekrana Bas (TEK SEFER!)
             surface.blit(screen_surf, monitor_rect)
 
         # -------------------------------------------------------------
@@ -419,13 +495,16 @@ class WorldSelectScreen(MenuScreen):
             surface.blit(zoomed, (zx, zy))
     def _start_game(self, world_id: int):
         """Kaset tamamen yüklendiğinde ve zoom bittiğinde oyunu başlatan köprü."""
-        # ScreenManager ekran geçişi (Senin projenin ScreenType enum yapısına göre):
         from screens.screen_manager import ScreenType
         
+        selected_world = self.worlds[self.selected_world_idx]
+        mode = getattr(selected_world, "mode", "campaign")
+
         if hasattr(self.game, "current_world_id"):
             self.game.current_world_id = world_id
 
-        self.game.screen_manager.get_screen(ScreenType.GAME).start_new_game()
+        game_screen = self.game.screen_manager.get_screen(ScreenType.GAME)
+        game_screen.start_new_game(mode=mode)
 
         self.game.screen_manager.set_screen(ScreenType.GAME)
 

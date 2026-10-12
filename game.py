@@ -1,11 +1,15 @@
 import pygame
 from pygame import mixer
 
+from screens.types import ScreenType
+
 import json
 from datetime import datetime
 
 import logging
 from classes import defaults as game_data_defaults
+from classes import constant_defaults
+
 import classes
 import colours
 import copy
@@ -442,7 +446,7 @@ class Game:
                                 ]
                             )
                         ],
-                        cooldown_bagimsiz_summons=classes.Cooldown(1),
+                        cooldown_bagimsiz_summons=classes.Cooldown(0.3),
                         scene_dialogues=dialogues
                     )
                 )
@@ -461,6 +465,11 @@ class Game:
         runned = cheat_map.get(key, nothing)
 
         return SUCCESS, f"{key} anahtarı doğru ve çalıştı!" if runned != nothing else f"{key} diye bir anahtar yok."
+
+    def reset(self):
+        game_data_defaults = constant_defaults
+
+        self.game_data = self.game_data.to_gamedata(game_data_defaults)
 
 
     def initialize_online_data(self):
@@ -555,7 +564,7 @@ class Game:
         self.mixer.quit()
         pygame.quit()
 
-        if self.played:
+        if self.played and self.screen_manager.get_screen(ScreenType.GAME).mode == "campaign":
             self.save_manager.save_last_slot(self.game_data, self.cheated)
 
         if self.const_game_data is not None:

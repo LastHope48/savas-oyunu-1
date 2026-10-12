@@ -6,6 +6,8 @@ import classes
 from calcs import calculate_size
 from .types import ScreenType
 from lang_support import Lang
+import os
+from basedir import BASE_DIR
 
 pygame.init()
 
@@ -161,6 +163,11 @@ class WarnScreen(Screen):
             self.game.screen_manager.set_screen(ScreenType.LOAD, accepted_continue=False, slot_id=self.slot_id, warning=True)
 
     def on_enter(self, transfer_datas: dict):
+
+        self.game.mixer.Sound(
+            os.path.join(BASE_DIR, r"sounds/notification_pop_up.ogg")
+        ).play()
+
         self.font1 = get_font(
             self.game.fonts,
             Lang.USING_LANG,

@@ -23,6 +23,10 @@ from lang_support import Lang
 from dfont import DynamicFont
 from combo_meter import ComboMeter
 from enemy_telegraph import EnemyTelegraph
+from settings import Settings
+from calcs import scale, SCALE
+
+from typing import Final
 
 manager = settings_manager.SettingsManager("settings", os.path.join(BASE_DIR,"settings"), "TEST", "2.0")
 
@@ -494,12 +498,18 @@ class SwapValue:
 
 
 class Charm:
-    def __init__(self, name: str, image_name: os.PathLike, image_size, passive_effects: list, active_effects: list, cooldown: int):
+    def __init__(self, name: str, image_name: str | os.PathLike, image_size, passive_effects: list, active_effects: list, cooldown: int):
         self.name = name
         self.image_name = image_name
-        self.image = pygame.image.load(self.image_name)
+        self.image_r = pygame.image.load(self.image_name)
+        self.image_l = pygame.image.load(self.image_name.replace(f"r.{self.image_name.split('.')[-1]}", f"l.{self.image_name.split('.')[-1]}"))
+
         self.image_size = image_size
-        self.image = pygame.transform.scale_by(self.image, image_size)
+        self.image_r = pygame.transform.scale_by(self.image_r, image_size)
+        self.image_l = pygame.transform.scale_by(self.image_l, image_size)
+
+        self.image = self.image_r
+
         self.passive_effects = passive_effects
         self.active_effects = active_effects
         self.or_cooldown = cooldown
@@ -520,13 +530,11 @@ class Charm:
 
     def update(self, angle, dt):
         if angle < 45 and angle > -45:
-            self.image_name = self.image_name.replace("l.png", "r.png")
-            self.image_name = os.path.join(BASE_DIR, self.image_name)
+            self.image = self.image_r
+
         if angle < 180 and angle < -135 or angle < 180 and angle > 135:
-            self.image_name = self.image_name.replace("r.png", "l.png")
-            self.image_name = os.path.join(BASE_DIR, self.image_name)
-        self.image = pygame.image.load(self.image_name)
-        self.image = pygame.transform.scale_by(self.image, self.image_size)
+            self.image = self.image_l
+
         for text in self.texts:
             text: dict
             text["pos"].y -= 80 * dt
@@ -573,7 +581,7 @@ class Charm:
             for effect in self.active_effects:
                 effect: Effect
                 effect.use(player, ())
-                print(effect.appending)
+
             self.texts.append(
                 {
                     "text": f"{'+' if Item.APPENDER in effect.flags else '-'}{effect.effect}{effect.effect_appending}",
@@ -589,6 +597,8 @@ class Charm:
         state = self.__dict__.copy()
 
         del state["image"]
+        del state["image_r"]
+        del state["image_l"]
 
         state["texts"] = []
 
@@ -604,11 +614,14 @@ class Charm:
     def __setstate__(self, state):
         self.__dict__.update(state)
 
-        self.image = pygame.image.load(self.image_name)
-        self.image = pygame.transform.scale_by(
-            self.image,
-            self.image_size
-        )
+        self.image_r = pygame.image.load(self.image_name)
+        self.image_l = pygame.image.load(self.image_name.replace(f"r.{self.image_name.split('.')[-1]}", f"l.{self.image_name.split('.')[-1]}"))
+
+        self.image_size = self.image_size
+        self.image_r = pygame.transform.scale_by(self.image_r, self.image_size)
+        self.image_l = pygame.transform.scale_by(self.image_l, self.image_size)
+
+        self.image = self.image_r
 
         for text in self.texts:
             text["font"] = userFont(
@@ -726,11 +739,9 @@ class Bullet:
                     break
 
                 if self.material != "__deflected__":
-                    for arrow in enemy.arrows:
-
-                        arrow: Arrow
+                    # Doğrudan listeyi gezmek yerine temas eden varsa kır
+                    for arrow in list(enemy.arrows):
                         arrow_rect = arrow.rotated_rect or arrow.image_rect
-
                         if rect.colliderect(arrow_rect):
                             enemy.arrows.remove(arrow)
                             self.deleted = True
@@ -958,7 +969,6 @@ class Item:
         self.color = color
         self.effects = effects
         self.flags = flags
-        print(f"FLAGS: {self.flags}")
         self.used = False
         self.pickable = pickable or True if self.YUVARLAK_IKSIR in self.flags else False
         self.picked = False
@@ -968,13 +978,16 @@ class Item:
         self.effect_rect = None
         self.font = font
         self.use_timer_started = False
+
         if self.font is not None:
             self.font_name = self.font.name
             self.font_size = self.font.size
             self.font: userFont
+
         if self.YUVARLAK_IKSIR in self.flags:
             self.speed = 900
-        print(self.flags)
+
+        self.show_text = False
     
     def set_pos(self, world, player):
         count = 0
@@ -992,57 +1005,145 @@ class Item:
             self.rect = pygame.Rect(self.x, self.y, 20, 50)
 
             if self.rect.collidelist(world.rocks_rects) == -1 and not world.dirt_rect.colliderect(self.rect):
-                print("item deneme:", count)
                 break
 
     def draw(self, surface: pygame.surface.Surface, font: userFont, player):
+        if self.used:
+            return
 
-        if not self.used:
-            if not self.picked:
-                if self.font is not None:
-                    self.font: userFont
-                    self.font.draw_text(self.name, (self.x+20, self.y-60), surface, colours.BLACK, hiza="center")
-                else:
-                    font.draw_text(self.name, (self.x+20, self.y-60), surface, colours.BLACK, hiza="center")
-                if Item.TUP_IKSIR in self.flags:
-                    pygame.draw.rect(surface, self.color, self.rect, border_radius=10)
-                    pygame.draw.rect(surface, colours.WHITE, self.rect,5 ,border_radius=10)
-                    pygame.draw.rect(surface, colours.BROWN, (self.x+5, self.y-3, 10, 15), border_radius=2)
-                    pygame.draw.rect(surface, colours.darker(colours.BROWN, -20), (self.x+7, self.y-5, 5, 10))
-                    pygame.draw.line(surface, colours.WHITE, (self.x+7, self.y+23), (self.x+10, self.y+13), 1)
-                    pygame.draw.line(surface, colours.WHITE, (self.x+10, self.y+29), (self.x+13, self.y+19), 1)
+        # -------------------------------------------------------------
+        # 0. YAZI GÖSTERİM KONTROLÜ (Hover veya Yakınlık)
+        # -------------------------------------------------------------
+        if not self.picked:
+            # İksirin türüne göre merkez noktası
+            item_cx = self.x + 10 if Item.TUP_IKSIR in self.flags else self.x
+            item_cy = self.y + 25 if Item.TUP_IKSIR in self.flags else self.y
 
-                if Item.YUVARLAK_IKSIR in self.flags:
-                    pygame.draw.circle(surface, self.color, (self.x, self.y), 20)
-                    pygame.draw.circle(surface, colours.WHITE, (self.x, self.y), 20, 6)
-                    pygame.draw.line(surface, colours.WHITE, (self.x+12, self.y-12), (self.x+25, self.y-23), 10)
-                    pygame.draw.line(surface, colours.BROWN, (self.x+14, self.y-14), (self.x+27, self.y-25), 5)
-                    pygame.draw.line(surface, colours.WHITE, (self.x-6, self.y+5), (self.x-1, self.y-8), 1)
-                    pygame.draw.line(surface, colours.WHITE, (self.x, self.y+5), (self.x+4, self.y-8), 1)
+            # 1. Fare iksirin üzerinde mi?
+            mx, my = pygame.mouse.get_pos()
+            if Item.TUP_IKSIR in self.flags:
+                hover_rect = self.rect.inflate(16, 16)
+                mouse_hover = hover_rect.collidepoint(mx, my)
             else:
-                if self.drag_to_player:
-                    self.x = player.x
-                    self.y = player.y
-                if Item.TUP_IKSIR in self.flags:
-                    pygame.draw.rect(surface, self.color, self.rect, border_radius=10)
-                    pygame.draw.rect(surface, colours.WHITE, self.rect,5 ,border_radius=10)
-                    pygame.draw.rect(surface, colours.BROWN, (self.x+5, self.y-3, 10, 15), border_radius=2)
-                    pygame.draw.rect(surface, colours.darker(colours.BROWN, -20), (self.x+7, self.y-5, 5, 10))
-                    pygame.draw.line(surface, colours.WHITE, (self.x+7, self.y+23), (self.x+10, self.y+13), 1)
-                    pygame.draw.line(surface, colours.WHITE, (self.x+10, self.y+29), (self.x+13, self.y+19), 1)
+                # Yuvarlak iksir için 24px yarıçaplı dairesel alan
+                mouse_hover = math.hypot(mx - item_cx, my - item_cy) <= 24
 
-                if Item.YUVARLAK_IKSIR in self.flags:
-                    pygame.draw.circle(surface, self.color, (self.x, self.y), 20)
-                    pygame.draw.circle(surface, colours.WHITE, (self.x, self.y), 20, 6)
-                    pygame.draw.line(surface, colours.WHITE, (self.x+12, self.y-12), (self.x+25, self.y-23), 10)
-                    pygame.draw.line(surface, colours.BROWN, (self.x+14, self.y-14), (self.x+27, self.y-25), 5)
-                    pygame.draw.line(surface, colours.WHITE, (self.x-6, self.y+5), (self.x-1, self.y-8), 1)
-                    pygame.draw.line(surface, colours.WHITE, (self.x, self.y+5), (self.x+4, self.y-8), 1)
-                if self.touching:
-                    self.effect_rect = pygame.Rect(self.x, self.y, 200, 200)
-                    self.effect_rect.center = (self.x, self.y)
-                    pygame.draw.circle(surface, self.color, (self.x, self.y), 100, 4)
-                    pygame.draw.rect(surface, self.color, self.effect_rect, 4, 100)
+            # 2. Oyuncu yaklaştı mı? (~130 piksel mesafe)
+            player_dist = math.hypot(player.x - item_cx, player.y - item_cy)
+            player_near = player_dist <= 130
+
+            self.show_text = mouse_hover or player_near
+        else:
+            self.show_text = False
+
+        # -------------------------------------------------------------
+        # 1. POZİSYON GÜNCELLEMESİ (Sürükleme)
+        # -------------------------------------------------------------
+        if self.picked and self.drag_to_player:
+            self.x = player.x
+            self.y = player.y
+            if hasattr(self, "rect") and self.rect is not None:
+                self.rect.topleft = (self.x, self.y)
+
+        # -------------------------------------------------------------
+        # 2. ZEMİN GÖLGESİ
+        # -------------------------------------------------------------
+        if not self.picked:
+            if Item.TUP_IKSIR in self.flags:
+                shadow_rect = pygame.Rect(self.x - 3, self.y + 44, 26, 8)
+            else:
+                shadow_rect = pygame.Rect(self.x - 18, self.y + 14, 36, 10)
+            
+            pygame.draw.ellipse(surface, (14, 18, 22), shadow_rect)
+
+        # -------------------------------------------------------------
+        # 3. İSİM ETİKETİ (Sadece show_text True Olduğunda Çizilir)
+        # -------------------------------------------------------------
+        if not self.picked and self.show_text:
+            use_font = self.font if self.font is not None else font
+            text_w, text_h = use_font.font.size(self.name)
+            
+            badge_w = text_w + 24
+            badge_h = text_h + 10
+            badge_cx = self.x + 10 if Item.TUP_IKSIR in self.flags else self.x
+            badge_rect = pygame.Rect(0, 0, badge_w, badge_h)
+            badge_rect.center = (badge_cx, self.y - 42)
+
+            # Kapsül 3D Gölgesi
+            pygame.draw.rect(surface, (10, 14, 18), badge_rect.move(0, 3), border_radius=8)
+            # Kapsül Gövdesi (Koyu grafit)
+            pygame.draw.rect(surface, (24, 28, 36), badge_rect, border_radius=8)
+            # İnce Panel Çerçevesi
+            pygame.draw.rect(surface, (55, 65, 80), badge_rect, width=2, border_radius=8)
+
+            # Sol Kenarda İksir Renginde Neon Gösterge Noktası
+            pygame.draw.circle(surface, self.color, (badge_rect.left + 9, badge_rect.centery), 4)
+
+            # Metin Gölgesi ve Beyaz Başlık
+            use_font.draw_text(self.name, (badge_rect.left + 19, badge_rect.centery + 1), surface, (15, 18, 24), hiza="midleft")
+            use_font.draw_text(self.name, (badge_rect.left + 18, badge_rect.centery), surface, (240, 244, 250), hiza="midleft")
+
+        # -------------------------------------------------------------
+        # 4. TÜP İKSİR (TUP_IKSIR) ÇİZİMİ
+        # -------------------------------------------------------------
+        if Item.TUP_IKSIR in self.flags:
+            # Mantar Tıpa
+            cork_rect = pygame.Rect(self.x + 5, self.y - 6, 10, 10)
+            pygame.draw.rect(surface, (110, 72, 42), cork_rect, border_radius=3)
+            pygame.draw.line(surface, (175, 125, 80), (cork_rect.left + 2, cork_rect.top + 2), (cork_rect.right - 2, cork_rect.top + 2), 2)
+            pygame.draw.rect(surface, (55, 35, 20), cork_rect, width=1, border_radius=3)
+
+            # Şişe Tabanı ve Sıvı
+            pygame.draw.rect(surface, colours.darker(self.color, 45), self.rect, border_radius=10)
+            liquid_fill = self.rect.inflate(-4, -4)
+            pygame.draw.rect(surface, self.color, liquid_fill, border_radius=8)
+
+            # Cam Parlaması
+            pygame.draw.line(surface, (255, 255, 255), (self.x + 4, self.y + 8), (self.x + 4, self.y + 36), 2)
+            pygame.draw.circle(surface, (255, 255, 255), (self.x + 4, self.y + 40), 1)
+
+            # Çerçeve Konturu
+            pygame.draw.rect(surface, (215, 230, 245), self.rect, width=2, border_radius=10)
+            pygame.draw.rect(surface, (30, 38, 50), self.rect, width=1, border_radius=10)
+
+        # -------------------------------------------------------------
+        # 5. YUVARLAK İKSİR (YUVARLAK_IKSIR) ÇİZİMİ
+        # -------------------------------------------------------------
+        elif Item.YUVARLAK_IKSIR in self.flags:
+            # Şişe Boynu ve Tıpa
+            neck_start = (self.x + 10, self.y - 10)
+            neck_end = (self.x + 22, self.y - 22)
+            pygame.draw.line(surface, (215, 230, 245), neck_start, neck_end, 8)
+            pygame.draw.line(surface, (30, 38, 50), neck_start, neck_end, 10)
+            pygame.draw.line(surface, (215, 230, 245), neck_start, neck_end, 7)
+
+            cork_start = (self.x + 18, self.y - 18)
+            cork_end = (self.x + 26, self.y - 26)
+            pygame.draw.line(surface, (110, 72, 42), cork_start, cork_end, 6)
+            pygame.draw.line(surface, (175, 125, 80), (cork_start[0], cork_start[1] - 1), (cork_end[0], cork_end[1] - 1), 2)
+
+            # Gövde & Sıvı
+            pygame.draw.circle(surface, (30, 38, 50), (self.x, self.y), 21)
+            pygame.draw.circle(surface, colours.darker(self.color, 45), (self.x, self.y), 20)
+            pygame.draw.circle(surface, self.color, (self.x, self.y - 1), 17)
+
+            # Cam Işıltısı
+            pygame.draw.circle(surface, (255, 255, 255), (self.x - 7, self.y - 7), 3)
+            pygame.draw.circle(surface, (255, 255, 255), (self.x - 11, self.y - 4), 1)
+
+            # Çerçeve
+            pygame.draw.circle(surface, (215, 230, 245), (self.x, self.y), 20, width=2)
+
+        # -------------------------------------------------------------
+        # 6. ALAN / TEMAS EFEKTİ
+        # -------------------------------------------------------------
+        if self.touching:
+            self.effect_rect = pygame.Rect(0, 0, 200, 200)
+            self.effect_rect.center = (self.x, self.y)
+
+            pygame.draw.circle(surface, colours.darker(self.color, 35), (self.x, self.y), 102, width=1)
+            pygame.draw.circle(surface, self.color, (self.x, self.y), 100, width=3)
+            pygame.draw.circle(surface, colours.lighter(self.color, 50), (self.x, self.y), 97, width=1)
 
     def update(self, varliklar: list):
         if not self.used:
@@ -1054,7 +1155,7 @@ class Item:
                                 effect: Effect
                                 effect.use_global(self.flags, varlik)
                         except AttributeError:
-                            print(f"No attribute {self.effect_appending} in {varlik}")
+                            print(f"No attribute in {varlik}")
                         self.used = True
 
     def handle_event(self, event: pygame.event.Event):
@@ -1064,7 +1165,6 @@ class Item:
                     self.drag_to_player = False
     
     def update_pos(self, dt):
-
         if not self.drag_to_player and not self.used:
             if not self.mouse_getted:
                 self.mx, self.my = pygame.mouse.get_pos()
@@ -1084,12 +1184,11 @@ class Item:
                 else:
                     self.x += (self.dx / self.distance) * move_distance
                     self.y += (self.dy / self.distance) * move_distance
-
             else:
                 self.touching = True
+
         if not self.use_timer_started and self.touching and not self.used:
-                self.use_timer_started = True
-                # self.used = True
+            self.use_timer_started = True
     
     def use(self, player):
         if not self.used and not self.pickable:
@@ -1107,21 +1206,19 @@ class Item:
     
     def __getstate__(self):
         state = self.__dict__.copy()
-
-        if state["font"]:
+        if state.get("font"):
             del state["font"]
         return state
     
     def __setstate__(self, state):
         self.__dict__.update(state)
-        
         if not self.__dict__.get("font") and self.__dict__.get("font_name"):
             self.font = userFont(self.font_name, self.font_size)
 
 
 
 class Player:
-    SETTINGS = None
+    SETTINGS: Settings = None
 
     # Her kare için: (el_x, el_y, kılıç_açısı)
     # Açı referansı: 0 = düz sağa uzanmış, 90 = dik yukarı, -45 = aşağı eğik
@@ -1185,9 +1282,9 @@ class Player:
         self.val_manager = val_manager
         self.items = []
         self.using_gun = using_gun
-        self.speed = speed_normal
-        self.speed_normal = speed_normal
-        self.speed_max = speed_max
+        self.speed_normal = scale(speed_normal)
+        self.speed_max = scale(speed_max)
+        self.speed = self.speed_max
         self.image_name = image_name
 
         # Dinamik Animasyon Kontrolcüsü
@@ -1211,9 +1308,13 @@ class Player:
             self.anim = AnimationController(self.anim_dir, speeds=self.anim_speeds, target_scale=0.9)
             initial_frame = self.anim.get_frame()
             self.image = initial_frame if initial_frame is not None else pygame.image.load(self.image_name)
+            self.anim.target_scale = 0.9 * SCALE
         else:
             self.anim = None
             self.image = pygame.image.load(self.image_name)
+            w = int(self.image.get_width() * SCALE)
+            h = int(self.image.get_height() * SCALE)
+            self.image = pygame.transform.smoothscale(self.image, (w, h))
 
         self.image_rect = self.image.get_rect()
         self.rotated = None
@@ -1791,162 +1892,147 @@ class Player:
         }
 
         y = info.current_h - 225
-        h = 60
-        padding = info.current_w // 30
+        h = 56  # Daha derli toplu ve ergonomik bir yükseklik
+        bar_padding = 40  # Kapsül iç boşluğu
 
-        elements: list[tuple[str, pygame.Rect]] = []
+        # ---------------------------------------------------------
+        # 1. DİNAMİK GENİŞLİK HESAPLAMALARI
+        # ---------------------------------------------------------
+        raw_items: list[tuple[str, int, dict]] = []
 
-        # CAN
-        hp_rect = pygame.Rect(
-            10,
-            y,
-            200,
-            h
-        )
+        # CAN BARI (Maksimum can referans alınır)
+        hp_max_text = f"{langs['hp']()}: {self.max_hp:.1f}"
+        hp_width = font.font.size(hp_max_text)[0] + bar_padding
+        raw_items.append(("hp", hp_width, {}))
 
-        elements.append(("hp", hp_rect))
-
-        # HEAL
+        # HEAL BARI (Aktifse, HP ile aynı genişlikte simetrik durur)
         if self.ability_healing:
-            heal_rect = pygame.Rect(
-                0,
-                y,
-                200,
-                h
-            )
-            heal_rect.left = elements[-1][1].midright[0] + padding
-
-            elements.append(("heal", heal_rect))
+            raw_items.append(("heal", hp_width, {}))
 
         # SİLAH
-        weapon_rect = pygame.Rect(
-            0,
-            y,
-            font.font.size(f"{langs['weapon']()}: {self.using_gun.name}")[0],
-            h
-        )
-        weapon_rect.left = elements[-1][1].midright[0] + padding
-
-        elements.append(("weapon", weapon_rect))
+        w_lbl = f"{langs['weapon']()}: "
+        w_val = f"{self.using_gun.name}"
+        weapon_width = font.font.size(w_lbl + w_val)[0] + 32
+        raw_items.append(("weapon", weapon_width, {"lbl": w_lbl, "val": w_val}))
 
         # HIZ
-        speed_rect = pygame.Rect(
-            0,
-            y,
-            font.font.size(f"{langs['speed']()}: {self.speed}")[0],
-            h
-        )
-        speed_rect.left = elements[-1][1].midright[0] + padding
-
-        elements.append(("speed", speed_rect))
+        s_lbl = f"{langs['speed']()}: "
+        s_val = f"{int(self.speed / 100)}"
+        speed_width = font.font.size(s_lbl + s_val)[0] + 32
+        raw_items.append(("speed", speed_width, {"lbl": s_lbl, "val": s_val}))
 
         # FPS
-        fps_rect = pygame.Rect(
-            0,
-            y,
-            font.font.size(f"FPS: {int(clock.get_fps())}")[0],
-            h
-        )
-        fps_rect.left = elements[-1][1].midright[0] + padding
+        fps_lbl = "FPS: "
+        fps_val = f"{int(clock.get_fps())}"
+        fps_max_val = f"{Player.SETTINGS.get('fps')}"
+        fps_width = font.font.size(fps_lbl + fps_max_val)[0] + 30
+        raw_items.append(("fps", fps_width, {"lbl": fps_lbl, "val": fps_val}))
 
-        elements.append(("fps", fps_rect))
+        # ---------------------------------------------------------
+        # 2. EŞİT BOŞLUK (GAP) VE YERLEŞİM
+        # ---------------------------------------------------------
+        total_content_width = sum(w for _, w, _ in raw_items)
+        num_items = len(raw_items)
+        gap = max(12, (info.current_w - total_content_width) // (num_items + 1))
 
-        for element, rect in elements:
+        elements: list[tuple[str, pygame.Rect, dict]] = []
+        current_x = gap
 
+        for element_name, width, meta in raw_items:
+            rect = pygame.Rect(current_x, y, width, h)
+            elements.append((element_name, rect, meta))
+            current_x += width + gap
+
+        # ---------------------------------------------------------
+        # 3. ÇİZİM DÖNGÜSÜ
+        # ---------------------------------------------------------
+        for element, rect, meta in elements:
+
+            # Ortak Kart Gölgesi (Hafif 3D derinlik katar)
+            shadow_rect = rect.move(0, 4)
+            pygame.draw.rect(surface, (12, 14, 18), shadow_rect, border_radius=14)
+
+            # Ortak Kart Gövdesi (Koyu grafit panel)
+            pygame.draw.rect(surface, (24, 28, 36), rect, border_radius=14)
+
+            # -----------------------------------------------------
+            # A) CAN BARI (HP)
+            # -----------------------------------------------------
             if element == "hp":
+                percent = max(0.0, min(1.0, self.hp / self.max_hp)) if self.max_hp > 0 else 0
 
-                percent = self.hp / self.max_hp
+                # İç oyuk hazne (Track)
+                inner_rect = rect.inflate(-8, -8)
+                pygame.draw.rect(surface, (45, 16, 20), inner_rect, border_radius=10)
 
-                pygame.draw.rect(
-                    surface,
-                    colours.GRAY,
-                    rect,
-                    border_radius=20
-                )
+                # Doldurulan Can Barı
+                if percent > 0:
+                    fill_w = max(6, int(inner_rect.width * percent))
+                    fill_rect = pygame.Rect(inner_rect.left, inner_rect.top, fill_w, inner_rect.height)
+                    
+                    # Can kritik seviyedeyse turuncu/kırmızı, normalse canlı kırmızı
+                    hp_color = (235, 48, 64) if percent > 0.25 else (245, 95, 35)
+                    pygame.draw.rect(surface, hp_color, fill_rect, border_radius=10)
 
-                pygame.draw.rect(
-                    surface,
-                    colours.RED,
-                    (
-                        rect.left,
-                        rect.top,
-                        rect.width * percent,
-                        rect.height
-                    ),
-                    border_radius=20
-                )
+                    # Üst Cam Parlaması (Glossy Highlight)
+                    sheen_rect = pygame.Rect(fill_rect.left, fill_rect.top, fill_rect.width, max(2, fill_rect.height // 3))
+                    pygame.draw.rect(surface, (255, 120, 130), sheen_rect, border_top_left_radius=10, border_top_right_radius=10)
 
-                font.draw_text(
-                    f"{langs['hp']()}: {self.hp}",
-                    rect.center,
-                    surface,
-                    colours.WHITE,
-                    hiza="center"
-                )
+                # Dış metalik çerçeve çizgisi
+                pygame.draw.rect(surface, (70, 78, 92), rect, width=2, border_radius=14)
 
+                # Metin ve Metin Gölgesi
+                hp_str = f"{langs['hp']()}: {self.hp:.1f}"
+                font.draw_text(hp_str, (rect.centerx + 1, rect.centery + 1), surface, (20, 20, 20), hiza="center")
+                font.draw_text(hp_str, rect.center, surface, colours.WHITE, hiza="center")
+
+            # -----------------------------------------------------
+            # B) İYİLEŞME BARI (HEAL)
+            # -----------------------------------------------------
             elif element == "heal":
+                percent_heal = max(0.0, min(1.0, self.heal_cooldown / self.heal_cooldown_orig)) if self.heal_cooldown_orig > 0 else 0
 
-                percent_heal = min((
-                    self.heal_cooldown /
-                    self.heal_cooldown_orig
-                ), 1)
+                inner_rect = rect.inflate(-8, -8)
+                # İyileşme hazır değilken bekleme göstergesi
+                pygame.draw.rect(surface, (18, 32, 54), inner_rect, border_radius=10)
 
-                pygame.draw.rect(
-                    surface,
-                    colours.BLUE,
-                    rect,
-                    border_radius=20
-                )
+                if percent_heal > 0:
+                    fill_w = max(6, int(inner_rect.width * percent_heal))
+                    fill_rect = pygame.Rect(inner_rect.left, inner_rect.top, fill_w, inner_rect.height)
+                    pygame.draw.rect(surface, (40, 135, 245), fill_rect, border_radius=10)
 
-                pygame.draw.rect(
-                    surface,
-                    colours.GRAY,
-                    (
-                        rect.left,
-                        rect.top,
-                        rect.width * percent_heal,
-                        rect.height
-                    ),
-                    border_radius=20
-                )
+                    # Üst Cam Parlaması
+                    sheen_rect = pygame.Rect(fill_rect.left, fill_rect.top, fill_rect.width, max(2, fill_rect.height // 3))
+                    pygame.draw.rect(surface, (110, 190, 255), sheen_rect, border_top_left_radius=10, border_top_right_radius=10)
 
-                font.draw_text(
-                    f"{self.heal_cooldown:.2f}",
-                    rect.center,
-                    surface,
-                    colours.WHITE,
-                    hiza="center"
-                )
+                pygame.draw.rect(surface, (60, 85, 120), rect, width=2, border_radius=14)
 
-            elif element == "weapon":
+                heal_str = f"{self.heal_cooldown:.2f}s"
+                font.draw_text(heal_str, (rect.centerx + 1, rect.centery + 1), surface, (15, 20, 30), hiza="center")
+                font.draw_text(heal_str, rect.center, surface, (220, 240, 255), hiza="center")
 
-                font.draw_text(
-                    f"{langs['weapon']()}: {self.using_gun.name}",
-                    rect.midleft,
-                    surface,
-                    colours.WHITE,
-                    hiza="midleft"
-                )
+            # -----------------------------------------------------
+            # C) METİN KARTLARI (SİLAH / HIZ / FPS)
+            # -----------------------------------------------------
+            else:
+                lbl = meta["lbl"]
+                val = meta["val"]
 
-            elif element == "speed":
+                # İnce panel çerçevesi
+                pygame.draw.rect(surface, (50, 58, 70), rect, width=2, border_radius=14)
 
-                font.draw_text(
-                    f"{langs['speed']}: {int(self.speed / 100)}",
-                    rect.midleft,
-                    surface,
-                    colours.WHITE,
-                    hiza="midleft"
-                )
+                # Sol tarafa minik şık bir vurgu çizgisi (Neon accent)
+                accent_color = (255, 205, 50) if element == "weapon" else ((65, 220, 240) if element == "speed" else (80, 230, 120))
+                pygame.draw.line(surface, accent_color, (rect.left + 8, rect.top + 14), (rect.left + 8, rect.bottom - 14), width=3)
 
-            elif element == "fps":
+                # Metin Konumlandırma
+                lbl_w = font.font.size(lbl)[0]
+                text_start_x = rect.left + 18
 
-                font.draw_text(
-                    f"FPS: {int(clock.get_fps())}",
-                    rect.midleft,
-                    surface,
-                    colours.WHITE,
-                    hiza="midleft"
-                )
+                # 1. Başlık Etiketi (Muted açık gri)
+                font.draw_text(lbl, (text_start_x, rect.centery), surface, (155, 168, 185), hiza="midleft")
+                # 2. Değer (Vurgulu parıldayan renk)
+                font.draw_text(val, (text_start_x + lbl_w, rect.centery), surface, accent_color, hiza="midleft")
 
     def copy(self):
         return copy.deepcopy(self)
@@ -2177,41 +2263,105 @@ class World:
                     break
 
     def draw(self, screen: pygame.Surface):
+        # 1. Zemin Çizimi
         if self.terrain_image_name:
             screen.blit(self.terrain_image, (0, 0))
         else:
             screen.fill(self.terrain_color)
+
         if self.dirt_image_name:
-            screen.blit(self.dirt_image, (0, info.current_h/5*4))
+            screen.blit(self.dirt_image, (0, info.current_h / 5 * 4))
+
+        # 2. Taşların Çizimi (HUD ile Birebir Uyumlu Stil)
         for rock in self.rocks:
+            # Önceden tanımlı rect'i doğrudan kullan (her karede yeni Rect üretmeyip FPS korur)
+            rock_rect = rock.get("rect")
+            if rock_rect is None:
+                rock_rect = pygame.Rect(rock["x"], rock["y"], rock["width"], rock["height"])
 
-            rockRect = pygame.Rect(rock["x"], rock["y"], rock["width"], rock["height"])
+            base_color = rock["color"]
+            
+            # Taşın boyutuna göre estetik köşe kavisi (küçük taşlar bozulmaz)
+            radius = max(6, min(14, rock_rect.height // 5))
 
-            pygame.draw.rect(screen, rock["color"], rockRect)
+            # -------------------------------------------------------------
+            # ADIM 1: ZEMİN GÖLGESİ (HUD'daki Kapsül Gölgesi ile Aynı Mantık)
+            # -------------------------------------------------------------
+            # Hafif aşağı-sağa düşen koyu gölge (zemine temas hissi verir)
+            shadow_rect = rock_rect.move(3, 6)
+            shadow_color = colours.darker(self.terrain_color, 45)
+            pygame.draw.rect(screen, shadow_color, shadow_rect, border_radius=radius)
 
+            # -------------------------------------------------------------
+            # ADIM 2: TAŞIN ANA GÖVDESİ
+            # -------------------------------------------------------------
+            pygame.draw.rect(screen, base_color, rock_rect, border_radius=radius)
+
+            # -------------------------------------------------------------
+            # ADIM 3: ALT DERİNLİK (3D Alt Gölgelendirme / Inset Bevel)
+            # -------------------------------------------------------------
+            # Taşın alt %35'lik dilimine düşen gölge
+            bottom_shade_h = max(4, rock_rect.height // 3)
+            bottom_shade_rect = pygame.Rect(
+                rock_rect.left,
+                rock_rect.bottom - bottom_shade_h,
+                rock_rect.width,
+                bottom_shade_h
+            )
             pygame.draw.rect(
                 screen,
-                colours.darker(rock["color"], 50),
-                rockRect,
-                width=4 
+                colours.darker(base_color, 35),
+                bottom_shade_rect,
+                border_bottom_left_radius=radius,
+                border_bottom_right_radius=radius
             )
 
-            lineRect = rockRect.inflate(rock["width"] * -0.4, rock["height"] * -0.5)
-
+            # -------------------------------------------------------------
+            # ADIM 4: ÜST CAM/KENAR IŞIĞI (Glossy Rim Highlight)
+            # -------------------------------------------------------------
+            # Üst kenara vuran açık renkli cilalı parıltı çizgisi
             pygame.draw.line(
                 screen,
-                colours.lighter(rock["color"], 50),
-                lineRect.midtop,
-                lineRect.topright,
-                width=5
+                colours.lighter(base_color, 55),
+                (rock_rect.left + radius, rock_rect.top + 3),
+                (rock_rect.right - radius, rock_rect.top + 3),
+                width=3
             )
 
+            # -------------------------------------------------------------
+            # ADIM 5: KABARTMALI MİNERAL ÇATLAĞI (Embossed Facet)
+            # -------------------------------------------------------------
+            # İki katmanlı kırık çizgisi: koyu tarafı derinlik, açık tarafı parlama verir
+            crack_x = rock_rect.left + int(rock_rect.width * 0.42)
+            crack_y = rock_rect.top + int(rock_rect.height * 0.28)
+            crack_len = int(rock_rect.width * 0.22)
+
+            # Çatlağın gölgesi
             pygame.draw.line(
                 screen,
-                colours.lighter(rock["color"], 50),
-                lineRect.topright,
-                lineRect.midright,
-                width=5
+                colours.darker(base_color, 45),
+                (crack_x, crack_y),
+                (crack_x + crack_len, crack_y + int(rock_rect.height * 0.35)),
+                width=2
+            )
+            # Çatlağın ışık vuran kenarı (1 piksel yukarısı)
+            pygame.draw.line(
+                screen,
+                colours.lighter(base_color, 45),
+                (crack_x, crack_y - 1),
+                (crack_x + crack_len, crack_y + int(rock_rect.height * 0.35) - 1),
+                width=1
+            )
+
+            # -------------------------------------------------------------
+            # ADIM 6: DIŞ ÇERÇEVE KONTURU (Netlik ve Ayırt Edilebilirlik)
+            # -------------------------------------------------------------
+            pygame.draw.rect(
+                screen,
+                colours.darker(base_color, 60),
+                rock_rect,
+                width=2,
+                border_radius=radius
             )
     
     def draw_items(self, surface: pygame.Surface, font: userFont, player):
@@ -2273,7 +2423,7 @@ class Arrow:
         if self.distance > 2:
             new_x = self.x + (self.dx / self.distance) * self.speed * dt
             new_y = self.y + (self.dy / self.distance) * self.speed * dt
-            self.image_rect = pygame.image.load(self.image_name).get_rect(topleft=(new_x, new_y))
+            self.image_rect = self.image.get_rect(topleft=(new_x, new_y))
             if self.rotated_rect is None:
                 self.x += (self.dx / self.distance) * self.speed * dt
                 self.y += (self.dy / self.distance) * self.speed * dt
@@ -2369,7 +2519,7 @@ class SplitGround:
         angle: int,
         player_x,
         player_y,
-        copy_cd=0.01,
+        copy_cd=0.04,
         *,
         image=None,
         copied=False
@@ -2753,13 +2903,21 @@ class Enemy:
         self.living = True
         self.rimage_name = r_image_name
         self.limage_name = l_image_name
-        self.size = size
-        self.image_r = pygame.image.load(r_image_name)
-        self.image_l = pygame.image.load(l_image_name)
-        self.image_r = pygame.transform.smoothscale(self.image_r, (int(self.image_r.get_width() * self.size / 100), int(self.image_r.get_height() * self.size / 100)))
-        self.image_l = pygame.transform.smoothscale(self.image_l, (int(self.image_l.get_width() * self.size / 100), int(self.image_l.get_height() * self.size / 100)))
+        self.image_size = size
+        effective_size = (size * SCALE) / 100.0
+
+        self.image_r = pygame.image.load(self.rimage_name)
+        self.image_l = pygame.image.load(self.limage_name)
+
+        target_w_r = max(1, int(self.image_r.get_width() * effective_size))
+        target_h_r = max(1, int(self.image_r.get_height() * effective_size))
+        self.image_r = pygame.transform.smoothscale(self.image_r, (target_w_r, target_h_r))
+
+        target_w_l = max(1, int(self.image_l.get_width() * effective_size))
+        target_h_l = max(1, int(self.image_l.get_height() * effective_size))
+        self.image_l = pygame.transform.smoothscale(self.image_l, (target_w_l, target_h_l))
         self.uimage = self.image_r
-        self.speed = speed
+        self.speed = scale(speed)
         self.image_rect = self.uimage.get_rect()
         self.rotated_rect = None
         self.angle = 0
@@ -2769,10 +2927,12 @@ class Enemy:
         self.abilities = abilities if abilities is not None else []
 
         assert type(self.abilities) == list, f"{self}.abilities is not list"
-        print("Enemy abilities:", self.abilities)
-        print("Type:", type(self.abilities))
+
         self.arrow_image_name = arrow_image
+
         self.arrow_image = pygame.image.load(self.arrow_image_name)
+        self.arrow_image = pygame.transform.scale_by(self.arrow_image, SCALE)
+
         self.rotated_rect_arrow = self.arrow_image.get_rect()
         self.arrows = []
         self.origin_cooldown = cooldown
@@ -2841,18 +3001,14 @@ class Enemy:
     
     def update_arrows(self, player: Player, dt):
         for arrow in self.arrows:
-            arrow: Arrow
             arrow.update(player, dt)
-            if arrow.touching:
-                self.arrows.remove(arrow)
-                del arrow
-    
+        # Güvenli ve hızlı toplu temizlik (Döngü içinde silme yok)
+        self.arrows = [a for a in self.arrows if not a.touching]
+
     def update_bombs(self, player: Player, dt):
         for bomb in self.bombs:
-            bomb: Bomb
             bomb.update(player, dt)
-            if bomb.deleted:
-                self.bombs.remove(bomb)
+        self.bombs = [b for b in self.bombs if not b.deleted]
     
     def update_sgrounds(self, player: Player, dt):
         for sg in self.sgrounds:
@@ -2895,6 +3051,8 @@ class Enemy:
     def update_sneezes(self, player: Player, dt):
         for sneeze in self.sneeze:
             sneeze.update(dt, player)
+        # Bellek sızıntısını önleyen satır:
+        self.sneeze = [s for s in self.sneeze if not s.deleted]
     
     def draw_arrows(self, surface: pygame.Surface):
         for arrow in self.arrows:
@@ -2994,30 +3152,30 @@ class Enemy:
     # 4. KEDİ ZIPLAMASI (YEŞİL LAZER)
     # -------------------------------------------------------------
     def use_cat_jump(self, dt, player: Player):
-            if EnemyAbilities.ABILITY_CAT_JUMP not in self.abilities or not self.living:
-                return
+        if EnemyAbilities.ABILITY_CAT_JUMP not in self.abilities or not self.living:
+            return
 
-            # Kedi zaten havada zıplıyorsa yeni bir ünlem açma
-            if getattr(self, "cat_jumping", False):
-                return
+        # Kedi zaten havada zıplıyorsa yeni bir ünlem açma
+        if getattr(self, "cat_jumping", False):
+            return
 
-            if self.charging_ability is not None and self.charging_ability != "cat_jump":
-                return
+        if self.charging_ability is not None and self.charging_ability != "cat_jump":
+            return
 
-            if self.charging_ability == "cat_jump":
-                if self.telegraph.update(dt):
-                    self.c_jump_player_pos = (player.x, player.y)
-                    self.cat_jumping = True
-                    self.c_jump_dx = self.c_jump_player_pos[0] - self.x
-                    self.c_jumping_duration.refresh()
-                    self.cat_jump_cd.refresh()
-                    self.charging_ability = None
-                return
+        if self.charging_ability == "cat_jump":
+            if self.telegraph.update(dt):
+                self.c_jump_player_pos = (player.x, player.y)
+                self.cat_jumping = True
+                self.c_jump_dx = self.c_jump_player_pos[0] - self.x
+                self.c_jumping_duration.refresh()
+                self.cat_jump_cd.refresh()
+                self.charging_ability = None
+            return
 
-            self.cat_jump_cd.reduce(dt)
-            if self.cat_jump_cd.check():
-                self.charging_ability = "cat_jump"
-                self.telegraph.start_charge("cat_jump", self.THEMES)
+        self.cat_jump_cd.reduce(dt)
+        if self.cat_jump_cd.check():
+            self.charging_ability = "cat_jump"
+            self.telegraph.start_charge("cat_jump", self.THEMES)
 
     # -------------------------------------------------------------
     # 5. SCR LAZER YAĞMURU (CYAN LAZER)
@@ -3054,8 +3212,7 @@ class Enemy:
                 self.lazer_beam_inside_cd.refresh()
                 self.scr_lazer_beam_counter += 1
 
-            # 10 Lazer tamamlandı mı?
-            if self.scr_lazer_beam_counter >= 10:
+            if self.scr_lazer_beam_counter >= 7:
                 self.scr_lazer_beam_cd.refresh()
                 self.lazer_beam_inside_cd.refresh()
                 self.scr_lazer_beam_counter = 0
@@ -3245,6 +3402,8 @@ class Enemy:
         self.update_sgrounds(player, dt)
         self.sgrounds = [sg for sg in self.sgrounds if not sg.destroyed]
         self.scr_lazers = [scr_lazer for scr_lazer in self.scr_lazers if not scr_lazer.destroyed]
+        self.sneeze = [sneeze for sneeze in self.sneeze if not sneeze.deleted]
+
         if self.hp <= 0:
             self.telegraph.cancel()
 
@@ -3347,13 +3506,22 @@ class Enemy:
     
     def __setstate__(self, state):
         self.__dict__.update(state)
-        self.image_r = pygame.image.load(self.rimage_name)
-        self.image_r = pygame.transform.smoothscale(self.image_r, (int(self.image_r.get_width() * self.size / 100), int(self.image_r.get_height() * self.size / 100)))
+        effective_size = (self.image_size * SCALE) / 100.0
 
+        self.image_r = pygame.image.load(self.rimage_name)
         self.image_l = pygame.image.load(self.limage_name)
-        self.image_l = pygame.transform.smoothscale(self.image_l, (int(self.image_l.get_width() * self.size / 100), int(self.image_l.get_height() * self.size / 100)))
+
+        target_w_r = max(1, int(self.image_r.get_width() * effective_size))
+        target_h_r = max(1, int(self.image_r.get_height() * effective_size))
+        self.image_r = pygame.transform.smoothscale(self.image_r, (target_w_r, target_h_r))
+
+        target_w_l = max(1, int(self.image_l.get_width() * effective_size))
+        target_h_l = max(1, int(self.image_l.get_height() * effective_size))
+        self.image_l = pygame.transform.smoothscale(self.image_l, (target_w_l, target_h_l))
         self.uimage = self.image_r
+
         self.arrow_image = pygame.image.load(self.arrow_image_name)
+        self.arrow_image = pygame.transform.scale_by(self.arrow_image, SCALE)
 
 
 class Boss(Enemy):
@@ -3507,10 +3675,9 @@ class Boss(Enemy):
 
     @staticmethod
     def draw(surface: pygame.Surface, font: userFont, level: list, bossFont: DynamicFont = None):
-        bosses=[]
+        bosses = []
         padding = 160
         for enemy in level:
-            enemy: Enemy
             if enemy.living:
                 if type(enemy) == Boss:
                     bosses.append(enemy)
@@ -3519,70 +3686,32 @@ class Boss(Enemy):
                 head_y = enemy.y
                 enemy.telegraph.draw(surface, (head_x, head_y))
                 surface.blit(enemy.uimage, (enemy.x, enemy.y))
-        for i, enemy in enumerate(bosses):
 
-            enemy: Boss
-            if i>1:
+        for i, enemy in enumerate(bosses):
+            if i > 1:
                 continue
 
             bossFont = bossFont or font
+            bar_height = info.current_w // 38  # float bölme ve print(bar_height) kaldırıldı
 
-            bar_height = info.current_w // 38.4
-            print(bar_height)
+            font.draw_text(enemy.name, (info.current_w / 2, 50 + i * padding), surface, colours.BLACK, hiza="center")
 
-            font.draw_text(enemy.name, (info.current_w/2, 50+i*(padding)), surface, colours.BLACK, hiza="center")
+            bar_w = info.current_w - info.current_w // 6
+            unfill_rect = pygame.Rect(0, 0, bar_w, bar_height)
+            unfill_rect.center = (info.current_w // 2, bar_height + 50 + i * padding)
 
-            unfill_rect = pygame.Rect(
-                info.current_w // 2,
-                bar_height + 50 + i * padding,
-                info.current_w - info.current_w // 6,
-                bar_height
-            )
+            pygame.draw.rect(surface, colours.GRAY, unfill_rect, border_radius=20)
 
-            unfill_surface = pygame.Surface(
-                (info.current_w - info.current_w // 6, bar_height)
-            )
+            percent = max(0.0, min(1.0, enemy.hp / enemy.origin_hp))
+            fill_rect = pygame.Rect(unfill_rect.left, unfill_rect.top, int(bar_w * percent), bar_height)
+            pygame.draw.rect(surface, colours.RED, fill_rect, border_radius=20)
 
-            unfill_rect.center = (
-                info.current_w // 2,
-                bar_height + 50 + i * padding
-            )
-
-            pygame.draw.rect(
-                surface,
-                colours.GRAY,
-                unfill_rect,
-                border_radius=20
-            )
-
-            percent = enemy.hp / enemy.origin_hp
-
-            fill_rect = pygame.Rect(
-                0,
-                0,
-                (info.current_w - info.current_w // 6) * percent,
-                bar_height
-            )
-
-            fill_rect.center = (
-                info.current_w // 2,
-                bar_height + 50 + i * padding
-            )
-
-            pygame.draw.rect(
-                surface,
-                colours.RED,
-                fill_rect,
-                border_radius=20
-            )
-
-            rendered, _ = bossFont.render(f"{enemy.origin_hp}/{enemy.hp}", colours.BLACK, unfill_surface,gap=10)
-
+            rendered, _ = bossFont.render(f"{enemy.origin_hp}/{enemy.hp}", colours.BLACK, surface, gap=10)
             surface.blit(
                 rendered,
                 (
-                    unfill_rect.center[0] - rendered.get_width() // 2,
-                    unfill_rect.center[1] - rendered.get_height() // 2
+                    unfill_rect.centerx - rendered.get_width() // 2,
+                    unfill_rect.centery - rendered.get_height() // 2
                 )
             )
     
@@ -3720,6 +3849,8 @@ for enemy in globals()[defaults["Level"]]:
 
 # hileli silah
 defaults["Player"].available_guns.append(Gun("At Kafası", colours.lighter(colours.BLACK, 30), 40, 10, os.path.join(BASE_DIR,r"images/silver_silahr.png"), os.path.join(BASE_DIR,r"images/silver_silah_mermi.png"), 0.03, "__deflected__"))
+
+constant_defaults: Final[dict] = defaults
 
 def reset(screen_x: int, screen_y: int, game: dict):
     logging.info("Called reset.")

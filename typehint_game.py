@@ -75,6 +75,8 @@ class Game:
     @property
     def width(self) -> int: ...
 
+    def reset(self) -> NoReturn: '''Resets game.'''
+
     def run(self) -> NoReturn:
         '''
         Runs the game until `self.running` is False.

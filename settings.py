@@ -5,7 +5,9 @@ import os
 from copy import deepcopy
 from enum import Enum
 from lang_support import Lang
-from classes import userFont, Music
+
+from userfont import userFont
+from ready_music import Music
 
 from basedir import BASE_DIR
 
@@ -375,25 +377,26 @@ class Slider(SettingElement):
 
     def handle_event(
         self,
-        event,
+        event: pygame.event.Event,
         value,
         *,
         volume: float = 0.0,
         play: bool = False
     ):
         if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
 
-            if self.rect.collidepoint(event.pos):
-                self.dragging = True
+                if self.rect.collidepoint(event.pos):
+                    self.dragging = True
 
-                new_value = self.calculate_value(event.pos[0])
+                    new_value = self.calculate_value(event.pos[0])
 
-                if new_value != value:
-                    if self.slide_sfx is not None and play:
-                        self.slide_sfx.set_volume(volume)
-                        self.slide_sfx.play()
+                    if new_value != value:
+                        if self.slide_sfx is not None and play:
+                            self.slide_sfx.set_volume(volume)
+                            self.slide_sfx.play()
 
-                return new_value
+                    return new_value
 
         elif event.type == pygame.MOUSEBUTTONUP:
 
@@ -721,10 +724,6 @@ class Settings:
             "selected_music": {
                 "type": "select",
                 "values": [
-                    Music(
-                        os.path.join(BASE_DIR, r"musics/holding_out_for_a_hero.mp3"),
-                        "Adam akıllı müzik"
-                    ),
                     Music(
                         os.path.join(BASE_DIR, r"musics/eba_phonk.mp3"),
                         "Eba Fank"

@@ -10,7 +10,6 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-
 class SettingsManager:
     def __init__(self, filename: str, path: os.PathLike, game_id, game_ver):
         self.filename = filename

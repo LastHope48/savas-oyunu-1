@@ -8,6 +8,7 @@ PROJECT_DIR = Path(__file__).resolve().parent.parent
 print(PROJECT_DIR)
 
 ZIP_FILE = PROJECT_DIR / "savas_oyunu1-linux.zip"
+ZIP_FILE_WINDOWS = PROJECT_DIR / "savas_oyunu1-windows.zip"
 
 PRIVATE_KEY_FILE = (
     PROJECT_DIR
@@ -18,6 +19,11 @@ PRIVATE_KEY_FILE = (
 SIGNATURE_FILE = (
     PROJECT_DIR
     / "savas_oyunu1-linux.zip.sig"
+)
+
+SIGNATURE_FILE_WINDOWS = (
+    PROJECT_DIR
+    / "savas_oyunu1-windows.zip.sig"
 )
 
 
@@ -44,5 +50,11 @@ signature = private_key.sign(file_hash)
 
 SIGNATURE_FILE.write_bytes(signature)
 
+file_hash = calculate_sha256(ZIP_FILE_WINDOWS)
+
+signature = private_key.sign(file_hash)
+
+SIGNATURE_FILE_WINDOWS.write_bytes(signature)
+
 print("İmzalama başarılı!")
-print("İmza:", SIGNATURE_FILE)
+print("İmza:", SIGNATURE_FILE, SIGNATURE_FILE_WINDOWS)

@@ -271,11 +271,16 @@ class MainMenuScreen(MenuScreen):
             if self.game.settings.get("sfx"):
                 self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
 
-            self.game.game_data = GameData.to_gamedata(game_data_defaults)
-            game_screen = self.game.screen_manager.get_screen(ScreenType.GAME)
 
-            game_screen.start_new_game()
+            # Taze varsayılanları GameData'ya yükle
+            self.game.game_data = GameData.to_gamedata(game_data_defaults)
+            
+            # Menüyü kapat ve yeni oyunu başlat
+            self.esc_screen = False
+            self.game.screen_manager.get_screen(ScreenType.GAME).start_new_game()
+
             self.game.screen_manager.set_screen(ScreenType.GAME)
+
             return
 
         if self.continue_button.clicked(event, ScreenType.MENU):

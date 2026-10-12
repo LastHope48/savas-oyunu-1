@@ -1,5 +1,6 @@
 import pygame
 import random
+from helper_funcs import invert_dict
 
 
 class ComboPopup:
@@ -91,8 +92,14 @@ class ComboMeter:
         (35, "SSS",  (255, 215, 0)),     # Altın / Supreme
     ]
 
+
     def __init__(self, x_offset: int = 40, y_offset: int = 40):
         self.combo_count = 0
+        self.max_combo = 0
+
+        self.top_rank: tuple[str, tuple[int, int, int]] = ("---" ,(120, 120, 120))
+        self.top_threshold = 0
+    
         self.timer = 0.0
         self.max_time = 2.4
         self.scale = 1.0
@@ -141,11 +148,17 @@ class ComboMeter:
         for threshold, name, color in self.RANKS:
             if self.combo_count >= threshold:
                 current_rank = (name, color)
+
+                if threshold > self.top_threshold:
+                    self.top_threshold = threshold
+                    self.top_rank = current_rank
+
         return current_rank[0], current_rank[1]
 
     def add_hit(self, count: int = 1, swidth: int = 1280, sheight: int = 720):
         """Kılıç vurduğunda veya ok sektirildiğinde çağrılır."""
         self.combo_count += count
+        self.max_combo = max(self.max_combo, self.combo_count)
         self.timer = self.max_time
         self.scale = 1.45
 

@@ -23,7 +23,7 @@ class ValueManager:
         self.filename = filename or os.path.join(BASE_DIR, r"values.dat")
 
         self.values: dict[str, Any] = {
-            "kill": 1,
+            "kill": 0,
             "win": 0
         }
 
