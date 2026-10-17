@@ -25,6 +25,8 @@ from combo_meter import ComboMeter
 from enemy_telegraph import EnemyTelegraph
 from settings import Settings
 from calcs import scale, SCALE
+import time
+from collections import deque
 
 from typing import Final
 
@@ -84,7 +86,6 @@ class Slot:
             slot.info = infos.get(slot.id)
 
             slot.used = slot.info is not None
-            
 
             try:
                 save_manager.get_info(slot.id)
@@ -101,7 +102,6 @@ class Slot:
             except Exception as e:
                 logging.error(e)
                 slot.unknown = True
-            logging.debug(slot.info)
 
     @staticmethod
     def create_slots(save_manager, font):
@@ -110,13 +110,13 @@ class Slot:
             Slot(
                 i,
                 display=Button(
-                        0, 0, 600, 200, f"Slot {i+1}",
-                        font,
-                        colours.BLUE,
-                        colours.WHITE,
-                        [ScreenType.LOAD, ScreenType.SAVE],
-                        colours.darker(colours.BLUE, 20),
-                        border_radius=5
+                            0, 0, 600, 200, f"Slot {i+1}",
+                            font,
+                            colours.BLUE,
+                            colours.WHITE,
+                            [ScreenType.LOAD, ScreenType.SAVE],
+                            colours.darker(colours.BLUE, 20),
+                            border_radius=5
                         )
             )
         Slot.update_infos(save_manager)
@@ -191,7 +191,7 @@ class Button:
             width: int,
             height: int,
             text,
-            font: userFont,
+            font: userFont | DynamicFont,
             color,
             text_color,
             game_state: list,
@@ -206,7 +206,8 @@ class Button:
         self.x = x
         self.y = y
         self.rect = pygame.Rect(x-width//2, y-height//2, width, height)
-        self.text = text
+
+        self.text: str = text
         self.font = font
         self.color = color
         self.origin_color = color
@@ -271,7 +272,7 @@ class Button:
             self.color = self.origin_color
             return False
 
-    def draw(self, surface):
+    def draw(self, surface: pygame.Surface):
         if self.design is None:
             pygame.draw.rect(surface, self.color, self.rect, border_radius=self.border_radius)
 
@@ -338,18 +339,46 @@ class Button:
                     inner_rect.topright
                 ]
             )
-        lines = self.text.splitlines()
+        
 
-        line_height = self.font.font.get_height()
-        total_height = len(lines) * line_height
+        if type(self.font) == userFont:
+            lines = self.text.splitlines()
 
-        y = self.rect.centery - total_height // 2
+            line_height = self.font.font.get_height()
+            total_height = len(lines) * line_height
 
-        for line in lines:
-            text_surface = self.font.font.render(line, True, self.text_color)
-            text_rect = text_surface.get_rect(center=(self.rect.centerx, y + line_height // 2))
-            surface.blit(text_surface, text_rect)
-            y += line_height
+            y = self.rect.centery - total_height // 2
+
+            for line in lines:
+                text_surface = self.font.font.render(line, True, self.text_color)
+                text_rect = text_surface.get_rect(center=(self.rect.centerx, y + line_height // 2))
+                surface.blit(text_surface, text_rect)
+                y += line_height
+
+        elif type(self.font) == DynamicFont:
+
+            lines, line_height = self.font.render(
+                self.text,
+                self.text_color,
+                self.rect,
+                breaklines=True
+            )
+
+            total_height = len(lines) * line_height
+
+            y = self.rect.centery - total_height // 2
+
+            for line in lines:
+
+                line: pygame.Surface
+                text_rect = line.get_rect(center=(self.rect.centerx, y + line_height // 2))
+
+                surface.blit(
+                    line,
+                    text_rect
+                )
+                
+                y += line_height
 
     def set_center(self, x, y):
         self.rect.center = (x, y)
@@ -446,11 +475,89 @@ class Sword:
         self.color = color
         self.dash_speed = dash_speed
 
-    def draw(self, surface, x, y, angle: float):
-        blade_length = 55
-        blade_width = 8
-        handle_length = 16
-        guard_width = 22
+        # -------------------------------------------------------------
+        # KILIÇ İZİ (PROCEDURAL RIBBON TRAIL) AYARLARI
+        # -------------------------------------------------------------
+        # Her eleman: ((tip_x, tip_y), (base_x, base_y), olusturma_zamani)
+        self.trail_points = deque()
+        self.trail_lifetime = 0.14       # İzin ekranda kalma süresi (sn)
+        self.min_tip_dist = 4.0 * SCALE  # Hareketsizken boşuna nokta eklememe eşiği
+        self.trail_enabled = True        # İstenirse sadece saldırıda açılabilir
+
+    def clear_trail(self):
+        """Karakter ışınlandığında veya animasyon aniden değiştiğinde izi sıfırlar."""
+        self.trail_points.clear()
+
+    def _draw_trail(self, surface: pygame.Surface, now: float):
+        """Son karelerdeki koordinatları birleştirip neon ışık şeridi oluşturur."""
+        if len(self.trail_points) < 2:
+            return
+
+        # 1. Bounding Box (Kapsayıcı Alan) Tespiti
+        # Tüm ekran boyutunda yüzey açıp FPS düşürmemek için sadece izin kapladığı alanı hesaplıyoruz
+        all_points = []
+        for p in self.trail_points:
+            all_points.append(p[0])
+            all_points.append(p[1])
+
+        min_x = min(pt[0] for pt in all_points) - 4
+        max_x = max(pt[0] for pt in all_points) + 4
+        min_y = min(pt[1] for pt in all_points) - 4
+        max_y = max(pt[1] for pt in all_points) + 4
+
+        surf_w = int(max_x - min_x)
+        surf_h = int(max_y - min_y)
+
+        if surf_w <= 0 or surf_h <= 0:
+            return
+
+        # Sadece izin kapladığı küçük şeffaf yüzey (60+ FPS dostu)
+        trail_surf = pygame.Surface((surf_w, surf_h), pygame.SRCALPHA)
+
+        # 2. Şerit Poligonlarını (Mesh) Sırayla Çiz
+        pts = list(self.trail_points)
+        num_segments = len(pts) - 1
+
+        for i in range(num_segments):
+            p_curr = pts[i]      # Daha yeni nokta
+            p_next = pts[i + 1]  # Daha eski nokta
+
+            # Noktanın ömrüne göre yumuşak sönümleme (Fade Out)
+            age = now - p_next[2]
+            progress = min(1.0, max(0.0, age / self.trail_lifetime))
+            alpha = int(190 * (1.0 - progress))  # 190 -> 0
+
+            if alpha <= 0:
+                continue
+
+            # Koordinatları yerel trail_surf koordinatına ötele
+            tip1 = (p_curr[0][0] - min_x, p_curr[0][1] - min_y)
+            base1 = (p_curr[1][0] - min_x, p_curr[1][1] - min_y)
+            tip2 = (p_next[0][0] - min_x, p_next[0][1] - min_y)
+            base2 = (p_next[1][0] - min_x, p_next[1][1] - min_y)
+            
+            quad = [tip1, tip2, base2, base1]
+
+            # A) Neon Gövde (Kılıcın kendi renginde saydam dalga)
+            trail_color = (*self.color[:3], alpha)
+            pygame.draw.polygon(trail_surf, trail_color, quad)
+
+            # B) Keskin Dış Kenar Işıltısı (Kılıcın ucuna vuran parlak hat)
+            core_alpha = int(240 * (1.0 - progress))
+            pygame.draw.line(trail_surf, (255, 255, 255, core_alpha), tip1, tip2, max(1, int(2 * SCALE)))
+
+        # 3. İzi ana ekrana bas (Kılıcın arkasında kalır)
+        surface.blit(trail_surf, (min_x, min_y), special_flags=pygame.BLEND_ALPHA_SDL2)
+
+    def draw(self, surface: pygame.Surface, x: float, y: float, angle: float, scale_factor: float = 1.0, trail=True):
+        # -------------------------------------------------------------
+        # 1. GEOMETRİ HESAPLAMALARI
+        # -------------------------------------------------------------
+        effective_scale = SCALE * scale_factor
+        blade_length = 55 * effective_scale
+        blade_width = 8 * effective_scale
+        handle_length = 16 * effective_scale
+        guard_width = 22 * effective_scale
 
         rad = math.radians(angle)
         dx = math.cos(rad)
@@ -459,10 +566,41 @@ class Sword:
         px = -dy
         py = dx
 
-        # Bıçak ucu
+        # Bıçak ucu ve kabza başlangıcı
         tip_x = x + dx * blade_length
         tip_y = y + dy * blade_length
+        base_x = x + dx * (blade_length * 0.15)  # İzin başladığı kabza önü
+        base_y = y + dy * (blade_length * 0.15)
 
+        # -------------------------------------------------------------
+        # 2. İZ NOKTALARINI GÜNCELLE VE ESKİYENLERİ SİL
+        # -------------------------------------------------------------
+        now = time.time()
+
+        # Süresi dolan (self.trail_lifetime'dan eski) noktaları kuyruktan at
+        while self.trail_points and (now - self.trail_points[-1][2] > self.trail_lifetime):
+            self.trail_points.pop()
+
+        # Sadece kılıç gerçekten hareket ettiğinde yeni nokta ekle (hareketsizken kasmaması için)
+        should_add = True
+        if self.trail_points:
+            last_tip = self.trail_points[0][0]
+            dist = math.hypot(tip_x - last_tip[0], tip_y - last_tip[1])
+            if dist < self.min_tip_dist:
+                should_add = False
+
+        if self.trail_enabled and should_add:
+            self.trail_points.appendleft(((tip_x, tip_y), (base_x, base_y), now))
+
+        # -------------------------------------------------------------
+        # 3. ÖNCE İZİ ÇİZ (Kılıcın Arkasında Kalsın)
+        # -------------------------------------------------------------
+        if trail:
+            self._draw_trail(surface, now)
+
+        # -------------------------------------------------------------
+        # 4. KILICIN KENDİSİNİ ÇİZ
+        # -------------------------------------------------------------
         blade = [
             (x + px * blade_width / 2, y + py * blade_width / 2),
             (x - px * blade_width / 2, y - py * blade_width / 2),
@@ -471,25 +609,249 @@ class Sword:
             (tip_x + px * blade_width / 2, tip_y + py * blade_width / 2)
         ]
 
-        # Bıçak
+        # Bıçak Gövdesi
         pygame.draw.polygon(surface, self.color, blade)
 
-        # Kabza (Geriye uzanan sap)
+        # Bıçak Orta Işık Çizgisi (Neon derinlik)
+        pygame.draw.line(surface, (255, 255, 255), (x, y), (tip_x, tip_y), max(1, int(1.5 * effective_scale)))
+
+        # Kabza (Geriye uzanan ahşap sap)
         handle_x = x - dx * handle_length
         handle_y = y - dy * handle_length
-        pygame.draw.line(surface, (110, 70, 30), (x, y), (handle_x, handle_y), 6)
+        pygame.draw.line(surface, (110, 70, 30), (x, y), (handle_x, handle_y), int(6 * effective_scale))
 
-        # El koruması (Guard)
+        # El koruması (Guard - Altın sarısı)
         pygame.draw.line(
             surface,
             (255, 215, 0),
             (x + px * guard_width / 2, y + py * guard_width / 2),
             (x - px * guard_width / 2, y - py * guard_width / 2),
-            5
+            max(2, int(5 * effective_scale))
         )
 
-        # Kabza ucu
-        pygame.draw.circle(surface, (180, 180, 180), (int(handle_x), int(handle_y)), 4)
+        # Kabza ucu (Pommel)
+        pygame.draw.circle(surface, (180, 180, 180), (int(handle_x), int(handle_y)), int(4 * effective_scale))
+
+
+class CyberKatana(Sword):
+    """
+    Özel nadir kılıç: Katana tarzı örgülü kabza (tsuka-ito), 
+    açılı aerodinamik koruma (tsuba), prizmatik güç kristali ve iki tonlu neon bıçak.
+    """
+    def __init__(self, name="Aether Katana", attack=120, color=(0, 220, 255), dash_speed=1100, material="crystal"):
+        super().__init__(name, attack, color, dash_speed, material)
+        # Özel kılıcın izi biraz daha uzun ve daha yoğun neon kalsın
+        self.trail_lifetime = 0.18
+
+    def draw(self, surface: pygame.Surface, x: float, y: float, angle: float, scale_factor: float = 1.0, trail=True):
+        effective_scale = SCALE * scale_factor
+
+        # -------------------------------------------------------------
+        # 1. BOYUT VE VEKTÖR HESAPLAMALARI
+        # -------------------------------------------------------------
+        # Normal kılıçtan daha uzun ve daha ince, jilet gibi bir profil
+        blade_length = 72 * effective_scale
+        blade_width = 7 * effective_scale
+        handle_length = 22 * effective_scale
+        guard_width = 24 * effective_scale
+
+        rad = math.radians(angle)
+        dx = math.cos(rad)
+        dy = math.sin(rad)
+
+        # Teğet (dik) vektör
+        px = -dy
+        py = dx
+
+        # Kritik Noktalar
+        tip_x = x + dx * blade_length
+        tip_y = y + dy * blade_length
+        base_x = x + dx * (blade_length * 0.12)
+        base_y = y + dy * (blade_length * 0.12)
+
+        # -------------------------------------------------------------
+        # 2. İZ (TRAIL) GÜNCELLEMESİ
+        # -------------------------------------------------------------
+        now = time.time()
+        while self.trail_points and (now - self.trail_points[-1][2] > self.trail_lifetime):
+            self.trail_points.pop()
+
+        should_add = True
+        if self.trail_points:
+            last_tip = self.trail_points[0][0]
+            dist = math.hypot(tip_x - last_tip[0], tip_y - last_tip[1])
+            if dist < self.min_tip_dist:
+                should_add = False
+
+        if self.trail_enabled and should_add:
+            self.trail_points.appendleft(((tip_x, tip_y), (base_x, base_y), now))
+
+        # Kılıcın arkasındaki şerit izi çiz
+        if trail:
+            self._draw_trail(surface, now)
+
+        # -------------------------------------------------------------
+        # 3. KABZA (TSUKA) VE KATANA ÖRGÜSÜ (TSUKA-ITO)
+        # -------------------------------------------------------------
+        handle_end_x = x - dx * handle_length
+        handle_end_y = y - dy * handle_length
+
+        # Kabza ana gövdesi (Koyu karbon/titanyum altlık)
+        pygame.draw.line(
+            surface,
+            (15, 20, 28),
+            (x, y),
+            (handle_end_x, handle_end_y),
+            max(2, int(6 * effective_scale))
+        )
+
+        # Katana Baklava Çapraz Örgüleri (Tsuka-ito dokusu)
+        wrap_segments = 4
+        for i in range(wrap_segments):
+            t = (i + 0.5) / wrap_segments
+            wx = x - dx * (handle_length * t)
+            wy = y - dy * (handle_length * t)
+            offset = 3 * effective_scale
+
+            # Çapraz bağcık dikişleri (Açık camgöbeği/gümüş bağcık)
+            pygame.draw.line(
+                surface,
+                (0, 180, 220),
+                (wx + px * offset, wy + py * offset),
+                (wx - px * offset, wy - py * offset),
+                max(1, int(1.5 * effective_scale))
+            )
+            pygame.draw.circle(
+                surface,
+                (220, 245, 255),
+                (int(wx), int(wy)),
+                max(1, int(1.2 * effective_scale))
+            )
+
+        # -------------------------------------------------------------
+        # 4. KABZA UCU (KASHIRA / POMMEL)
+        # -------------------------------------------------------------
+        # Düz daire yerine sivri köşeli prizmatik uçluk
+        kashira_w = 4 * effective_scale
+        kashira_h = 5 * effective_scale
+        kashira_pts = [
+            (handle_end_x + px * kashira_w, handle_end_y + py * kashira_w),
+            (handle_end_x - px * kashira_w, handle_end_y - py * kashira_w),
+            (handle_end_x - dx * kashira_h, handle_end_y - dy * kashira_h)
+        ]
+        pygame.draw.polygon(surface, (30, 42, 58), kashira_pts)
+        pygame.draw.polygon(surface, (0, 240, 255), kashira_pts, max(1, int(1 * effective_scale)))
+
+        # -------------------------------------------------------------
+        # 5. BIÇAK GÖVDESİ (ÇİFT TONLU JİLET KESKİNLİK)
+        # -------------------------------------------------------------
+        tanto_tip_x = tip_x - dx * (6 * effective_scale)
+        tanto_tip_y = tip_y - dy * (6 * effective_scale)
+
+        # Sırt (koyu çelik gövde) ve ağız (parlak neon kesici kenar)
+        edge_pts = [
+            (x + px * blade_width / 2, y + py * blade_width / 2),
+            (tanto_tip_x + px * blade_width / 2, tanto_tip_y + py * blade_width / 2),
+            (tip_x, tip_y),
+            (x, y)
+        ]
+        spine_pts = [
+            (x - px * blade_width / 2, y - py * blade_width / 2),
+            (tanto_tip_x - px * blade_width / 2, tanto_tip_y - py * blade_width / 2),
+            (tip_x, tip_y),
+            (x, y)
+        ]
+
+        # Alt gövde: Derin Gece Mavisi (Kraliyet altını yerine asil karanlık çelik)
+        pygame.draw.polygon(surface, (12, 32, 60), spine_pts)
+        # Keskin kenar: Canlı Siber Camgöbeği
+        pygame.draw.polygon(surface, (0, 160, 240), edge_pts)
+
+        # Dış keskin kontur çizgisi
+        pygame.draw.lines(
+            surface,
+            (180, 245, 255),
+            False,
+            [
+                (x + px * blade_width / 2, y + py * blade_width / 2),
+                (tanto_tip_x + px * blade_width / 2, tanto_tip_y + py * blade_width / 2),
+                (tip_x, tip_y)
+            ],
+            max(1, int(1.5 * effective_scale))
+        )
+
+        # Omurga Işıltısı (Fuller / Kan oluğu boyunca uzanan beyaz foton çizgisi)
+        pygame.draw.line(
+            surface,
+            (240, 255, 255),
+            (x + dx * 10 * effective_scale, y + dy * 10 * effective_scale),
+            (tanto_tip_x, tanto_tip_y),
+            max(1, int(1.2 * effective_scale))
+        )
+
+        # -------------------------------------------------------------
+        # 6. SİBER EL KORUMASI (KANATLI TSUBA)
+        # -------------------------------------------------------------
+        # Düz çizgi yerine ileriye doğru hafif eğimli aerodinamik siber kanatlar
+        wing_fwd = 5 * effective_scale
+        guard_poly = [
+            (x, y - dy * 2),
+            (x + px * guard_width / 2 + dx * wing_fwd, y + py * guard_width / 2 + dy * wing_fwd),
+            (x + px * (guard_width / 2 + 3 * effective_scale), y + py * (guard_width / 2 + 3 * effective_scale)),
+            (x, y + dy * 3),
+            (x - px * (guard_width / 2 + 3 * effective_scale), y - py * (guard_width / 2 + 3 * effective_scale)),
+            (x - px * guard_width / 2 + dx * wing_fwd, y - py * guard_width / 2 + dy * wing_fwd),
+        ]
+        # Titanyum guard gövdesi
+        pygame.draw.polygon(surface, (20, 28, 40), guard_poly)
+        # Neon cyan dış çerçeve
+        pygame.draw.polygon(surface, (0, 240, 255), guard_poly, max(1, int(1.5 * effective_scale)))
+
+        # -------------------------------------------------------------
+        # 7. NADİR GÜÇ KRİSTALİ (PRİZMATİK ELMAS ÇEKİRDEK)
+        # -------------------------------------------------------------
+        # Bıçağın hemen başlangıç yuvasında ışıldayan geometrik mineral
+        gem_cx = x + dx * (8 * effective_scale)
+        gem_cy = y + dy * (8 * effective_scale)
+        gem_h = 6 * effective_scale
+        gem_w = 4 * effective_scale
+
+        # Kristal Yuvası (Koyu gölge çerçeve)
+        socket_rect = [
+            (gem_cx + dx * (gem_h + 1), gem_cy + dy * (gem_h + 1)),
+            (gem_cx + px * (gem_w + 1), gem_cy + py * (gem_w + 1)),
+            (gem_cx - dx * (gem_h + 1), gem_cy - dy * (gem_h + 1)),
+            (gem_cx - px * (gem_w + 1), gem_cy - py * (gem_w + 1)),
+        ]
+        pygame.draw.polygon(surface, (10, 14, 22), socket_rect)
+
+        # Kristal Gövdesi (Koyu Safir)
+        gem_facets = [
+            (gem_cx + dx * gem_h, gem_cy + dy * gem_h),
+            (gem_cx + px * gem_w, gem_cy + py * gem_w),
+            (gem_cx - dx * gem_h, gem_cy - dy * gem_h),
+            (gem_cx - px * gem_w, gem_cy - py * gem_w),
+        ]
+        pygame.draw.polygon(surface, (0, 110, 220), gem_facets)
+
+        # İç Işık Çekirdeği (Yoğun Cyan)
+        inner_h = gem_h * 0.55
+        inner_w = gem_w * 0.55
+        inner_facets = [
+            (gem_cx + dx * inner_h, gem_cy + dy * inner_h),
+            (gem_cx + px * inner_w, gem_cy + py * inner_w),
+            (gem_cx - dx * inner_h, gem_cy - dy * inner_h),
+            (gem_cx - px * inner_w, gem_cy - py * inner_w),
+        ]
+        pygame.draw.polygon(surface, (0, 245, 255), inner_facets)
+
+        # Kristal Parıltı Noktası (Beyaz Speküler Işık)
+        pygame.draw.circle(
+            surface,
+            (255, 255, 255),
+            (int(gem_cx + px * (inner_w * 0.3)), int(gem_cy + py * (inner_w * 0.3))),
+            max(1, int(1.2 * effective_scale))
+        )
 
 
 class SwapValue:
@@ -645,7 +1007,7 @@ class Bullet:
         self.y = y
 
         self.image_name = image_name
-        self.image = pygame.image.load(self.image_name)
+        self.image = pygame.image.load(self.image_name).convert_alpha()
 
         self.angle = 360
         self.speed = speed
@@ -764,7 +1126,7 @@ class Bullet:
     
     def __setstate__(self, state):
         self.__dict__.update(state)
-        self.image = pygame.image.load(self.image_name)
+        self.image = pygame.image.load(self.image_name).convert_alpha()
         self.rotated = None
 
 
@@ -965,6 +1327,9 @@ class Item:
     TUP_IKSIR = 5
 
     def __init__(self, name: str, color: tuple, effects: list, *flags, pickable=None, font=None):
+        self.x = 0
+        self.y = 0
+        self.rect = None
         self.name = name
         self.color = color
         self.effects = effects
@@ -989,7 +1354,7 @@ class Item:
 
         self.show_text = False
     
-    def set_pos(self, world, player):
+    def set_pos(self, world):
         count = 0
 
         while True:
@@ -1016,6 +1381,7 @@ class Item:
         # -------------------------------------------------------------
         if not self.picked:
             # İksirin türüne göre merkez noktası
+            if self.y is None or self.x is None or self.rect is None: return
             item_cx = self.x + 10 if Item.TUP_IKSIR in self.flags else self.x
             item_cy = self.y + 25 if Item.TUP_IKSIR in self.flags else self.y
 
@@ -1305,10 +1671,9 @@ class Player:
         self.deflect_anim_frame = 0.0
         
         if self.anim_dir and os.path.exists(self.anim_dir):
-            self.anim = AnimationController(self.anim_dir, speeds=self.anim_speeds, target_scale=0.9)
+            self.anim = AnimationController(self.anim_dir, speeds=self.anim_speeds, target_scale=0.7 * SCALE)
             initial_frame = self.anim.get_frame()
-            self.image = initial_frame if initial_frame is not None else pygame.image.load(self.image_name)
-            self.anim.target_scale = 0.9 * SCALE
+            self.image = initial_frame if initial_frame is not None else pygame.transform.scale_by(pygame.image.load(self.image_name), SCALE)
         else:
             self.anim = None
             self.image = pygame.image.load(self.image_name)
@@ -1368,6 +1733,9 @@ class Player:
 
         self.combo_meter = ComboMeter()
 
+        # Available Guns
+        self.transparency_hover = 0
+
     @classmethod
     def set_settings_manager(cls, settings):
 
@@ -1385,33 +1753,33 @@ class Player:
                 break
 
     def perform_attack_click(self):
-            if self.drawing:
-                return
+        if self.drawing:
+            return
 
-            total_attack_frames = len(self.anim.animations.get("attack", []))
-            if total_attack_frames == 0:
-                return
+        total_attack_frames = len(self.anim.animations.get("attack", []))
+        if total_attack_frames == 0:
+            return
 
-            if not self.sword_attacking:
-                self.sword_attacking = True
-                self.attack_frame_idx = 0
-            else:
-                self.attack_frame_idx = (self.attack_frame_idx + 1) % total_attack_frames
+        if not self.sword_attacking:
+            self.sword_attacking = True
+            self.attack_frame_idx = 0
+        else:
+            self.attack_frame_idx = (self.attack_frame_idx + 1) % total_attack_frames
 
-            self.attack_idle_timer = 0.0
+        self.attack_idle_timer = 0.0
 
-            # O anki karenin (0, 1, 2 veya 3) sesini çal:
-            swing_sound = self.attack_swings.get(self.attack_frame_idx)
-            if swing_sound:
-                if Player.SETTINGS is not None:
-                    swing_sound.set_volume(Player.SETTINGS.get("sfx_volume"))
+        # O anki karenin (0, 1, 2 veya 3) sesini çal:
+        swing_sound = self.attack_swings.get(self.attack_frame_idx)
+        if swing_sound:
+            if Player.SETTINGS is not None:
+                swing_sound.set_volume(Player.SETTINGS.get("sfx_volume"))
 
-                if Player.SETTINGS is not None:
-                    if Player.SETTINGS.get("sfx"):
-                        swing_sound.play()
-
-                else:
+            if Player.SETTINGS is not None:
+                if Player.SETTINGS.get("sfx"):
                     swing_sound.play()
+
+            else:
+                swing_sound.play()
 
     def draw(self, surface: pygame.Surface):
         # 1. Mevcut animasyon durumunu kontrol et
@@ -1428,10 +1796,19 @@ class Player:
                 frame_idx = int(self.anim.frame_index) % len(sockets)
                 socket = sockets[frame_idx]
 
-                hand_rel_x, hand_rel_y = socket["pos"]
+                # ---------------------------------------------------------
+                # 1. KRİTİK DÜZELTME: Karakter ölçeği (0.7 * SCALE) ile eşitle
+                # ---------------------------------------------------------
+                char_scale = 0.7 * SCALE
+                hand_rel_x = int(socket["pos"][0] * char_scale)
+                hand_rel_y = int(socket["pos"][1] * char_scale)
                 base_angle = socket["angle"]
 
+                # ---------------------------------------------------------
+                # 2. SAĞ / SOL YÖN HİZALAMASI
+                # ---------------------------------------------------------
                 if self.look_dir == "left":
+                    # Karakter sola döndüğünde X ekseninde simetri al
                     hand_x = self.image_rect.right - hand_rel_x
                     final_angle = 180 - base_angle
                 else:
@@ -1439,7 +1816,26 @@ class Player:
                     final_angle = base_angle
 
                 hand_y = self.image_rect.top + hand_rel_y
-                self.using_gun.draw(surface, hand_x, hand_y, final_angle)
+
+                # ---------------------------------------------------------
+                # 3. KABZA ORTALAMA OFSETİ (TUTUŞ HİSSİ)
+                # ---------------------------------------------------------
+                # Kılıcın merkez noktası guard olduğu için, elin kabzayı kavraması
+                # adına kılıcı açısına doğru 4-5 piksel ileri itiyoruz:
+                rad = math.radians(final_angle)
+                grip_offset = 5 * char_scale
+                sword_anchor_x = hand_x + math.cos(rad) * grip_offset
+                sword_anchor_y = hand_y + math.sin(rad) * grip_offset
+
+                # ---------------------------------------------------------
+                # 4. KILIÇ ÇİZİMİ
+                # ---------------------------------------------------------
+                self.using_gun.draw(surface, sword_anchor_x, sword_anchor_y, final_angle, scale_factor=0.7)
+
+                # =========================================================
+                # DEBUG MODU (Gerektiğinde True yapıp elin tam yerini gör):
+                # =========================================================
+                # pygame.draw.circle(surface, (255, 0, 0), (int(hand_x), int(hand_y)), 3)
 
         # 2. Katman sıralaması
         if is_deflecting:
@@ -1459,6 +1855,18 @@ class Player:
 
         self.combo_meter.draw(surface)
 
+    def get_hitbox_at(self, x: float, y: float) -> pygame.Rect:
+        """Karakterin gövdesi yerine sadece ayak tabanındaki dar alanı döndürür."""
+        # Karakterin genişliğinin yarısı, boyunun ise 1/3'ü kadar taban alanı
+        box_w = max(16, int(self.image_rect.width * 0.45))
+        box_h = max(12, int(self.image_rect.height * 0.35))
+        
+        hitbox = pygame.Rect(0, 0, box_w, box_h)
+        # Hitbox karakterin ayak ucunda ortalanır:
+        hitbox.centerx = int(x)
+        hitbox.bottom = int(y + self.image_rect.height * 0.45)
+        return hitbox
+
     def update(self, mouse_pos, world, dt, swidth: int, sheight: int, enemies: list):
         # 1. Mermi sektirme (Deflect) güncellemeleri
         for bullet in self.deflect_bullets:
@@ -1474,7 +1882,7 @@ class Player:
         is_moving = False
 
         if self.movable:
-            if type(self.using_gun) == Sword or type(self.using_gun) == Charm:
+            if isinstance(self.using_gun, Sword) or type(self.using_gun) == Charm:
                 if self.change_angle:
                     self.mx, self.my = mouse_pos
                     self.dx = self.mx - self.x
@@ -1482,34 +1890,34 @@ class Player:
                     self.distance = math.hypot(self.dx, self.dy)
 
                 if not self.teleporting:
-                    # 0 yerine 8 piksel eşik (mikro titremeyi engeller)
                     if self.distance is not None and self.distance > 8:
                         self.touching = False
                         move_dist = self.speed * dt
-                        # Hedefi aşmamak için min kontrolü
                         step = min(move_dist, self.distance)
-                        new_x = self.x + (self.dx / self.distance) * step
-                        new_y = self.y + (self.dy / self.distance) * step
-                        
-                        test_rect = self.image_rect.copy()
-                        test_rect.topleft = (new_x, new_y)
 
-                        if self.rotated_rect is None:
-                            if not test_rect.collidelist(world.rocks_rects) != -1 and not test_rect.colliderect(world.dirt_rect):
-                                self.x = new_x
-                                self.y = new_y
-                                is_moving = True
-                        else:
-                            self.rotated_rect.topleft = (new_x, new_y)
-                            if not self.rotated_rect.collidelist(world.rocks_rects) != -1 and not self.rotated_rect.colliderect(world.dirt_rect):
-                                self.x = new_x
-                                self.y = new_y
-                                is_moving = True
+                        target_vx = (self.dx / self.distance) * step
+                        target_vy = (self.dy / self.distance) * step
+
+                        # --- ADIM 1: X EKSENİ TESTİ (Yatay Kayma) ---
+                        test_x = self.x + target_vx
+                        hitbox_x = self.get_hitbox_at(test_x, self.y)
+
+                        if hitbox_x.collidelist(world.rocks_rects) == -1 and not hitbox_x.colliderect(world.dirt_rect):
+                            self.x = test_x
+                            is_moving = True
+
+                        # --- ADIM 2: Y EKSENİ TESTİ (Dikey Kayma) ---
+                        test_y = self.y + target_vy
+                        hitbox_y = self.get_hitbox_at(self.x, test_y)
+
+                        if hitbox_y.collidelist(world.rocks_rects) == -1 and not hitbox_y.colliderect(world.dirt_rect):
+                            self.y = test_y
+                            is_moving = True
                     else:
                         self.touching = True
                         is_moving = False
 
-                    # Fareye göre bakış yönü
+                    # Fareye göre bakış açısı
                     if self.change_angle and not self.sword_attacking:
                         self.angle = math.degrees(math.atan2(-self.dy, self.dx))
                     
@@ -1520,66 +1928,35 @@ class Player:
 
             elif type(self.using_gun) == Gun:
                 keys = pygame.key.get_pressed()
+                vx = 0
+                vy = 0
+
                 if not self.drawing:
-                    if keys[pygame.K_w]:
-                        test_rect = self.image_rect.copy()
-                        test_rect.center = (self.x, self.y - self.speed * dt)
-                        if not test_rect.collidelist(world.rocks_rects) != -1 and not test_rect.colliderect(world.dirt_rect):
-                            self.y = max(self.y - self.speed * dt, 0)
-                            self.last_pressed = "w"
-                            is_moving = True
-                    if keys[pygame.K_s]:
-                        test_rect = self.image_rect.copy()
-                        test_rect.center = (self.x, self.y + self.speed * dt)
-                        if not test_rect.collidelist(world.rocks_rects) != -1 and not test_rect.colliderect(world.dirt_rect):
-                            self.y = min(self.y + self.speed * dt, sheight)
-                            self.last_pressed = "s"
-                            is_moving = True
-                    if keys[pygame.K_d]:
-                        test_rect = self.image_rect.copy()
-                        test_rect.center = (self.x + self.speed * dt, self.y)
-                        if not test_rect.collidelist(world.rocks_rects) != -1 and not test_rect.colliderect(world.dirt_rect):
-                            self.x = min(self.x + self.speed * dt, swidth)
-                            self.last_pressed = "d"
-                            is_moving = True
-                        self.look_dir = "right"
-                    if keys[pygame.K_a]:
-                        test_rect = self.image_rect.copy()
-                        test_rect.center = (self.x - self.speed * dt, self.y)
-                        if not test_rect.collidelist(world.rocks_rects) != -1 and not test_rect.colliderect(world.dirt_rect):
-                            self.x = max(self.x - self.speed * dt, 0)
-                            self.last_pressed = "a"
-                            is_moving = True
-                        self.look_dir = "left"
+                    if keys[pygame.K_w]: vy -= self.speed * dt; self.last_pressed = "w"
+                    if keys[pygame.K_s]: vy += self.speed * dt; self.last_pressed = "s"
+                    if keys[pygame.K_a]: vx -= self.speed * dt; self.look_dir = "left"; self.last_pressed = "a"
+                    if keys[pygame.K_d]: vx += self.speed * dt; self.look_dir = "right"; self.last_pressed = "d"
                 else:
-                    if self.last_pressed is not None:
-                        pressing = getattr(pygame, f"K_{self.last_pressed}")
-                        if pressing == pygame.K_w:
-                            test_rect = self.image_rect.copy()
-                            test_rect.center = (self.x, self.y - self.speed * dt)
-                            if not test_rect.collidelist(world.rocks_rects) != -1 and not test_rect.colliderect(world.dirt_rect):
-                                self.y = max(self.y - self.speed * dt, 0)
-                                is_moving = True
-                        if pressing == pygame.K_s:
-                            test_rect = self.image_rect.copy()
-                            test_rect.center = (self.x, self.y + self.speed * dt)
-                            if not test_rect.collidelist(world.rocks_rects) != -1 and not test_rect.colliderect(world.dirt_rect):
-                                self.y = min(self.y + self.speed * dt, sheight)
-                                is_moving = True
-                        if pressing == pygame.K_d:
-                            test_rect = self.image_rect.copy()
-                            test_rect.center = (self.x + self.speed * dt, self.y)
-                            if not test_rect.collidelist(world.rocks_rects) != -1 and not test_rect.colliderect(world.dirt_rect):
-                                self.x = min(self.x + self.speed * dt, swidth)
-                                is_moving = True
-                            self.look_dir = "right"
-                        if pressing == pygame.K_a:
-                            test_rect = self.image_rect.copy()
-                            test_rect.center = (self.x - self.speed * dt, self.y)
-                            if not test_rect.collidelist(world.rocks_rects) != -1 and not test_rect.colliderect(world.dirt_rect):
-                                self.x = max(self.x - self.speed * dt, 0)
-                                is_moving = True
-                            self.look_dir = "left"
+                    if self.last_pressed == "w": vy -= self.speed * dt
+                    elif self.last_pressed == "s": vy += self.speed * dt
+                    elif self.last_pressed == "a": vx -= self.speed * dt; self.look_dir = "left"
+                    elif self.last_pressed == "d": vx += self.speed * dt; self.look_dir = "right"
+
+                # X Ekseninde Kayma
+                if vx != 0:
+                    new_x = max(0, min(self.x + vx, swidth))
+                    hb_x = self.get_hitbox_at(new_x, self.y)
+                    if hb_x.collidelist(world.rocks_rects) == -1 and not hb_x.colliderect(world.dirt_rect):
+                        self.x = new_x
+                        is_moving = True
+
+                # Y Ekseninde Kayma
+                if vy != 0:
+                    new_y = max(0, min(self.y + vy, sheight))
+                    hb_y = self.get_hitbox_at(self.x, new_y)
+                    if hb_y.collidelist(world.rocks_rects) == -1 and not hb_y.colliderect(world.dirt_rect):
+                        self.y = new_y
+                        is_moving = True
 
             # 3. Animasyon Durumu ve Görsel Güncellemesi (TÜM HAREKETLER BİTTİKTEN SONRA)
             # --- Saldırı Zaman Aşımı (Timeout) Kontrolü ---
@@ -1645,7 +2022,7 @@ class Player:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
 
-                if type(self.using_gun) == Sword:
+                if isinstance(self.using_gun, Sword):
                     self.perform_attack_click()
         
     def heal(self, dt):
@@ -1656,7 +2033,7 @@ class Player:
                 self.heal_cooldown = self.heal_cooldown_orig
 
     def deflect(self, enemies: list, dt):
-        if type(self.using_gun) != Sword:
+        if not isinstance(self.using_gun, Sword):
             return
 
         keys = pygame.key.get_pressed()
@@ -1704,29 +2081,29 @@ class Player:
                 self.deflecting = False
 
     def dash(self):
-            if type(self.using_gun) == Sword:
-                # Saldırıyı anında iptal et ve sıfırla
-                self.sword_attacking = False
-                self.attack_frame_idx = 0
-                self.attack_idle_timer = 0.0
-                self.sword_rect = None
+        if isinstance(self.using_gun, Sword):
+            # Saldırıyı anında iptal et ve sıfırla
+            self.sword_attacking = False
+            self.attack_frame_idx = 0
+            self.attack_idle_timer = 0.0
+            self.sword_rect = None
 
-                def reduce():
-                    nonlocal self
-                    if not self._maximized:
-                        self.speed = self.speed_normal
-                    else:
-                        self.speed = self.speed_max
-                    self.change_angle = True
-                    self.drawing = False
+            def reduce():
+                nonlocal self
+                if not self._maximized:
+                    self.speed = self.speed_normal
+                else:
+                    self.speed = self.speed_max
+                self.change_angle = True
+                self.drawing = False
 
-                self.old_x = self.x
-                self.old_y = self.y
-                self.speed += self.using_gun.dash_speed
-                self.change_angle = False
-                self.drawing = True
-                self.damaged = False
-                after(reduce, secs=0.2)
+            self.old_x = self.x
+            self.old_y = self.y
+            self.speed += self.using_gun.dash_speed
+            self.change_angle = False
+            self.drawing = True
+            self.damaged = False
+            after(reduce, secs=0.2)
     
     def teleport(self, world):
 
@@ -1765,7 +2142,7 @@ class Player:
 
         self.damaged_cooldown -= dt
 
-        if type(self.using_gun) == Sword:
+        if isinstance(self.using_gun, Sword):
             # 1. DASH SALDIRISI
             if self.drawing:
                 if self.damaged_cooldown <= 0:
@@ -2038,41 +2415,30 @@ class Player:
         return copy.deepcopy(self)
     
     def draw_available_guns(self, surface: pygame.Surface):
+        parca_sayisi = len(self.available_guns)
+        if parca_sayisi == 0:
+            return
+
+        if not hasattr(self, "wheel_hover_offsets") or len(self.wheel_hover_offsets) != parca_sayisi:
+            self.wheel_hover_offsets = [0.0] * parca_sayisi
+
+        hovered_index = getattr(self, "hovered_gun_index", -1)
+
         overlay = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
         center = (info.current_w / 2, info.current_h / 2)
         self.center_wheel = center
         yari_cap = 400
-        parca_sayisi = len(self.available_guns)
-        aci = 360 / parca_sayisi
-        pygame.draw.circle(surface, colours.BLACK, center, yari_cap, 10)
+
         if parca_sayisi > 1:
-            for i, gun in enumerate(self.available_guns):
-                orta_aci = i * aci + aci / 2
+            aci = 360 / parca_sayisi
 
-                radyan = math.radians(orta_aci)
-
-                x = center[0] + math.cos(radyan) * yari_cap
-
-                y = center[1] + math.sin(radyan) * yari_cap
-
-                r = yari_cap * 0.65
-                x2 = center[0] + math.cos(radyan) * r
-
-                y2 = center[1] + math.sin(radyan) * r
-                if type(gun) == Sword:
-                    gun.draw(surface, int(x2), int(y2), -90)
-                elif type(gun) == Gun:
-                    gun.draw_copy(surface, int(x2), int(y2))
-                elif type(gun) == Charm:
-                    gun.draw(surface, int(x2), int(y2))
-
+            # ---------------------------------------------------------
+            # 1. DİLİM ARKA PLANLARI VE AYIRICILAR
+            # ---------------------------------------------------------
             for i in range(parca_sayisi):
-                baslangic = math.radians(i * aci)
                 bitis = math.radians((i + 1) * aci)
-
                 noktalar = [center]
 
-                # Yay boyunca noktalar oluştur
                 derece = i * aci
                 while derece <= (i + 1) * aci:
                     r = math.radians(derece)
@@ -2080,17 +2446,138 @@ class Player:
                     y = center[1] + math.sin(r) * yari_cap
                     noktalar.append((x, y))
                     derece += 2
-                
-                x = center[0] + math.cos(bitis) * yari_cap
-                y = center[1] + math.sin(bitis) * yari_cap
-                noktalar.append((x, y))
-                pygame.draw.polygon(overlay, (255, 255, 255, 60), noktalar)
 
+                x_end = center[0] + math.cos(bitis) * yari_cap
+                y_end = center[1] + math.sin(bitis) * yari_cap
+                noktalar.append((x_end, y_end))
 
-                pygame.draw.line(surface, colours.lighter(colours.BLACK, 50), center, (x, y), 2)
+                # Hover edilen dilim daha aydınlık
+                slice_alpha = 95 if i == hovered_index else 45
+                pygame.draw.polygon(overlay, (255, 255, 255, slice_alpha), noktalar)
+                pygame.draw.line(surface, (50, 60, 75), center, (x_end, y_end), 2)
+
+            # ---------------------------------------------------------
+            # 2. DIŞ ÇEMBER VE HOVER KENARLIĞI
+            # ---------------------------------------------------------
+            # Genel dış çember (gri sınır)
+            pygame.draw.circle(surface, (70, 85, 105), center, yari_cap, 6)
+
+            # Hover edilen dilimin dış kenarındaki yay (kalın siyah)
+            if hovered_index != -1:
+                arc_points = []
+                deg = hovered_index * aci
+                while deg <= (hovered_index + 1) * aci:
+                    rad = math.radians(deg)
+                    arc_x = center[0] + math.cos(rad) * yari_cap
+                    arc_y = center[1] + math.sin(rad) * yari_cap
+                    arc_points.append((arc_x, arc_y))
+                    deg += 1.0
+
+                if len(arc_points) >= 2:
+                    pygame.draw.lines(surface, colours.BLACK, False, arc_points, width=12)
+
+            # Saydam katmanı ekrana bas
+            surface.blit(overlay, (0, 0))
+
+            # ---------------------------------------------------------
+            # 3. SİLAHLAR VE İSİM KAPSÜLLERİ
+            # ---------------------------------------------------------
+            active_font = getattr(self, "font3", getattr(self, "font", getattr(self, "font2", None)))
+
+            for i, gun in enumerate(self.available_guns):
+                orta_aci = i * aci + aci / 2
+                radyan = math.radians(orta_aci)
+                r = yari_cap * 0.65
+
+                base_x = center[0] + math.cos(radyan) * r
+                base_y = center[1] + math.sin(radyan) * r
+
+                # Update fonksiyonundan hesaplanan yumuşak yukarı kayma
+                anim_y = base_y - self.wheel_hover_offsets[i]
+
+                # Silahı çiz
+                if isinstance(gun, Sword):
+                    gun: Sword
+
+                    gun.draw(surface, int(base_x), int(anim_y), -90, trail=False)
+                elif type(gun) == Gun:
+
+                    gun.draw_copy(surface, int(base_x), int(anim_y))
+                elif type(gun) == Charm:
+                    
+                    gun.draw(surface, int(base_x), int(anim_y))
+
+                # İsim etiketi (hover anında görünür)
+                offset = self.wheel_hover_offsets[i]
+                if offset > 1.5:
+                    gun_name = getattr(gun, "name", "Silah")
+                    if callable(gun_name):
+                        gun_name = gun_name()
+
+                    text_str = str(gun_name)
+                    if hasattr(active_font, "return_text"):
+                        text_surf = active_font.return_text(text_str, (245, 250, 255))
+                    elif hasattr(active_font, "render"):
+                        text_surf, _ = active_font.render(text_str, (245, 250, 255), None)
+                    else:
+                        text_surf = pygame.font.Font(None, 24).render(text_str, True, (245, 250, 255))
+
+                    badge_w = text_surf.get_width() + 20
+                    badge_h = text_surf.get_height() + 10
+                    badge_rect = pygame.Rect(0, 0, badge_w, badge_h)
+                    badge_rect.center = (int(base_x), int(anim_y + 46))
+
+                    pygame.draw.rect(surface, (12, 16, 24), badge_rect, border_radius=6)
+                    pygame.draw.rect(surface, (0, 240, 255), badge_rect, width=2, border_radius=6)
+                    surface.blit(text_surf, text_surf.get_rect(center=badge_rect.center))
+
         else:
-            self.available_guns[0].draw(surface, center[0], center[1], angle=0, dashing=False)
-        surface.blit(overlay, (0, 0))
+            # Tek silah durumu
+            gun = self.available_guns[0]
+            anim_y = center[1] - self.wheel_hover_offsets[0]
+            gun.draw(surface, int(center[0]), int(anim_y), angle=0, dashing=False)
+
+            if self.wheel_hover_offsets[0] > 1.5:
+                active_font = getattr(self, "font3", getattr(self, "font", None))
+                gun_name = getattr(gun, "name", "Silah")
+                text_str = str(gun_name() if callable(gun_name) else gun_name)
+                text_surf = active_font.return_text(text_str, (245, 250, 255)) if hasattr(active_font, "return_text") else pygame.font.Font(None, 24).render(text_str, True, (245, 250, 255))
+                surface.blit(text_surf, text_surf.get_rect(center=(center[0], anim_y + 45)))
+
+    def update_available_guns(self, dt: float):
+        parca_sayisi = len(self.available_guns)
+        if parca_sayisi == 0:
+            self.hovered_gun_index = -1
+            return
+
+        # Animasyon hafızasını başlat veya uzunluk değiştiyse eşitle
+        if not hasattr(self, "wheel_hover_offsets") or len(self.wheel_hover_offsets) != parca_sayisi:
+            self.wheel_hover_offsets = [0.0] * parca_sayisi
+
+        center = (info.current_w / 2, info.current_h / 2)
+        self.center_wheel = center
+        yari_cap = 400
+
+        # Fare pozisyonu ve merkeze göre uzaklık/açı hesabı
+        mx, my = pygame.mouse.get_pos()
+        dx = mx - center[0]
+        dy = my - center[1]
+        mouse_dist = math.hypot(dx, dy)
+
+        self.hovered_gun_index = -1
+
+        # Merkezdeki ölü alan (50px) ile çember sınırı arasında ise
+        if 50 <= mouse_dist <= yari_cap and parca_sayisi > 1:
+            fare_acisi = math.degrees(math.atan2(dy, dx)) % 360
+            dilim_acisi = 360 / parca_sayisi
+            self.hovered_gun_index = int(fare_acisi // dilim_acisi)
+        elif mouse_dist <= yari_cap and parca_sayisi == 1:
+            self.hovered_gun_index = 0
+
+        # Her silahın yukarı kayma mesafesini (lerp) güncelle
+        for i in range(parca_sayisi):
+            target_offset = 24.0 if i == self.hovered_gun_index else 0.0
+            self.wheel_hover_offsets[i] += (target_offset - self.wheel_hover_offsets[i]) * min(1.0, 14.0 * dt)
 
     def weapon_wheel_get_mouse(self, weapon_choosing: bool):
         if weapon_choosing:
@@ -2173,7 +2660,7 @@ class Player:
     def __setstate__(self, state):
         self.__dict__.update(state)
         if self.anim_dir and os.path.exists(self.anim_dir):
-            self.anim = AnimationController(self.anim_dir, speeds=self.anim_speeds, target_scale=0.9)
+            self.anim = AnimationController(self.anim_dir, speeds=self.anim_speeds, target_scale=0.7 * SCALE)
             self.image = self.anim.get_frame(facing_left=(self.look_dir == "left"))
         else:
             self.anim = None
@@ -2181,9 +2668,10 @@ class Player:
 
         self.rotated = None
         self.rotated_rect = None
-        self.parlama_image_orig = pygame.image.load(os.path.join(BASE_DIR, r"images/parlama.png"))
-        self.parlama_image = pygame.transform.scale_by(self.parlama_image_orig, 0.18)
-        self.parlama_image2 = pygame.transform.scale_by(self.parlama_image_orig, 0.12)
+
+        if pygame.display.get_surface() is not None:
+            self.anim.convert_alpha()
+            self.image.convert_alpha()
 
         self._init_sounds()
 
@@ -2197,7 +2685,7 @@ class World:
         self.rock0 = rock0
         self.rock1 = rock1
         self.rockChance = random.randint(3, 7)
-        self.rockNum = random.randint(4, 10)
+        self.rockNum = random.randint(5, 13)
         self.items = copy.deepcopy(items)
         self.terrain_image_name = terrain_image
 
@@ -2225,37 +2713,35 @@ class World:
                 x = random.randint(0, screen_x)
                 y = random.randint(0, screen_y)
 
-                width = random.randint(40, 200)
-                height = random.randint(20, 100)
+                width = random.randint(scale(40), scale(125))
+                height = random.randint(scale(20), scale(70))
 
-                rect = pygame.Rect(
-                    x,
-                    y,
-                    width,
-                    height
-                )
+                rect = pygame.Rect(x, y, width, height)
 
                 if not rect.colliderect(self.dirt_rect):
-
                     if rolled < self.rockChance:
+                        # GÖRSEL RECT: Çizim için tam boyut
+                        # HITBOX: Köşe boşluklarından ve taşın tepesinden geçebilmek için
+                        # genişlikten 14px, yükseklikten 10px kırpılmış taban kutusu
+                        collision_rect = rect.inflate(-14, -10)
+                        # Taban temasını hissettirmek için hitbox'ı hafif aşağı kaydır
+                        collision_rect.centery = rect.centery + 3
 
                         rockData = {
                             "x": x,
                             "y": y,
-                            "color": random.choice(
-                                [self.rock0, self.rock1]
-                            ),
+                            "color": random.choice([self.rock0, self.rock1]),
                             "width": width,
                             "height": height,
-                            "rect": rect
+                            "rect": rect,
+                            "hitbox": collision_rect
                         }
 
                         self.rocks.append(rockData)
-
-                        # Aynı rect'i doğrudan ekle
-                        self.rocks_rects.append(rect)
-
+                        # Çarpışma listesine tam rect yerine optimize hitbox'ı ekle
+                        self.rocks_rects.append(collision_rect)
                         break
+
                 if deneme > 10 and not uyarildi:
                     logging.warning("Creating rocks try exceed 10.")
                 if deneme > 50:
@@ -2405,12 +2891,14 @@ class Arrow:
         self.attack = attack
         self.rotated = None
         self.image_name = image_name
-        self.image = pygame.image.load(self.image_name)
+        self.image = pygame.image.load(self.image_name).convert_alpha()
+        self.image = pygame.transform.scale_by(self.image, SCALE)
+
         self.image_rect = self.image.get_rect()
         self.rotated_rect = None
         self.touching = False
         self.angle = 360
-        self.speed = 450
+        self.speed = scale(450)
 
     def update(self, player: Player, dt):
     
@@ -2438,6 +2926,7 @@ class Arrow:
         self.rotated_rect = self.rotated.get_rect(center=(self.x, self.y))
         if self.touching:
             player.hp -= self.attack
+    
     def draw(self, surface: pygame.Surface):
         if self.rotated_rect is not None:
             surface.blit(self.rotated, self.rotated_rect)
@@ -2453,7 +2942,7 @@ class Arrow:
 
     def __setstate__(self, state):
         self.__dict__.update(state)
-        self.image = pygame.image.load(self.image_name)
+        self.image = pygame.image.load(self.image_name).convert_alpha()
 
 
 class Bomb:
@@ -2534,7 +3023,7 @@ class SplitGround:
 
         # Aynı image Surface'i paylaş
         if image is None:
-            image = pygame.image.load(image_name).convert_alpha()
+            image = pygame.transform.scale_by(pygame.image.load(image_name).convert_alpha(), SCALE)
             image = pygame.transform.rotate(image, angle)
 
         self.image = image
@@ -2553,7 +3042,7 @@ class SplitGround:
         # Sadece ana SplitGround kopya listesi tutar
         self.copies = [] if not copied else None
 
-        self.speed = 700
+        self.speed = scale(700)
         self.destroy_cd = 2.3
 
         self.image_rect = self.image.get_rect(
@@ -2904,18 +3393,25 @@ class Enemy:
         self.rimage_name = r_image_name
         self.limage_name = l_image_name
         self.image_size = size
-        effective_size = (size * SCALE) / 100.0
 
         self.image_r = pygame.image.load(self.rimage_name)
         self.image_l = pygame.image.load(self.limage_name)
 
-        target_w_r = max(1, int(self.image_r.get_width() * effective_size))
-        target_h_r = max(1, int(self.image_r.get_height() * effective_size))
-        self.image_r = pygame.transform.smoothscale(self.image_r, (target_w_r, target_h_r))
+        # Ekranın yüzde kaçını kaplayacak
+        screen_fill_percentage = 0.06
 
-        target_w_l = max(1, int(self.image_l.get_width() * effective_size))
-        target_h_l = max(1, int(self.image_l.get_height() * effective_size))
-        self.image_l = pygame.transform.smoothscale(self.image_l, (target_w_l, target_h_l))
+        base_target_h = int(1080 * screen_fill_percentage * (self.image_size / 100.0))  # 1080p için ideal boy
+        target_h = max(30, int(base_target_h * SCALE))
+
+        # En-boy oranını bozmadan ölçekle:
+        ratio_r = target_h / self.image_r.get_height()
+        target_w_r = int(self.image_r.get_width() * ratio_r)
+        self.image_r = pygame.transform.smoothscale(self.image_r, (target_w_r, target_h))
+
+        ratio_l = target_h / self.image_l.get_height()
+        target_w_l = int(self.image_l.get_width() * ratio_l)
+        self.image_l = pygame.transform.smoothscale(self.image_l, (target_w_l, target_h))
+
         self.uimage = self.image_r
         self.speed = scale(speed)
         self.image_rect = self.uimage.get_rect()
@@ -3267,14 +3763,14 @@ class Enemy:
     def miguel(cls):
         return cls(
             500,
-            70,
+            35,
             [EnemyAbilities.ABILITY_BOMBING],
             r_image_name=os.path.join(BASE_DIR,r"images/miguelr.png"),
             l_image_name=os.path.join(BASE_DIR,r"images/miguell.png"),
             speed=270,
             damagables=[Enemy.DAMAGE_SWORD_DASH, Enemy.DAMAGE_SILVER_BULLET],
             drops=[Item("Miguel'in Kanı", colours.RED, [Effect("hp", 15, -1)], Item.YUVARLAK_IKSIR, Item.APPENDER)],
-            size=60
+            size=105
         )
 
     @classmethod
@@ -3286,7 +3782,7 @@ class Enemy:
             l_image_name=os.path.join(BASE_DIR,r"images/luffyl.png"),
             speed=420,
             damagables=[Enemy.DAMAGE_SWORD_DASH],
-            size=8
+            size=95
         )
     
     @classmethod
@@ -3297,7 +3793,7 @@ class Enemy:
             r_image_name=os.path.join(BASE_DIR,r"images/urasr.png"),
             l_image_name=os.path.join(BASE_DIR,r"images/urasl.png"),
             speed=210,
-            size=40,
+            size=230,
             abilities=[EnemyAbilities.ABILITY_SPLIT_GROUND],
             collisions=False,
             cooldown=Cooldown(4)
@@ -3312,7 +3808,7 @@ class Enemy:
             r_image_name=os.path.join(BASE_DIR,r"images/denizinseyir.png"),
             l_image_name=os.path.join(BASE_DIR,r"images/denizinseyil.png"),
             speed=350,
-            size=12,
+            size=110,
             abilities=[],
             damagables=[Enemy.DAMAGE_SWORD_DASH, Enemy.DAMAGE_BRONZE_GUN, Enemy.DAMAGE_SILVER_GUN, Enemy.DAMAGE_SILVER_BULLET],
             drops=[Effect("hp", 0, -1, player.available_guns, [Charm("Deniz'in şeyi", os.path.join(BASE_DIR,r"images/denizinseyir.png"), 0.09, [Effect("heal_cooldown_orig", 0.75, -1, flags=(Item.EQUALER,))], [Effect("hp", 15, -1, flags=(Item.APPENDER,))], 0.45)], (Item.APPENDER))] if special else []
@@ -3328,7 +3824,7 @@ class Enemy:
             speed = 450,
             abilities=[EnemyAbilities.ABILITY_CAT_JUMP],
             damagables = [Enemy.DAMAGE_SWORD_DASH, Enemy.DAMAGE_BRONZE_GUN, Enemy.DAMAGE_BRONZE_BULLET],
-            size = 45
+            size = 150
         )
 
     @classmethod
@@ -3338,8 +3834,7 @@ class Enemy:
             56,
             [EnemyAbilities.ABILITY_SCR_LAZER_BEAM],
             os.path.join(BASE_DIR, r"images/evil-mortyr.png"),
-            os.path.join(BASE_DIR, r"images/evil-mortyl.png"),
-            20
+            os.path.join(BASE_DIR, r"images/evil-mortyl.png")
         )
 
     def update(self, player: Player, world: World, dt, level: list, cheated=False):
@@ -3347,17 +3842,19 @@ class Enemy:
 
         if not self.cat_jumping:
 
-
             self.mx, self.my = player.x, player.y
             if self.recoil > 0:
 
                 if self.recoil_dir == "right":
-                    new_x = self.x + (self.speed + 500) * dt
+                    new_x = self.x + (self.speed + scale(500)) * dt
+
                 elif self.recoil_dir == "left":
-                    new_x = self.x - (self.speed + 500) * dt
+                    new_x = self.x - (self.speed + scale(500)) * dt
+
                 self.image_rect = self.uimage.get_rect(topleft=(new_x, self.y))
                 if not self.image_rect.collidelist(world.rocks_rects) != -1 or not self.collisions:
                     self.x = new_x
+
                 self.recoil -= 1 * dt
 
             try:
@@ -3418,7 +3915,7 @@ class Enemy:
                 if type(drop) == Sword or type(drop) == Gun:
                     player.available_guns.append(drop)
                 elif type(drop) == Item:
-                    drop.set_pos(world, player)
+                    drop.set_pos(world)
                     world.items.append(drop)
                 elif type(drop) == Effect:
                     drop.use(player, ())
@@ -3434,7 +3931,6 @@ class Enemy:
         34,
         r_image_name=os.path.join(BASE_DIR,r"images/enemy_policer.png"),
         l_image_name=os.path.join(BASE_DIR,r"images/enemy_policel.png"),
-        size=120,
         speed=280,
         damage_cooldown=Cooldown(1.7),
         damagables=[
@@ -3455,7 +3951,7 @@ class Enemy:
             2,
             r_image_name=os.path.join(BASE_DIR,r"images/enemy_oldr.png"),
             l_image_name=os.path.join(BASE_DIR, r"images/enemy_oldl.png"),
-            size=89,
+            size=70,
             speed=speed if random_speed else 360,
             damage_cooldown=Cooldown(2.1),
             damagables=[
@@ -3506,18 +4002,24 @@ class Enemy:
     
     def __setstate__(self, state):
         self.__dict__.update(state)
-        effective_size = (self.image_size * SCALE) / 100.0
-
         self.image_r = pygame.image.load(self.rimage_name)
         self.image_l = pygame.image.load(self.limage_name)
 
-        target_w_r = max(1, int(self.image_r.get_width() * effective_size))
-        target_h_r = max(1, int(self.image_r.get_height() * effective_size))
-        self.image_r = pygame.transform.smoothscale(self.image_r, (target_w_r, target_h_r))
+        # Ekranın yüzde kaçını kaplayacak
+        screen_fill_percentage = 0.06
 
-        target_w_l = max(1, int(self.image_l.get_width() * effective_size))
-        target_h_l = max(1, int(self.image_l.get_height() * effective_size))
-        self.image_l = pygame.transform.smoothscale(self.image_l, (target_w_l, target_h_l))
+        base_target_h = int(1080 * screen_fill_percentage * (self.image_size / 100.0))  # 1080p için ideal boy
+        target_h = max(30, int(base_target_h * SCALE))
+
+        # En-boy oranını bozmadan ölçekle:
+        ratio_r = target_h / self.image_r.get_height()
+        target_w_r = int(self.image_r.get_width() * ratio_r)
+        self.image_r = pygame.transform.smoothscale(self.image_r, (target_w_r, target_h))
+
+        ratio_l = target_h / self.image_l.get_height()
+        target_w_l = int(self.image_l.get_width() * ratio_l)
+        self.image_l = pygame.transform.smoothscale(self.image_l, (target_w_l, target_h))
+
         self.uimage = self.image_r
 
         self.arrow_image = pygame.image.load(self.arrow_image_name)
@@ -3586,6 +4088,7 @@ class Boss(Enemy):
         self.drops = drops or []
         self.summons = summons or []
         self.summon_cooldown = cooldown_summons
+        self.full_image = pygame.image.load(r_image_name)
 
         self.scene_dialogues = scene_dialogues or []
 
@@ -3599,9 +4102,10 @@ class Boss(Enemy):
             if self.recoil > 0:
 
                 if self.recoil_dir == "right":
-                    new_x = self.x + (self.speed + 500) * dt
+                    new_x = self.x + (self.speed + scale(500)) * dt
                 elif self.recoil_dir == "left":
-                    new_x = self.x - (self.speed + 500) * dt
+                    new_x = self.x - (self.speed + scale(500)) * dt
+
                 self.image_rect = self.uimage.get_rect(topleft=(new_x, self.y))
                 if not self.image_rect.collidelist(world.rocks_rects) != -1 or not self.collisions:
                     self.x = new_x
@@ -3722,7 +4226,7 @@ class Boss(Enemy):
             200,
             r_image_name=os.path.join(BASE_DIR, r"images/demirboklutf.png"),
             l_image_name=os.path.join(BASE_DIR, r"images/demirboklutf.png"),
-            size=30,
+            size=150,
             abilities=[EnemyAbilities.ABILITY_BOMBING, EnemyAbilities.ABILITY_SCR_LAZER_BEAM],
             name="Demirin Boklu Telefonu",
             damage_cooldown = Cooldown(3.4),
@@ -3797,6 +4301,45 @@ class Boss(Enemy):
 
             self.bsummons_cooldown.refresh()
 
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        if state.get("image_r"):
+            del state["image_r"]
+            del state["image_l"]
+            del state["uimage"]
+            del state["arrow_image"]
+
+            del state["full_image"]
+        
+        return state
+    
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        self.image_r = pygame.image.load(self.rimage_name)
+        self.image_l = pygame.image.load(self.limage_name)
+
+        # Ekranın yüzde kaçını kaplayacak
+        screen_fill_percentage = 0.06
+
+        base_target_h = int(1080 * screen_fill_percentage * (self.image_size / 100.0))  # 1080p için ideal boy
+        target_h = max(30, int(base_target_h * SCALE))
+
+        # En-boy oranını bozmadan ölçekle:
+        ratio_r = target_h / self.image_r.get_height()
+        target_w_r = int(self.image_r.get_width() * ratio_r)
+        self.image_r = pygame.transform.smoothscale(self.image_r, (target_w_r, target_h))
+
+        ratio_l = target_h / self.image_l.get_height()
+        target_w_l = int(self.image_l.get_width() * ratio_l)
+        self.image_l = pygame.transform.smoothscale(self.image_l, (target_w_l, target_h))
+
+        self.uimage = self.image_r
+
+        self.arrow_image = pygame.image.load(self.arrow_image_name)
+        self.arrow_image = pygame.transform.scale_by(self.arrow_image, SCALE)
+
+        self.full_image = pygame.image.load(self.rimage_name)
+
 
 
 logging.info("Created classes.")
@@ -3842,7 +4385,7 @@ for enemy in level1:
 
 defaults["Player"].set_pos(defaults["World"])
 for item in defaults["World"].items:
-    item.set_pos(defaults["World"], defaults["Player"])
+    item.set_pos(defaults["World"])
 
 for enemy in globals()[defaults["Level"]]:
     enemy.set_pos(defaults["World"], info)
@@ -3850,7 +4393,7 @@ for enemy in globals()[defaults["Level"]]:
 # hileli silah
 defaults["Player"].available_guns.append(Gun("At Kafası", colours.lighter(colours.BLACK, 30), 40, 10, os.path.join(BASE_DIR,r"images/silver_silahr.png"), os.path.join(BASE_DIR,r"images/silver_silah_mermi.png"), 0.03, "__deflected__"))
 
-constant_defaults: Final[dict] = defaults
+constant_defaults: Final = defaults
 
 def reset(screen_x: int, screen_y: int, game: dict):
     logging.info("Called reset.")
@@ -3881,14 +4424,14 @@ def reset(screen_x: int, screen_y: int, game: dict):
         item.mouse_getted = False
         item.effect_rect = None
         item.set_pos(game["World"], game["Player"])
-    for item in game["World"].items:
-        print(item.name, id(item))
+
     game["Player"].reset(
-    game["World"],
-    Sword("Tahta Kılıç", 15, colours.BROWN, 700, MaterialFlags.WOODEN)
+        game["World"],
+        Sword("Tahta Kılıç", 15, colours.BROWN, 700, MaterialFlags.WOODEN)
     )
     logging.info("Reseted variables successfully.")
     logger.debug(str(game))
+
     print("PLAYER")
     print(id(game["Player"]))
     print("WORLD")
@@ -3901,7 +4444,7 @@ def reset(screen_x: int, screen_y: int, game: dict):
 
     for gun in game["Player"].available_guns:
         print(gun.name, id(gun), type(gun))
-    print("PLAYER DICT")
+        
     for key, value in game["Player"].__dict__.items():
         print(key, type(value))
 

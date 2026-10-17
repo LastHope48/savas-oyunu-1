@@ -139,10 +139,18 @@ class LoadScreen(MenuScreen):
 
                 slot.display.draw(surface)
                 index += 1
+
         self.onceki_button.draw(surface)
         self.sonraki_button.draw(surface)
         self.return_button.draw(surface)
-        self.font2.draw_text(f"{self.page.deger+1}. {self.langs['page'].get(self.game.settings.get('language'))}", (width * 0.5, height * 0.93), surface, (255, 255, 255), "center")
+        
+        self.font2.draw_text(
+            f"{self.page.deger+1}. {self.langs['page'].get(self.game.settings.get('language'))}",
+            (width * 0.5, height * 0.93),
+            surface,
+            (255, 255, 255),
+            "center"
+        )
 
     def update(self, dt):
         width = self.game.width
@@ -281,11 +289,11 @@ class LoadScreen(MenuScreen):
         else:
             self.return_button.plus_data = transfer_datas['screen_type_before']
 
-        if self.game.dump("last_music") != os.path.join(BASE_DIR, r"musics/menu_theme.mp3"):
+        if self.game.dump("last_music") != os.path.join(BASE_DIR, r"musics/menu_theme.ogg"):
             self.game.mixer.music.load(
                 os.path.join(
                     BASE_DIR,
-                    r"musics/menu_theme.mp3"
+                    r"musics/menu_theme.ogg"
                 )
             )
 
@@ -296,7 +304,7 @@ class LoadScreen(MenuScreen):
             "last_music",
             os.path.join(
                     BASE_DIR,
-                    r"musics/menu_theme.mp3"
+                    r"musics/menu_theme.ogg"
             )
         )
 

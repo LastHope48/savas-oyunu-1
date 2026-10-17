@@ -22,8 +22,12 @@ logging.basicConfig(
 zikkim = classes.Effect("hp", 10, 6)
 rock_sword = classes.Sword("Taş Kılıç", 20, colours.GRAY, 800, classes.MaterialFlags.ROCK)
 iron_sword = classes.Sword("Demir Kılıç", 30, colours.lighter(colours.GRAY, 80), 1500, classes.MaterialFlags.IRON)
+gold_sword = classes.Sword("Altın Kılıç", 50, colours.darker(colours.YELLOW, 30), 1000, classes.MaterialFlags.GOLDEN)
+
 bronze_gun = classes.Gun("Normal Silah", colours.lighter(colours.BLACK, 30), 20, 500, os.path.join(BASE_DIR,r"images/bronz_silahr.png"), os.path.join(BASE_DIR,r"images/bronz_silah_mermi.png"), 0.3, classes.MaterialFlags.BRONZE)
 silver_gun = classes.Gun("Gümüş Silah", colours.lighter(colours.BLACK, 30), 40, 640, os.path.join(BASE_DIR,r"images/silver_silahr.png"), os.path.join(BASE_DIR,r"images/silver_silah_mermi.png"), 0.15, classes.MaterialFlags.SILVER)
+
+# aether_katana = classes.CyberKatana() NEXT VERSION
 
 level1 = [
     classes.Enemy(100, 5)
@@ -40,7 +44,7 @@ level3 = [
 ]
 
 level4 = [
-    classes.Boss(200, 30, size=200, after_max_hp=350, name="Fondöten", scene_dialogues=[
+    classes.Boss(200, 30, size=155, after_max_hp=350, name="Fondöten", scene_dialogues=[
         ("Boss", "Seni yeneceğim AHAHHAHAHAH!"),
         ("Player", "Klasik uyduruk kötü karakter gibi olma biraz orjinal ol yeter bıktı insanlar böyle boş beleş karakterlerden."),
         ("Boss", "Ama benim tek anlamım sıradan olmak :(")
@@ -52,18 +56,18 @@ level5 = [
 ]
 
 level6 = [
-    classes.Enemy(30, 10, [classes.EnemyAbilities.ABILITY_ARROWS], r_image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png"), l_image_name=os.path.join(BASE_DIR, r"images/enemy_arrowl.png"))
+    classes.Enemy(30, 10, [classes.EnemyAbilities.ABILITY_ARROWS], r_image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png"), l_image_name=os.path.join(BASE_DIR, r"images/enemy_arrowl.png"), size=120)
 ]
 
 level7 = [
-    classes.Enemy(50, 5, [classes.EnemyAbilities.ABILITY_ARROWS], speed=250, r_image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png"), l_image_name=os.path.join(BASE_DIR, r"images/enemy_arrowl.png")),
-    classes.Enemy(50, 5, [classes.EnemyAbilities.ABILITY_ARROWS], speed=250, r_image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png"), l_image_name=os.path.join(BASE_DIR, r"images/enemy_arrowl.png")),
-    classes.Enemy(50, 5, [classes.EnemyAbilities.ABILITY_ARROWS], speed=250, r_image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png"), l_image_name=os.path.join(BASE_DIR, r"images/enemy_arrowl.png")),
-    classes.Enemy(50, 5, [classes.EnemyAbilities.ABILITY_ARROWS], speed=250, r_image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png"), l_image_name=os.path.join(BASE_DIR, r"images/enemy_arrowl.png")),
-    classes.Enemy(50, 5, [classes.EnemyAbilities.ABILITY_ARROWS], speed=250, r_image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png"), l_image_name=os.path.join(BASE_DIR, r"images/enemy_arrowl.png")),
+    classes.Enemy(50, 5, [classes.EnemyAbilities.ABILITY_ARROWS], speed=250, r_image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png"), l_image_name=os.path.join(BASE_DIR, r"images/enemy_arrowl.png"), size=120),
+    classes.Enemy(50, 5, [classes.EnemyAbilities.ABILITY_ARROWS], speed=250, r_image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png"), l_image_name=os.path.join(BASE_DIR, r"images/enemy_arrowl.png"), size=120),
+    classes.Enemy(50, 5, [classes.EnemyAbilities.ABILITY_ARROWS], speed=250, r_image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png"), l_image_name=os.path.join(BASE_DIR, r"images/enemy_arrowl.png"), size=120),
+    classes.Enemy(50, 5, [classes.EnemyAbilities.ABILITY_ARROWS], speed=250, r_image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png"), l_image_name=os.path.join(BASE_DIR, r"images/enemy_arrowl.png"), size=120),
+    classes.Enemy(50, 5, [classes.EnemyAbilities.ABILITY_ARROWS], speed=250, r_image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png"), l_image_name=os.path.join(BASE_DIR, r"images/enemy_arrowl.png"), size=120),
 ]
 
-alberta_summon = classes.Enemy(60, 7, [classes.EnemyAbilities.ABILITY_ARROWS], r_image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png"), l_image_name=os.path.join(BASE_DIR, r"images/enemy_arrowl.png") ,speed=250 ,cooldown=Cooldown(5))
+alberta_summon = classes.Enemy(60, 7, [classes.EnemyAbilities.ABILITY_ARROWS], r_image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png"), l_image_name=os.path.join(BASE_DIR, r"images/enemy_arrowl.png") ,speed=250 ,cooldown=Cooldown(5), size=120)
 level8 = [
     classes.Enemy(120, 12, speed=350, damage_cooldown=Cooldown(1.7)),
     classes.Enemy(40, 46, speed=200, damage_cooldown=Cooldown(1), size=120),
@@ -74,7 +78,7 @@ level8 = [
     classes.Enemy(50, 4, [classes.EnemyAbilities.ABILITY_ARROWS], speed=350, damage_cooldown=Cooldown(3), r_image_name=os.path.join(BASE_DIR,r"images/enemy_arrowr.png"), l_image_name=os.path.join(BASE_DIR, r"images/enemy_arrowl.png")),
 
 
-    classes.Boss(1600, 45, [classes.EnemyAbilities.ABILITY_ARROWS, classes.EnemyAbilities.ABILITY_BOMBING], damage_cooldown=Cooldown(1.2), after_max_hp=500, name="Kraliçe El Abraham", r_image_name=os.path.join(BASE_DIR,r"images/AlbertaChibir.png"), l_image_name=os.path.join(BASE_DIR, r"images/AlbertaChibil.png"),size=20, speed=200, cooldown=Cooldown(3), summons=[
+    classes.Boss(1600, 45, [classes.EnemyAbilities.ABILITY_ARROWS, classes.EnemyAbilities.ABILITY_BOMBING], damage_cooldown=Cooldown(1.2), after_max_hp=500, name="Kraliçe El Abraham", r_image_name=os.path.join(BASE_DIR,r"images/AlbertaChibir.png"), l_image_name=os.path.join(BASE_DIR, r"images/AlbertaChibil.png"), speed=200, cooldown=Cooldown(3), summons=[
         alberta_summon.copy(),
         alberta_summon.copy(),
         alberta_summon.copy()
@@ -89,7 +93,8 @@ level8 = [
         ("Boss", "Ben balayıcı değilim sensin balayıcı!"),
         ("Player", "Balayıcı ne aw"),
         ("Player", "Tamam susta döviyim seni.")
-    ]
+    ],
+    size=150
     )
 ]
 
@@ -114,7 +119,7 @@ level11 = [
         [classes.EnemyAbilities.ABILITY_ARROWS, classes.EnemyAbilities.ABILITY_BOMBING],
         os.path.join(BASE_DIR,r"images/ampul_adamr.png"),
         os.path.join(BASE_DIR, r"images/ampul_adaml.png"),
-        10,
+        size=120,
         speed=340,
         damage_cooldown=Cooldown(0.7),
         after_max_hp=950,
@@ -128,7 +133,7 @@ level11 = [
         cooldown_bagimsiz_summons=Cooldown(1),
         arrow_image=os.path.join(BASE_DIR,r"images/ampul_adam_arrow.png"),
         scene_dialogues=[
-            ("Player", "Aboo ampul adam gelmiş favori adamın valla dosta korku düşmana güven salıyor favım idolüm bee oyunların da en büyük korkusu 10 numara 5 yıldız adam valla."),
+            ("Player", "Aboo ampul adam gelmiş favori adamım valla dosta korku düşmana güven salıyor favım idolüm bee oyunların da en büyük korkusu 10 numara 5 yıldız adam valla."),
             ("Boss", "Ampul"),
             ("Player", "LAN DOLAR 2000 OLMUŞ"),
             ("Boss", "Ampul"),
@@ -142,7 +147,7 @@ level11 = [
         [classes.EnemyAbilities.ABILITY_BOMBING],
         r_image_name=os.path.join(BASE_DIR,r"images/enemypurpler.png"),
         l_image_name=os.path.join(BASE_DIR,r"images/enemypurplel.png"),
-        size=250,
+        size=220,
         speed=340,
         name="Aile ve Yasaklar Bakanı",
         drops=[silver_gun, classes.Effect("heal_cooldown_orig", 3.5, -1, flags=(classes.Item.EQUALER,))]
@@ -341,7 +346,8 @@ level_item_map = {
 
 level_sword_map = {
     "level2": rock_sword,
-    "level4": iron_sword
+    "level4": iron_sword,
+    "level12": gold_sword
 }
 
 logging.info("Level variables created.")

@@ -47,5 +47,5 @@ device_id.dat
 values.dat
 game_data.dat
 
-saves
+saves/
 secret_keys

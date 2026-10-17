@@ -9,9 +9,6 @@ project's MIT License.
 
 The project contains the following content originating from Project QT:
 
-* World Select music
-* Portal music
-* Play Room music
 * Alberta chibi character artwork
 
 Copyright and other rights to these materials belong to their respective

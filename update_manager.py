@@ -328,8 +328,10 @@ def prepare_update(url, signature_url, progress_callback=None):
             "Güncelleme hatası: Güncelleme dosyası bozuk."
         )
 
-    except Exception:
+    except Exception as e:
         shutil.rmtree(UPDATE_DIR, ignore_errors=True)
+
+        print(f"HATA: {e}")
 
         return (
             False,

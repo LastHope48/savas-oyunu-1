@@ -1,7 +1,7 @@
 import pygame
 from .menu_screen import MenuScreen
 import colours
-from dfont import DynamicFont
+import math
 import os
 from basedir import BASE_DIR
 from ui import Bar, BarElement
@@ -109,11 +109,11 @@ class AchievementsScreen(MenuScreen):
         self.game.screen_manager.set_screen(ScreenType.MENU)
 
     def create_achievement_card(
-    self,
-    achievement_id: str,
-    width: int,
-    height: int
-):
+        self,
+        achievement_id: str,
+        width: int,
+        height: int
+    ):
         metadata = self.game.achievements.achievements_metadata[
             achievement_id
         ]
@@ -350,30 +350,77 @@ class AchievementsScreen(MenuScreen):
 
 
         else:
-
             x = 100
             y = 100
-
             card_width = 300
             card_height = 400
             gap = 30
 
+            mouse_pos = pygame.mouse.get_pos()
+            hovered_card_info = None  # (achievement_id, rect, is_unlocked, unlock_tutorial)
+
             for achievement_id in self.achievements:
+                rect = pygame.Rect(x, y, card_width, card_height)
 
-                rect = pygame.Rect(
-                    x,
-                    y,
-                    card_width,
-                    card_height
-                )
+                # Kartı çiz
+                self.draw_achievement(surface, achievement_id, rect)
 
-                self.draw_achievement(
-                    surface,
-                    achievement_id,
-                    rect
-                )
+                # Fare bu kartın üzerinde mi?
+                if rect.collidepoint(mouse_pos):
+                    ach_data = self.game.achievements.achievements.get(achievement_id, {})
+                    meta_data = self.game.achievements.achievements_metadata.get(achievement_id, {})
+                    is_unlocked = bool(ach_data.get("unlocked", False))
+                    unlock_tutorial: Lang = meta_data.get("unlock_tutorial", "No Tutorial")
+                    hovered_card_info = (achievement_id, rect, is_unlocked, unlock_tutorial)
 
                 x += card_width + gap
+
+            # Hover tespit edildiyse yapılacak işlemler:
+            if hovered_card_info:
+                hov_id, hov_rect, hov_unlocked, hov_tutorial = hovered_card_info
+                
+                # Örneğin: Sadece kilitliyse nasıl açılacağı ipucunu göster
+                if not hov_unlocked:
+                    # hov_rect.topleft, hov_id ve mouse_pos elinde;
+                    # Buradan dilediğin çizimi yapabilirsin.
+
+                    tutorial_rect = pygame.Rect(hov_rect.centerx, hov_rect.centery - 100, 200, 100)
+                    tutorial_rect.center = (hov_rect.centerx, hov_rect.centery)
+
+                    tutorial_color = colours.darker(colours.GRAY, 50)
+
+                    pygame.draw.rect(
+                        surface,
+                        tutorial_color,
+                        tutorial_rect
+                    )
+
+                    pygame.draw.rect(
+                        surface,
+                        colours.BLACK,
+                        tutorial_rect,
+                        width=4
+                    )
+
+                    tutorial = hov_tutorial() if type(hov_tutorial) == Lang else hov_tutorial
+
+                    rendereds, line_height_tut = self.font5.render(
+                        tutorial,
+                        colours.WHITE,
+                        tutorial_rect,
+                        breaklines=True
+                    )
+
+                    y_tut = 0
+
+                    for rendered in rendereds:
+
+                        rendered_rect = rendered.get_rect(center=(tutorial_rect.centerx, tutorial_rect.top + y_tut + rendered.get_height() / 2))
+
+                        surface.blit(rendered, rendered_rect)
+
+                        y_tut += line_height_tut
+
 
             self.bar.draw(surface)
 
@@ -384,15 +431,136 @@ class AchievementsScreen(MenuScreen):
 
         self.achievements = []
 
-        for achievement_id, achievement in self.game.achievements.achievements.items():
+        # Açık ya da kilitli fark etmeksizin tüm kayıtlı başarımları al
+        for achievement_id in self.game.achievements.achievements_metadata.keys():
+            if achievement_id in self.game.achievements.achievements:
+                self.achievements.append(achievement_id)
 
-            if not achievement.get("unlocked"):
-                continue
+    def create_achievement_card(
+        self,
+        achievement_id: str,
+        width: int,
+        height: int,
+        is_unlocked: bool
+    ):
+        metadata = self.game.achievements.achievements_metadata[achievement_id]
+        card = pygame.Surface((width, height), pygame.SRCALPHA)
+        card_rect = card.get_rect()
 
-            if achievement_id not in self.game.achievements.achievements_metadata:
-                continue
+        # -------------------------------------------------------------
+        # 1. KART GÖVDESİ VE ÇERÇEVE
+        # -------------------------------------------------------------
+        if is_unlocked:
+            # Açık Başarım: Koyu grafit gövde, parlak siber çerçeve
+            pygame.draw.rect(card, (18, 24, 34), card_rect, border_radius=12)
+            pygame.draw.rect(card, (0, 240, 255), card_rect, width=2, border_radius=12)
+        else:
+            # Kilitli Başarım: Soluk/pasif koyu gri gövde, mat sınır
+            pygame.draw.rect(card, (12, 14, 18), card_rect, border_radius=12)
+            pygame.draw.rect(card, (45, 52, 65), card_rect, width=2, border_radius=12)
 
-            self.achievements.append(achievement_id)
+        # -------------------------------------------------------------
+        # 2. GÖRSEL VE KİLİT EFEKTİ
+        # -------------------------------------------------------------
+        image_size = min(width // 2, height // 3)
+        raw_image = pygame.transform.smoothscale(metadata["image"], (image_size, image_size))
+
+        if not is_unlocked:
+            # Görseli karartıp soldurma (Grayscale / Darken blend)
+            dark_filter = pygame.Surface((image_size, image_size), pygame.SRCALPHA)
+            dark_filter.fill((60, 65, 75, 200))  # Yarı saydam gri örtü
+            raw_image.blit(dark_filter, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+
+        image_rect = raw_image.get_rect(midtop=(width // 2, 22))
+        card.blit(raw_image, image_rect)
+
+        # KİLİTLİ İSE: Görselin üstüne kilit ikonu çiz
+        if not is_unlocked:
+            lock_cx = image_rect.centerx
+            lock_cy = image_rect.centery
+
+            # Kilit Asma Halkası (Shackle)
+            arc_rect = pygame.Rect(lock_cx - 11, lock_cy - 18, 22, 22)
+            pygame.draw.arc(card, (170, 180, 195), arc_rect, 0, math.pi, 3)
+
+            # Kilit Gövdesi (Body)
+            body_rect = pygame.Rect(0, 0, 32, 24)
+            body_rect.center = (lock_cx, lock_cy + 2)
+            pygame.draw.rect(card, (28, 34, 44), body_rect, border_radius=5)
+            pygame.draw.rect(card, (100, 115, 135), body_rect, width=2, border_radius=5)
+
+            # Anahtar Deliği (Keyhole)
+            pygame.draw.circle(card, (10, 14, 20), (lock_cx, lock_cy), 3)
+            pygame.draw.line(card, (10, 14, 20), (lock_cx, lock_cy), (lock_cx, lock_cy + 6), 2)
+
+        # -------------------------------------------------------------
+        # 3. BAŞLIK
+        # -------------------------------------------------------------
+        title = metadata["title"](self.game.settings.get("language"))
+        title_area = pygame.Surface((width - 20, 60))
+
+        title_color = (240, 248, 255) if is_unlocked else (100, 115, 130)
+
+        title_render, title_height = self.font3.render(
+            title,
+            title_color,
+            title_area,
+            gap=0,
+            breaklines=False
+        )
+
+        title_rect = title_render.get_rect(
+            centerx=width // 2,
+            top=image_rect.bottom + 16
+        )
+        card.blit(title_render, title_rect)
+
+        # -------------------------------------------------------------
+        # 4. AÇIKLAMA METNİ
+        # -------------------------------------------------------------
+        description = metadata["description"](self.game.settings.get("language"))
+        description_area = pygame.Surface((width - 30, height - title_rect.bottom - 30))
+
+        desc_color = (180, 190, 205) if is_unlocked else (70, 80, 95)
+
+        description_renders, line_height = self.font4.render(
+            description,
+            desc_color,
+            description_area,
+            gap=0,
+            breaklines=True
+        )
+
+        y = title_rect.bottom + 10
+        for rendered in description_renders:
+            if y + rendered.get_height() > height - 10:
+                break
+            rendered_rect = rendered.get_rect(centerx=width // 2, top=y)
+            card.blit(rendered, rendered_rect)
+            y += line_height
+
+        return card
+
+    def get_achievement_card(
+        self,
+        achievement_id: str,
+        width: int,
+        height: int,
+        is_unlocked: bool
+    ):
+        language = self.game.settings.get("language")
+        # Önbellek anahtarına kilit durumunu da ekliyoruz
+        key = (achievement_id, width, height, language, is_unlocked)
+
+        if key not in self.achievement_card_cache:
+            self.achievement_card_cache[key] = self.create_achievement_card(
+                achievement_id,
+                width,
+                height,
+                is_unlocked
+            )
+
+        return self.achievement_card_cache[key]
 
     def draw_achievement(
         self,
@@ -400,10 +568,15 @@ class AchievementsScreen(MenuScreen):
         achievement_id: str,
         rect: pygame.Rect
     ):
+        # Başarımın açık olup olmadığını sorgula
+        ach_data = self.game.achievements.achievements.get(achievement_id, {})
+        is_unlocked = bool(ach_data.get("unlocked", False))
+
         card = self.get_achievement_card(
             achievement_id,
             rect.width,
-            rect.height
+            rect.height,
+            is_unlocked
         )
 
         surface.blit(card, rect)
@@ -560,15 +733,17 @@ class AchievementsScreen(MenuScreen):
 
         self.achievement_counter = self.create_achievement_surface()
 
-        if self.game.dump("last_music") != os.path.join(BASE_DIR, r"musics/menu_theme.mp3"):
+        if self.game.dump("last_music") != os.path.join(BASE_DIR, r"musics/menu_theme.ogg"):
             self.game.mixer.music.load(
                 os.path.join(
                     BASE_DIR,
-                    r"musics/menu_theme.mp3"
+                    r"musics/menu_theme.ogg"
                 )
             )
 
             self.game.mixer.music.play(-1)
+
+            self.game.dump("last_music", os.path.join(BASE_DIR, r"musics/menu_theme.ogg"))
 
         self.start_verify()
         self.update_achievements()

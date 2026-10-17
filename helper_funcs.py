@@ -1,6 +1,53 @@
 import pygame
 import pygame.gfxdraw
-import copy
+import os
+import sys
+import platform
+from basedir import BASE_DIR
+
+
+def ensure_linux_desktop_entry():
+    # Sadece Linux ortamında çalışır
+    if platform.system() != "Linux":
+        return
+
+    desktop_dir = os.path.expanduser("~/.local/share/applications")
+    desktop_file = os.path.join(desktop_dir, "savas_oyunu.desktop")
+
+    # Dosya zaten mevcutsa tekrar yazma
+    if os.path.exists(desktop_file):
+        return
+
+    os.makedirs(desktop_dir, exist_ok=True)
+
+    # PyInstaller (.exe/binary) ile mi yoksa normal .py olarak mı çalışıyor ayrımı:
+    if getattr(sys, "frozen", False):
+        exec_path = os.path.abspath(sys.executable)
+    else:
+        exec_path = f'"{sys.executable}" "{os.path.abspath(sys.argv[0])}"'
+
+    # İkonun tam (mutlak) dosya yolu
+    icon_path = os.path.abspath(os.path.join(BASE_DIR, "images/game_icon.png"))
+
+    desktop_content = f"""[Desktop Entry]
+Type=Application
+Name=Savaş Oyunu
+Comment=2D Aksiyon Oyunu
+Exec={exec_path}
+Icon={icon_path}
+Terminal=false
+StartupWMClass=savas_oyunu
+Categories=Game;
+"""
+
+    try:
+        with open(desktop_file, "w", encoding="utf-8") as f:
+            f.write(desktop_content)
+        
+        # Çalıştırma izni ver (chmod +x)
+        os.chmod(desktop_file, 0o755)
+    except Exception as e:
+        print(f".desktop kaydı oluşturulamadı: {e}")
 
 
 def draw_aa_line(surface, color, start, end, width=10):

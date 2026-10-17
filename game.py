@@ -1,3 +1,16 @@
+import os
+import platform
+os.environ['SDL_VIDEO_X11_WMCLASS'] = "savas_oyunu"
+os.environ['SDL_VIDEO_WAYLAND_WMCLASS'] = "savas_oyunu"
+
+if platform.system() == "Windows":
+    import ctypes
+    app_id = "savasoyunu.oyun.surum1"
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(app_id)
+
+from helper_funcs import ensure_linux_desktop_entry
+ensure_linux_desktop_entry()
+
 import pygame
 from pygame import mixer
 
@@ -14,7 +27,7 @@ import classes
 import colours
 import copy
 
-from levels import level17
+from levels import level17, levels
 
 from fonts import (
     font1_univ,
@@ -93,7 +106,11 @@ class Game:
 
         self.info = pygame.display.Info()
 
+        game_icon = pygame.image.load(os.path.join(BASE_DIR, r"images/game_icon.png"))
+
+        pygame.display.set_icon(game_icon)
         self.screen = pygame.display.set_mode((800, 800), pygame.RESIZABLE)
+
         pygame.display.set_caption("Öz Hakiki GTA 7")
         self.clock = pygame.time.Clock()
 
@@ -153,7 +170,7 @@ class Game:
         self.mixer.music.load(
             os.path.join(
                 BASE_DIR,
-                r"musics/menu_theme.mp3"
+                r"musics/menu_theme.ogg"
             )
         )
 
@@ -219,6 +236,33 @@ class Game:
 
         self.game_data: GameData = GameData.to_gamedata(game_data_defaults)
 
+        # Görselleri convert et
+        if pygame.display.get_surface() is not None:
+
+            for enemy in self.game_data.enemy_data.values():
+                enemy.image_l = enemy.image_l.convert_alpha()
+                enemy.image_r = enemy.image_r.convert_alpha()
+                enemy.arrow_image = enemy.arrow_image.convert_alpha()
+                if type(enemy) == classes.Boss:
+                    enemy.full_image = enemy.full_image.convert_alpha()
+
+            for enemy_list in levels:
+                for enemy in enemy_list:
+                    enemy.image_l = enemy.image_l.convert_alpha()
+                    enemy.image_r = enemy.image_r.convert_alpha()
+                    enemy.arrow_image = enemy.arrow_image.convert_alpha()
+                    if type(enemy) == classes.Boss:
+                        enemy.full_image = enemy.full_image.convert_alpha()
+
+            self.game_data.player.image = self.game_data.player.image.convert_alpha()
+            self.game_data.player.anim.convert_alpha()
+
+            self.game_data.world.terrain_image = self.game_data.world.terrain_image.convert_alpha()
+            self.game_data.world.dirt_image = self.game_data.world.dirt_image.convert_alpha()
+
+        else:
+            self.logger.warning("Images can not convert. (Screen is not set)")
+
         classes.Slot.create_slots(self.save_manager, self.fonts["türkçe-2"])
         classes.Player.set_settings_manager(self.settings)
         classes.Enemy.set_val_manager(self.val_manager)
@@ -244,6 +288,11 @@ class Game:
                 self.const_game_data = json.load(f)
 
         self.screen_manager = ScreenManager(self)
+        # init içinde yapılamayan fonksiyon verme
+        self.settings.options["credits"]["callback"] = (
+            lambda: self.screen_manager.set_screen(ScreenType.CREDITS)
+        )
+        self.settings.create_elements()
 
     @property
     def width(self):
@@ -561,6 +610,7 @@ class Game:
 
         self.mixer.stop()
         self.mixer.music.stop()
+        
         self.mixer.quit()
         pygame.quit()
 

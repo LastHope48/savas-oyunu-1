@@ -12,7 +12,7 @@ pygame.init()
 _info = pygame.display.Info()
 
 # 4K bazlı referans çarpanı (Örn: 1080p'de 0.5 döner)
-SCALE = _info.current_h / 2160.0
+SCALE = _info.current_h / 1080.0
 
 def scale(val: float | int) -> int:
     """Tekil piksel, hız veya yarıçap değerlerini ölçekler."""

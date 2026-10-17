@@ -527,3 +527,11 @@ class WorldSelectScreen(MenuScreen):
                     r"musics/mystery_music.ogg"
             )
         )
+
+        self.state = self.STATE_IDLE
+
+        # Animasyon sayaçları
+        self.insert_timer = 0.0
+        self.insert_duration = 0.85
+        self.locked_timer = 0.0
+        self.zoom_factor = 1.0

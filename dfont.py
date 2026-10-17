@@ -128,12 +128,17 @@ class DynamicFont:
         self,
         text: str,
         color: tuple[int, int, int] | str,
-        surface: pygame.Surface,
+        surface: pygame.Surface | pygame.Rect,
         gap: int = 0,
         breaklines: bool = False
     ):
-        max_width = surface.get_width() - gap
-        max_height = surface.get_height() - gap
+        if type(surface) == pygame.Surface:
+            max_width = surface.get_width() - gap
+            max_height = surface.get_height() - gap
+
+        elif type(surface) == pygame.Rect:
+            max_width = surface.width - gap
+            max_height = surface.height - gap
 
         low = self.min_size
         high = self.max_size

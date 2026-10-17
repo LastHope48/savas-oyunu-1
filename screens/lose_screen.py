@@ -4,6 +4,7 @@ import pygame
 
 from basedir import BASE_DIR
 from dfont import DynamicFont, MsgBox
+from fonts import font3_univ
 from screens.types import ScreenType
 from screens.screen import Screen
 
@@ -96,8 +97,16 @@ class LoseScreen(Screen):
         surf = pygame.Surface((180, 240), pygame.SRCALPHA)
         pygame.draw.rect(surf, (150, 150, 160), (20, 60, 140, 180), border_top_left_radius=70, border_top_right_radius=70)
         pygame.draw.rect(surf, (200, 200, 210), (20, 60, 140, 180), width=6, border_top_left_radius=70, border_top_right_radius=70)
-        pygame.draw.line(surf, (80, 80, 90), (90, 110), (90, 190), 8)
-        pygame.draw.line(surf, (80, 80, 90), (60, 140), (120, 140), 8)
+
+        # RIP yazısı
+        rip_text = font3_univ.return_text("R.I.P.", (80, 80, 90))
+        rip_text_rect = rip_text.get_rect(center=(surf.get_width() // 2, surf.get_height() // 2))
+
+        surf.blit(
+            rip_text,
+            rip_text_rect
+        )
+
         pygame.draw.ellipse(surf, (70, 70, 80), (0, 210, 180, 30))
         return surf
 
@@ -156,6 +165,7 @@ class LoseScreen(Screen):
 
         # 4. Beyaz Perde Yüzeyi
         self.fade_surface = pygame.Surface((screen_w, screen_h), pygame.SRCALPHA)
+        
 
     def _setup_current_quote_msgbox(self):
         """O anki sıradaki metni MsgBox içerisine yerleştirip daktiloyu başlatır."""

@@ -11,3 +11,4 @@ class ScreenType(Enum):
     WIN = auto()
     LOSE = auto()
     WARN = auto()
+    CREDITS = auto()

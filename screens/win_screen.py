@@ -187,6 +187,10 @@ class WinScreen(Screen):
         thud_path = os.path.join(sounds_dir, "slam.wav")
         self.sfx_slam = pygame.mixer.Sound(thud_path) if os.path.exists(thud_path) else None
 
+        self.musics_dir = os.path.join(BASE_DIR, "musics")
+        self.win_music = os.path.join(self.musics_dir, r"Weight_of_the_Blade.ogg")
+        self.played_music = False
+
     def _get_all_time_kills(self) -> int:
         try:
             if hasattr(self.game, "val_manager") and callable(self.game.val_manager):
@@ -319,6 +323,12 @@ class WinScreen(Screen):
         # Kartların iniş animasyonlarını güncelle
         for card in self.cards:
             card.update(self.timer, dt, self.sfx_slam)
+
+        if not self.played_music:
+            if all(card.slammed for card in self.cards):
+                self.played_music = True
+                self.game.mixer.music.load(self.win_music)
+                self.game.mixer.music.play(-1)
 
     def _draw_table_background(self, surface: pygame.Surface, screen_w: int, screen_h: int):
         """Ahşap çalışma masası dokusu ve masa matı."""

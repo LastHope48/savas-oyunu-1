@@ -12,6 +12,7 @@ from .win_screen import WinScreen
 from .lose_screen import LoseScreen
 from .game_screen import GameScreen
 from .warn_screen import WarnScreen
+from .credits_screen import CreditsScreen
 from typehint_game import Game
 from .screen import Screen
 from helper_funcs import invert_dict
@@ -30,6 +31,7 @@ class ScreenManager:
             ScreenType.WIN: WinScreen(self.game),
             ScreenType.LOSE: LoseScreen(self.game),
             ScreenType.WARN: WarnScreen(self.game),
+            ScreenType.CREDITS: CreditsScreen(self.game),
         }
 
         self.screen_to_type = invert_dict(self.screens)

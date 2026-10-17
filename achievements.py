@@ -151,27 +151,55 @@ class Achievements:
             "win": {
                 "title": Lang(türkçe="Kazandın!", english="You Won!", arabic="لقد فزت.", sanskrit="त्वं जितवान्!"),
                 "description": Lang(türkçe="Tebrikler, zorlu mücadelelerden sonra oyunu kazandın!", english="Congrulations, after having difficult challanges you won the game!", arabic="تهانينا، لقد فزت باللعبة بعد معارك ضارية!", sanskrit="अभिनन्दनम्, कठिनयुद्धानां अनन्तरं भवन्तः क्रीडां जितवन्तः!"),
-                "image": pygame.image.load(os.path.join(BASE_DIR, r"images/crown.png"))
+                "image": pygame.image.load(os.path.join(BASE_DIR, r"images/crown.png")),
+                "unlock_tutorial": Lang(
+                    türkçe="Oyunu en az 1 kez kazanman gerek.",
+                    english="You need to win game minimum 1 time."
+                )
             },
             "500_kill": {
                 "title": Lang(türkçe="500 Öldürme", english="500 Kill", arabic="500 عملية قتل", sanskrit="५०० मारयति"),
                 "description": Lang(türkçe="500 Öldürme mi? Daha yolun başındasın.", english="500 Kill? You're still in the beginning of the road.", arabic="500 عملية قتل؟ أنتَ لا تزال في البداية فقط.", sanskrit="५०० मारयति ? त्वं केवलं आरभसे एव।"),
-                "image": pygame.image.load(os.path.join(BASE_DIR, r"images/skull_1.png"))
+                "image": pygame.image.load(os.path.join(BASE_DIR, r"images/skull_1.png")),
+                "unlock_tutorial": Lang(
+                    türkçe="500 düşman öldürmen gerek.",
+                    english="You need to kill 500 enemies.",
+                    arabic="عليك القضاء على 500 عدو.",
+                    sanskrit="भवता ५०० शत्रून् मारयितुं आवश्यकम्।"
+                )
             },
             "10_000_kill": {
                 "title": Lang(türkçe="10000 Öldürme", english="10000 Kill", arabic="10000 عملية قتل", sanskrit="१०,००० किल्स्"),
                 "description": Lang(türkçe="Vay, vay, vay. 10000 Öldürme gerçekten fazla. Peki ya daha fazlası varsa...", english="Well, well, well. 10000 Kill is really much. What about there is more...", arabic="يا للروعة! 10,000 عملية قتل هو عدد كبير حقاً. ولكن ماذا لو كان هناك المزيد...", sanskrit="वाह, वाह, वाह। १०,००० किल्स् वस्तुतः बहु अस्ति। परन्तु यदि तस्मात् अपि अधिकं भवति तर्हि किम्..."),
-                "image": pygame.image.load(os.path.join(BASE_DIR, r"images/skull_2.png"))
+                "image": pygame.image.load(os.path.join(BASE_DIR, r"images/skull_2.png")),
+                "unlock_tutorial": Lang(
+                    türkçe="10000 düşman öldürmen gerek.",
+                    english="You need to kill 10000 enemies.",
+                    arabic="عليك القضاء على 10,000 عدو.",
+                    sanskrit="भवता १०००० शत्रून् मारयितुं आवश्यकम्।"
+                )
             },
             "1_000_000_kill": {
                 "title": Lang(türkçe="1000000 Öldürme", english="1000000 Kill", arabic="1000000 عملية قتل", sanskrit="१,०००,००० किल्स्"),
-                "description": Lang(türkçe="1000000... 1000 kere Undertale'da Genocide yapmış biri bu kadar öldürmemiştir.", english="1000000... A human beated Undertile Genocide run 1000 times wouldn't kill this many monster.", arabic='مليون... حتى الشخص الذي لعب مسار "الإبادة الجماعية" (Genocide run) في لعبة Undertale ألف مرة لم يقتل هذا العدد من الأشخاص.', sanskrit="१,०००,०००... यः कोऽपि अण्डरटेल् इत्यस्मिन् १,००० वारं Genocide run कृतवान् अपि तावत् जनान् न मारितवान्।"),
-                "image": pygame.image.load(os.path.join(BASE_DIR, r"images/skull_3.png"))
+                "description": Lang(türkçe="1000000... 1000 kere Undertale'da Genocide yapmış biri bu kadar öldürmemiştir.", english="1000000... Someone beated Undertale Genocide run 1000 times wouldn't kill this many monster.", arabic='مليون... حتى الشخص الذي لعب مسار "الإبادة الجماعية" (Genocide run) في لعبة Undertale ألف مرة لم يقتل هذا العدد من الأشخاص.', sanskrit="१,०००,०००... यः कोऽपि अण्डरटेल् इत्यस्मिन् १,००० वारं Genocide run कृतवान् अपि तावत् जनान् न मारितवान्।"),
+                "image": pygame.image.load(os.path.join(BASE_DIR, r"images/skull_3.png")),
+                "unlock_tutorial": Lang(
+                    türkçe="1.000.000 düşman öldürmen gerek.",
+                    english="You need to kill 1.000.000 enemies.",
+                    arabic="عليك القضاء على مليون عدو.",
+                    sanskrit="भवता १.०००.००० शत्रून् मारयितुं आवश्यकम् ।"
+                )
             },
             "masks_importance": {
                 "title": Lang(türkçe="Maskenin Önemi", english="Mask's importance", arabic="أهمية الكمامة", sanskrit="मुखौटस्य महत्त्वम्"),
-                "description": Lang(türkçe="Çok yaşa Uras", english="Bless you, Uras", arabic="بارك الله فيك يا أوراس.", sanskrit="आशीर्वादं ददातु उरसः।"),
-                "image": pygame.image.load(os.path.join(BASE_DIR, r"images/maske.png"))
+                "description": Lang(türkçe="Çok yaşa Uras", english="Bless you Uras", arabic="بارك الله فيك يا أوراس.", sanskrit="आशीर्वादं ददातु उरसः।"),
+                "image": pygame.image.load(os.path.join(BASE_DIR, r"images/maske.png")),
+                "unlock_tutorial": Lang(
+                    türkçe="???",
+                    english="???",
+                    arabic="???",
+                    sanskrit="???"
+                )
             }
         }
 

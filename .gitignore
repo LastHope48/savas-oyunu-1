@@ -9,6 +9,7 @@ game.log
 *.save
 test.py
 test2.py
+3d.py
 
 dist/
 build/

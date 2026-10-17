@@ -319,11 +319,11 @@ class SaveScreen(MenuScreen):
 
         self.return_button.plus_data = transfer_datas['screen_type_before']
 
-        if self.game.dump("last_music") != os.path.join(BASE_DIR, r"musics/menu_theme.mp3"):
+        if self.game.dump("last_music") != os.path.join(BASE_DIR, r"musics/menu_theme.ogg"):
             self.game.mixer.music.load(
                 os.path.join(
                     BASE_DIR,
-                    r"musics/menu_theme.mp3"
+                    r"musics/menu_theme.ogg"
                 )
             )
 
@@ -334,6 +334,6 @@ class SaveScreen(MenuScreen):
             "last_music",
             os.path.join(
                     BASE_DIR,
-                    r"musics/menu_theme.mp3"
+                    r"musics/menu_theme.ogg"
             )
         )

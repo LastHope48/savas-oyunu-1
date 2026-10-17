@@ -71,7 +71,7 @@ dfont7_univ = DynamicFont(
 )
 
 dfont1_arabic = DynamicFont(os.path.join(BASE_DIR, r"fonts/arabica.ttf"), 10, 70)
-dfont2_arabic = DynamicFont("arial", 5, 50)
+dfont2_arabic = DynamicFont(os.path.join(BASE_DIR, r"fonts/arabica.ttf"), 5, 50)
 dfont3_arabic = DynamicFont(
     os.path.join(BASE_DIR, r"fonts/arabica.ttf"),
     20,
@@ -134,11 +134,13 @@ dfont7_sanskrit = DynamicFont(
     50
 )
 
+FONT_TYPES = Literal["userFont", "DynamicFont"]
+
 def get_font(
         font_dict: dict[str, userFont | DynamicFont],
         lang: str,
         id: int,
-        font_type: str | Literal["userFont"] | Literal["DynamicFont"] = "userFont"
+        font_type: FONT_TYPES
     ):
 
     _char = ""

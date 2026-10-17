@@ -30,7 +30,7 @@ class MainMenuScreen(MenuScreen):
             self.game.fonts,
             Lang.USING_LANG,
             1,
-            "userFont"
+            "DynamicFont"
         )
 
         self.font2 = get_font(
@@ -206,6 +206,7 @@ class MainMenuScreen(MenuScreen):
         self.quit_button.set_center(width * 0.5, quit_y - step * step_counter)
         self.quit_button.width = btn_w
         self.quit_button.height = btn_h
+        self.quit_button.text = self.langs['quit_button'].get(self.game.settings.get('language'))
 
         step_counter += 1
 
@@ -344,7 +345,7 @@ class MainMenuScreen(MenuScreen):
             self.game.fonts,
             Lang.USING_LANG,
             1,
-            "userFont"
+            "DynamicFont"
         )
 
         self.font2 = get_font(
@@ -452,11 +453,11 @@ class MainMenuScreen(MenuScreen):
 
         self.title_font = None
 
-        if self.game.dump("last_music") != os.path.join(BASE_DIR, r"musics/menu_theme.mp3"):
+        if self.game.dump("last_music") != os.path.join(BASE_DIR, r"musics/menu_theme.ogg"):
             self.game.mixer.music.load(
                 os.path.join(
                     BASE_DIR,
-                    r"musics/menu_theme.mp3"
+                    r"musics/menu_theme.ogg"
                 )
             )
 
@@ -468,6 +469,6 @@ class MainMenuScreen(MenuScreen):
             "last_music",
             os.path.join(
                     BASE_DIR,
-                    r"musics/menu_theme.mp3"
+                    r"musics/menu_theme.ogg"
             )
         )

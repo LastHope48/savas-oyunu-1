@@ -66,6 +66,18 @@ class AnimationController:
 
                 self.animations[state].append(surf)
 
+    def convert(self):
+        '''Bütün frameleri convert eder.'''
+        for key, state in self.animations.items():
+            for u in range(len(state)):
+                self.animations[key][u] = self.animations[key][u].convert()
+
+    def convert_alpha(self):
+        '''Bütün frameleri alphaya convert eder.'''
+        for key, state in self.animations.items():
+            for u in range(len(state)):
+                self.animations[key][u] = self.animations[key][u].convert_alpha()
+
     def update(self, new_state: str, dt: float):
         if not self.animations or new_state not in self.animations:
             return
