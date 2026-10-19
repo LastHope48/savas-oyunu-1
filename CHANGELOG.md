@@ -7,9 +7,19 @@ Format [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) standardını te
 ## [Unreleased]
 ### Planned
 - Yeni "Aether Katana" silahı ve Siber Dünya temalı yeni harita için altyapı çalışmaları.
+- Farklı dünyalar eklemek için altyapı ve OOP çalışmaları.
 
-### Deprecated
-- `settings_manager.py` ve `pass_manager.py` modülleri kullanımdan kaldırılacak; ilerleyen sürümlerde tamamen silinmesi planlanıyor.
+## [0.4.1] - 2026-10-19
+### Added
+- Gerçekçi oyun mekanikleri.
+- Ayarlar ekranının yatay kaydırma sistemi eklendi.
+
+### Removed
+- `settings_manager.py` ve `pass_manager.py` modülleri kullanımdan kaldırıldı.
+
+### Fixed
+- Ayarlar ekranının kaydırma sistemi düzeltildi.
+- Başarıların ekrandan taşması düzeltildi.
 
 ## [0.4.0] - 2026-10-17
 ### Added
@@ -33,4 +43,5 @@ Format [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) standardını te
 - Çarpışma ve temas alanlarındaki (*hitbox*) hatalı sınır hesaplamaları düzeltildi.
 
 [Unreleased]: https://github.com/LastHope48/savas-oyunu-1/compare/v0.4.0...HEAD
+[0.4.1]: https://github.com/LastHope48/savas-oyunu-1/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/LastHope48/savas-oyunu-1/compare/v0.3.1...v0.4.0

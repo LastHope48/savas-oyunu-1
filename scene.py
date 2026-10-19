@@ -165,17 +165,21 @@ class Scene:
         return 1 + c3 * (t - 1) ** 3 + c1 * (t - 1) ** 2
 
     def handle_event(self, event: pygame.event.Event):
-        if not self.active or event.type != pygame.MOUSEBUTTONDOWN or event.button != 1:
-            return
-
         if self.msgbox is None:
             return
 
-        if not self.msgbox.finished:
-            self.msgbox.skip_typing()
-            return
+        if (
+            event.type == pygame.MOUSEBUTTONDOWN and
+            event.button == 1 or
+            event.type == pygame.KEYDOWN and
+            event.key == pygame.K_SPACE
+        ):
 
-        self.next_dialogue()
+            if not self.msgbox.finished:
+                self.msgbox.skip_typing()
+                return
+
+            self.next_dialogue()
 
     def next_dialogue(self):
         self.dialogue_index += 1

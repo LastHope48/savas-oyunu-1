@@ -485,7 +485,7 @@ class Settings:
         }
 
         # ---------------------------------
-        # UI TİPLERİ
+        # UI TİPLERİ VE SESLER
         # ---------------------------------
         click_sfx = pygame.mixer.Sound(os.path.join(BASE_DIR, r"sounds/click.wav")) if os.path.exists(os.path.join(BASE_DIR, r"sounds/click.wav")) else None
         slide_sfx = pygame.mixer.Sound(os.path.join(BASE_DIR, r"sounds/slide_bar_sfx.wav")) if os.path.exists(os.path.join(BASE_DIR, r"sounds/slide_bar_sfx.wav")) else None
@@ -573,7 +573,6 @@ class Settings:
                 ],
                 "font_size": 24
             },
-
             "check_updates": {
                 "type": "button",
                 "text": Lang(
@@ -584,7 +583,7 @@ class Settings:
                 ),
                 "callback": check_for_update,
                 "click_sound": click_sfx,
-                "accent_color": (0, 240, 255)  # İstersen sarı (255, 205, 50) veya yeşil de yapabilirsin
+                "accent_color": (0, 240, 255)
             },
             "credits": {
                 "type": "button",
@@ -611,22 +610,12 @@ class Settings:
             "other_music": Lang(türkçe="Bilgisayardan Müzik", english="Music Path", arabic="موسيقى من الكمبيوتر", sanskrit="सङ्गणकात् सङ्गीतम्"),
             "fps": "FPS",
             "language": Lang(türkçe="Dil", english="Language", arabic="لغة", sanskrit="भाषा"),
-            "check_updates": Lang(
-                türkçe="Sürüm",
-                english="Version",
-                arabic="إصدار",
-                sanskrit="संस्करणम्"
-            ),
-            "credits": Lang(
-                türkçe="Jenerik",
-                english="Credits",
-                arabic="شكر وتقدير",
-                sanskrit="श्रेयः ददाति"
-            )
+            "check_updates": Lang(türkçe="Sürüm", english="Version", arabic="إصدار", sanskrit="संस्करणम्"),
+            "credits": Lang(türkçe="Jenerik", english="Credits", arabic="شكر وتقدير", sanskrit="श्रेयः ददाति")
         }
 
         # ---------------------------------
-        # BÜYÜTÜLMÜŞ NEON KUTU VE SCROLL SİSTEMİ
+        # PANEL VE SCROLLBAR GEOMETRİSİ
         # ---------------------------------
         self.full_panel_w = 1200 * SCALE
         self.full_panel_h = 760 * SCALE
@@ -637,19 +626,33 @@ class Settings:
 
         self.header_h = 65
         self.content_padding = 32
-        self.scrollbar_w = 12
+        self.scrollbar_w = 12  # Dikey bar genişliği
+        self.scrollbar_h = 12  # Yatay bar yüksekliği
 
         self.content_rect = pygame.Rect(
             0,
             self.header_h,
             self.panel_w - self.scrollbar_w - self.content_padding * 2,
-            self.panel_h - self.header_h - self.content_padding
+            self.panel_h - self.header_h - self.scrollbar_h - self.content_padding
         )
 
+        # Dikey Kaydırma Durumu
         self.scroll_y = 0.0
         self.target_scroll_y = 0.0
         self.total_content_height = 0
-        self.max_scroll = 0.0
+        self.max_scroll_y = 0.0
+
+        # Yatay Kaydırma Durumu
+        self.scroll_x = 0.0
+        self.target_scroll_x = 0.0
+        self.total_content_width = 1100 * SCALE
+        self.max_scroll_x = 0.0
+
+        # Fareyle Sürükleme (Drag & Drop) Kontrolleri
+        self.is_dragging_v = False
+        self.is_dragging_h = False
+        self.drag_offset_y = 0.0
+        self.drag_offset_x = 0.0
 
         self.elements = {}
         self.element_relative_positions: dict[str, tuple[int, int]] = {}
@@ -661,10 +664,10 @@ class Settings:
     # ELEMENT OLUŞTURMA
     # =================================================
     def create_elements(self):
-        # Büyütülmüş kutuya göre elemanların X konumu sağa kaydırıldı
         element_rel_x = 650
         rel_y = 25
         gap = 26
+        max_el_right = element_rel_x
 
         for key, option in self.options.items():
             element_type = option["type"]
@@ -677,7 +680,6 @@ class Settings:
                     icons=option.get("icons"),
                     click_sound=option.get("click_sound")
                 )
-
             elif element_type == "slider":
                 element = Slider(
                     (0, 0),
@@ -689,22 +691,17 @@ class Settings:
                     icons=option.get("icons"),
                     slide_sfx=option.get("slide_sfx")
                 )
-
             elif element_type == "select":
                 font_path = os.path.join(BASE_DIR, r"fonts/unifont-18.0.01.otf")
                 font = userFont(font_path, option.get("font_size", 24)) if os.path.exists(font_path) else None
                 element = Select((0, 0), option["values"], font=font, icons=option.get("icons"))
-
             elif element_type == "textbox":
                 font_path = os.path.join(BASE_DIR, r"fonts/unifont-18.0.01.otf")
                 font = userFont(font_path, 22) if os.path.exists(font_path) else None
-
                 element = TextBox((0, 0), option.get("max_length", 35), font=font, icons=option.get("icons"))
-            
             elif element_type == "button":
                 font_path = os.path.join(BASE_DIR, r"fonts/unifont-18.0.01.otf")
                 font = userFont(font_path, option.get("font_size", 22)) if os.path.exists(font_path) else None
-                
                 element = SettingsButton(
                     (0, 0),
                     text=option.get("text", "Buton"),
@@ -715,16 +712,60 @@ class Settings:
                     accent_color=option.get("accent_color", (0, 240, 255)),
                     icons=option.get("icons")
                 )
-
             else:
                 continue
 
             self.elements[key] = element
             self.element_relative_positions[key] = (element_rel_x, rel_y)
+
+            # Elemanın sağ ucunu takip et
+            if hasattr(element, "rect"):
+                max_el_right = max(max_el_right, element_rel_x + element.rect.width)
+
             rel_y += element.rect.height + gap
 
-        self.total_content_height = rel_y + 15
-        self.max_scroll = max(0.0, float(self.total_content_height - self.content_rect.height))
+        # Dikey ve yatay toplam içerik sınırları (nefes paylarıyla)
+        self.total_content_height = rel_y + 60
+        self.total_content_width = max(int(1150 * SCALE), max_el_right + 70)
+
+    # =================================================
+    # SCROLLBAR RECT HESAPLAMA YARDIMCILARI
+    # =================================================
+    def get_v_scrollbar_rects(self) -> tuple[pygame.Rect, pygame.Rect]:
+        """Dikey scrollbar track ve thumb dikdörtgenlerini döndürür."""
+        track_x = self.panel_rect.right - self.content_padding - self.scrollbar_w
+        track_y = self.content_rect.top
+        track_h = self.content_rect.height
+        track_rect = pygame.Rect(track_x, track_y, self.scrollbar_w, track_h)
+
+        if self.max_scroll_y <= 0:
+            return track_rect, pygame.Rect(track_x, track_y, self.scrollbar_w, track_h)
+
+        visible_ratio = min(1.0, self.content_rect.height / self.total_content_height)
+        thumb_h = max(30, int(track_h * visible_ratio))
+        scroll_range = track_h - thumb_h
+        thumb_y = track_y + int(scroll_range * (self.scroll_y / self.max_scroll_y))
+        thumb_rect = pygame.Rect(track_x, thumb_y, self.scrollbar_w, thumb_h)
+
+        return track_rect, thumb_rect
+
+    def get_h_scrollbar_rects(self) -> tuple[pygame.Rect, pygame.Rect]:
+        """Yatay scrollbar track ve thumb dikdörtgenlerini döndürür."""
+        track_x = self.content_rect.left
+        track_y = self.panel_rect.bottom - self.content_padding - self.scrollbar_h
+        track_w = self.content_rect.width
+        track_rect = pygame.Rect(track_x, track_y, track_w, self.scrollbar_h)
+
+        if self.max_scroll_x <= 0:
+            return track_rect, pygame.Rect(track_x, track_y, track_w, self.scrollbar_h)
+
+        visible_ratio = min(1.0, self.content_rect.width / self.total_content_width)
+        thumb_w = max(30, int(track_w * visible_ratio))
+        scroll_range = track_w - thumb_w
+        thumb_x = track_x + int(scroll_range * (self.scroll_x / self.max_scroll_x))
+        thumb_rect = pygame.Rect(thumb_x, track_y, thumb_w, self.scrollbar_h)
+
+        return track_rect, thumb_rect
 
     # =================================================
     # GET / SET & DOSYA
@@ -740,17 +781,17 @@ class Settings:
     def get(self, name):
         return self.values.get(name)
 
-    def get_element(self, name: str) -> SettingElement | None:
+    def get_element(self, name: str):
         return self.elements.get(name)
 
     def set(self, name, value):
-        if name not in self.values:
-            return
-        self.values[name] = value
+        if name in self.values:
+            self.values[name] = value
 
     def save(self):
         values = deepcopy(self.values)
-        values = make_json_serializable(values)
+        if "make_json_serializable" in globals():
+            values = make_json_serializable(values)
         with open(self.file, "w", encoding="utf-8") as file:
             json.dump(values, file, ensure_ascii=False, indent=4)
 
@@ -762,9 +803,7 @@ class Settings:
             return
 
         for key, value in data.items():
-            if key not in self.values:
-                continue
-            if type(value) is self.types[key]:
+            if key in self.values and type(value) is self.types[key]:
                 self.values[key] = value
 
     def load_image(self, path):
@@ -779,87 +818,154 @@ class Settings:
     # GÜNCELLEME VE LERP SCROLL
     # =================================================
     def update(self, dt: float = 0.016, swidth=None, sheight=None):
-
-        self.scroll_y += (self.target_scroll_y - self.scroll_y) * min(1.0, 14.0 * dt)
-
         if swidth is not None and sheight is not None:
             self.panel_w = calculate_size(self.full_panel_w, 1920 * SCALE, swidth)
             self.panel_h = calculate_size(self.full_panel_h, 1080 * SCALE, sheight)
-            self.panel_rect.width = self.panel_w
-            self.panel_rect.height = self.panel_h
+            self.panel_rect.size = (self.panel_w, self.panel_h)
+            self.panel_rect.center = (swidth // 2, sheight // 2)
 
-        content_origin_x = self.content_rect.left
+            self.content_rect.left = self.panel_rect.left + self.content_padding
+            self.content_rect.top = self.panel_rect.top + self.header_h + 10
+            self.content_rect.width = max(10, self.panel_w - self.scrollbar_w - self.content_padding * 2 - 16)
+            self.content_rect.height = max(10, self.panel_h - self.header_h - self.scrollbar_h - self.content_padding - 20)
+
+        # Sınırları dinamik hesapla
+        self.max_scroll_y = max(0.0, float(self.total_content_height - self.content_rect.height))
+        self.max_scroll_x = max(0.0, float(self.total_content_width - self.content_rect.width))
+
+        # Eğer sürüklenmiyorsa yumuşak geçiş (Lerp) uygula
+        if not self.is_dragging_v:
+            self.target_scroll_y = max(0.0, min(self.max_scroll_y, self.target_scroll_y))
+            self.scroll_y += (self.target_scroll_y - self.scroll_y) * min(1.0, 14.0 * dt)
+            self.scroll_y = max(0.0, min(self.max_scroll_y, self.scroll_y))
+
+        if not self.is_dragging_h:
+            self.target_scroll_x = max(0.0, min(self.max_scroll_x, self.target_scroll_x))
+            self.scroll_x += (self.target_scroll_x - self.scroll_x) * min(1.0, 14.0 * dt)
+            self.scroll_x = max(0.0, min(self.max_scroll_x, self.scroll_x))
+
+        content_origin_x = self.content_rect.left - self.scroll_x
         content_origin_y = self.content_rect.top - self.scroll_y
 
         for key, element in self.elements.items():
             rel_x, rel_y = self.element_relative_positions[key]
             element.rect.topleft = (
-                content_origin_x + rel_x,
+                int(content_origin_x + rel_x),
                 int(content_origin_y + rel_y)
             )
 
     # =================================================
-    # EVENT YÖNETİMİ
+    # EVENT YÖNETİMİ & DRAG & DROP
     # =================================================
     def handle_event(self, event):
+        v_track, v_thumb = self.get_v_scrollbar_rects()
+        h_track, h_thumb = self.get_h_scrollbar_rects()
+
+        # 1. FARE TEKERLEĞİ (Shift basılıyken yatay, normalde dikey)
         if event.type == pygame.MOUSEWHEEL:
-            self.target_scroll_y -= event.y * 60
-            self.target_scroll_y = max(0.0, min(self.max_scroll, self.target_scroll_y))
-            return
+            keys = pygame.key.get_pressed()
+            is_horizontal = keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT] or getattr(event, "x", 0) != 0
 
-        is_mouse_click = event.type == pygame.MOUSEBUTTONDOWN
-        if is_mouse_click and not self.content_rect.collidepoint(event.pos):
-            for el in self.elements.values():
-                if isinstance(el, TextBox):
-                    el.active = False
-            return
-
-        for key, element in self.elements.items():
-            element: SettingElement
-            old_value = self.values[key]
-
-            if isinstance(element, (Checkbox, Slider)):
-                new_value = element.handle_event(
-                    event,
-                    old_value,
-                    volume=self.get("sfx_volume"),
-                    play=self.get("sfx")
-                )
+            if is_horizontal:
+                delta = event.x if getattr(event, "x", 0) != 0 else event.y
+                self.target_scroll_x -= delta * 70
+                self.target_scroll_x = max(0.0, min(self.max_scroll_x, self.target_scroll_x))
             else:
-                new_value = element.handle_event(event, old_value)
+                self.target_scroll_y -= event.y * 70
+                self.target_scroll_y = max(0.0, min(self.max_scroll_y, self.target_scroll_y))
+            return
 
-            self.values[key] = new_value
+        # 2. TIKLAMA (SÜRÜKLEME BAŞLATMA VEYA KANAL TIKLAMASI)
+        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            # Dikey Thumb Tutuldu mu?
+            if self.max_scroll_y > 0 and v_thumb.collidepoint(event.pos):
+                self.is_dragging_v = True
+                self.drag_offset_y = event.pos[1] - v_thumb.y
+                return
+
+            # Dikey Kanala (Track) Tıklandı mı?
+            elif self.max_scroll_y > 0 and v_track.collidepoint(event.pos):
+                scroll_range = v_track.height - v_thumb.height
+                if scroll_range > 0:
+                    clicked_pos = event.pos[1] - v_track.top - (v_thumb.height / 2)
+                    ratio = max(0.0, min(1.0, clicked_pos / scroll_range))
+                    self.target_scroll_y = ratio * self.max_scroll_y
+                    self.scroll_y = self.target_scroll_y
+                return
+
+            # Yatay Thumb Tutuldu mu?
+            if self.max_scroll_x > 0 and h_thumb.collidepoint(event.pos):
+                self.is_dragging_h = True
+                self.drag_offset_x = event.pos[0] - h_thumb.x
+                return
+
+            # Yatay Kanala (Track) Tıklandı mı?
+            elif self.max_scroll_x > 0 and h_track.collidepoint(event.pos):
+                scroll_range = h_track.width - h_thumb.width
+                if scroll_range > 0:
+                    clicked_pos = event.pos[0] - h_track.left - (h_thumb.width / 2)
+                    ratio = max(0.0, min(1.0, clicked_pos / scroll_range))
+                    self.target_scroll_x = ratio * self.max_scroll_x
+                    self.scroll_x = self.target_scroll_x
+                return
+
+            # İçerik dışına tıklandıysa textbox odağını kapat
+            if not self.content_rect.collidepoint(event.pos):
+                for el in self.elements.values():
+                    if isinstance(el, TextBox):
+                        el.active = False
+                return
+
+        # 3. FARE BIRAKILDIĞINDA SÜRÜKLEMEYİ BİTİR
+        elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+            self.is_dragging_v = False
+            self.is_dragging_h = False
+
+        # 4. FARE HAREKETİ İLE SÜRÜKLEME (DRAGGING)
+        elif event.type == pygame.MOUSEMOTION:
+            if self.is_dragging_v and self.max_scroll_y > 0:
+                scroll_range = v_track.height - v_thumb.height
+                if scroll_range > 0:
+                    rel_pos = event.pos[1] - v_track.top - self.drag_offset_y
+                    ratio = max(0.0, min(1.0, rel_pos / scroll_range))
+                    self.target_scroll_y = ratio * self.max_scroll_y
+                    self.scroll_y = self.target_scroll_y
+                return
+
+            if self.is_dragging_h and self.max_scroll_x > 0:
+                scroll_range = h_track.width - h_thumb.width
+                if scroll_range > 0:
+                    rel_pos = event.pos[0] - h_track.left - self.drag_offset_x
+                    ratio = max(0.0, min(1.0, rel_pos / scroll_range))
+                    self.target_scroll_x = ratio * self.max_scroll_x
+                    self.scroll_x = self.target_scroll_x
+                return
+
+        # Sürükleme yapılmıyorsa UI elemanlarına olayları ilet
+        if not self.is_dragging_v and not self.is_dragging_h:
+            for key, element in self.elements.items():
+                old_value = self.values[key]
+                if isinstance(element, (Checkbox, Slider)):
+                    new_value = element.handle_event(
+                        event,
+                        old_value,
+                        volume=self.get("sfx_volume"),
+                        play=self.get("sfx")
+                    )
+                else:
+                    new_value = element.handle_event(event, old_value)
+                self.values[key] = new_value
 
     # =================================================
-    # ÇİZİM (NEON HUD STİLİ)
+    # ÇİZİM
     # =================================================
     def draw(self, screen: pygame.Surface, font: userFont | DynamicFont, swidth=None, sheight=None):
-        if swidth is not None and sheight is not None:
-            self.panel_rect.center = (swidth // 2, sheight // 2)
-            self.content_rect.left = self.panel_rect.left + self.content_padding
-            self.content_rect.top = self.panel_rect.top + self.header_h + 10
-            self.content_rect.width = self.panel_w - self.scrollbar_w - self.content_padding * 2 - 16
-            self.content_rect.height = self.panel_h - self.header_h - self.content_padding - 18
-
-        else:
-            sw, sh = screen.get_size()
-            self.panel_rect.center = (sw // 2, sh // 2)
-
-            self.content_rect.left = self.panel_rect.left + self.content_padding
-            self.content_rect.top = self.panel_rect.top + self.header_h + 10
-            self.content_rect.width = self.panel_w - self.scrollbar_w - self.content_padding * 2 - 16
-            self.content_rect.height = self.panel_h - self.header_h - self.content_padding - 18
-
-        # ---------------------------------------------------------
-        # 1. NEON KUTU GÖVDESİ & ÇERÇEVESİ
-        # ---------------------------------------------------------
+        # 1. PENCERE GÖVDESİ & NEON ÇERÇEVELER
         pygame.draw.rect(screen, (12, 16, 24), self.panel_rect, border_radius=18)
         pygame.draw.rect(screen, (0, 110, 160), self.panel_rect.inflate(4, 4), width=3, border_radius=20)
         pygame.draw.rect(screen, (0, 240, 255), self.panel_rect, width=2, border_radius=18)
 
-        # ---------------------------------------------------------
         # 2. ÜST NEON BAŞLIK
-        # ---------------------------------------------------------
         header_rect = pygame.Rect(self.panel_rect.left, self.panel_rect.top, self.panel_w, self.header_h)
         pygame.draw.rect(screen, (16, 22, 34), header_rect, border_top_left_radius=18, border_top_right_radius=18)
         pygame.draw.line(screen, (0, 240, 255), header_rect.bottomleft, header_rect.bottomright, 2)
@@ -868,14 +974,8 @@ class Settings:
         if type(font) == userFont:
             title_surf = font.return_text(title_text, (0, 240, 255))
             screen.blit(title_surf, title_surf.get_rect(center=header_rect.center))
-
         elif type(font) == DynamicFont:
-            title_surf, _ = font.render(
-                title_text,
-                (0, 240, 255),
-                self.panel_rect
-            )
-
+            title_surf, _ = font.render(title_text, (0, 240, 255), self.panel_rect)
             screen.blit(title_surf, title_surf.get_rect(center=header_rect.center))
 
         corner_len = 18
@@ -884,15 +984,14 @@ class Settings:
         pygame.draw.line(screen, (255, 255, 255), (self.panel_rect.right - 10, self.panel_rect.bottom - 10), (self.panel_rect.right - 10 - corner_len, self.panel_rect.bottom - 10), 2)
         pygame.draw.line(screen, (255, 255, 255), (self.panel_rect.right - 10, self.panel_rect.bottom - 10), (self.panel_rect.right - 10, self.panel_rect.bottom - 10 - corner_len), 2)
 
-        # ---------------------------------------------------------
         # 3. İÇERİK ÇİZİMİ (SET_CLIP)
-        # ---------------------------------------------------------
         screen.set_clip(self.content_rect)
 
         for key, element in self.elements.items():
-            element: SettingElement
-
+            # Hem dikey hem yatayda ekrandan taşan elemanları atla
             if element.rect.bottom < self.content_rect.top - 20 or element.rect.top > self.content_rect.bottom + 20:
+                continue
+            if element.rect.right < self.content_rect.left - 250 or element.rect.left > self.content_rect.right + 50:
                 continue
 
             name = self.names.get(key, key)
@@ -903,7 +1002,6 @@ class Settings:
             if type(font) == userFont:
                 text_shadow = font.return_text(text_str, (10, 14, 20))
                 text_front = font.return_text(text_str, (185, 200, 220))
-            
             elif type(font) == DynamicFont:
                 text_shadow, _ = font.render(text_str, (10, 14, 20), self.panel_rect)
                 text_front, _ = font.render(text_str, (185, 200, 220), self.panel_rect)
@@ -920,23 +1018,27 @@ class Settings:
 
         screen.set_clip(None)
 
-        # ---------------------------------------------------------
-        # 4. NEON SCROLLBAR
-        # ---------------------------------------------------------
-        if self.max_scroll > 0:
-            sb_x = self.panel_rect.right - self.content_padding - self.scrollbar_w
-            sb_y = self.content_rect.top
-            sb_h = self.content_rect.height
+        # 4. DİKEY NEON SCROLLBAR
+        v_track, v_thumb = self.get_v_scrollbar_rects()
+        if self.max_scroll_y > 0:
+            pygame.draw.rect(screen, (16, 22, 32), v_track, border_radius=6)
+            pygame.draw.rect(screen, (32, 44, 60), v_track, width=1, border_radius=6)
 
-            track_rect = pygame.Rect(sb_x, sb_y, self.scrollbar_w, sb_h)
-            pygame.draw.rect(screen, (16, 22, 32), track_rect, border_radius=6)
-            pygame.draw.rect(screen, (32, 44, 60), track_rect, width=1, border_radius=6)
+            thumb_color = (120, 250, 255) if self.is_dragging_v else (0, 240, 255)
+            pygame.draw.rect(screen, thumb_color, v_thumb, border_radius=6)
+            pygame.draw.rect(screen, (220, 255, 255), v_thumb.inflate(-4, -4), border_radius=4)
 
-            visible_ratio = self.content_rect.height / self.total_content_height
-            thumb_h = max(30, int(sb_h * visible_ratio))
-            scroll_progress = self.scroll_y / self.max_scroll
-            thumb_y = sb_y + int((sb_h - thumb_h) * scroll_progress)
+        # 5. YATAY NEON SCROLLBAR
+        h_track, h_thumb = self.get_h_scrollbar_rects()
+        if self.max_scroll_x > 0:
+            pygame.draw.rect(screen, (16, 22, 32), h_track, border_radius=6)
+            pygame.draw.rect(screen, (32, 44, 60), h_track, width=1, border_radius=6)
 
-            thumb_rect = pygame.Rect(sb_x, thumb_y, self.scrollbar_w, thumb_h)
-            pygame.draw.rect(screen, (0, 240, 255), thumb_rect, border_radius=6)
-            pygame.draw.rect(screen, (200, 255, 255), thumb_rect.inflate(-4, -4), border_radius=4)
+            thumb_color = (120, 250, 255) if self.is_dragging_h else (0, 240, 255)
+            pygame.draw.rect(screen, thumb_color, h_thumb, border_radius=6)
+            pygame.draw.rect(screen, (220, 255, 255), h_thumb.inflate(-4, -4), border_radius=4)
+
+        # İki barın kesiştiği sağ alt köşe pedi
+        if self.max_scroll_y > 0 and self.max_scroll_x > 0:
+            corner_rect = pygame.Rect(v_track.left, h_track.top, self.scrollbar_w, self.scrollbar_h)
+            pygame.draw.rect(screen, (20, 28, 40), corner_rect, border_radius=3)

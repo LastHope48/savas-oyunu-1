@@ -72,7 +72,7 @@ class LoseScreen(Screen):
         type_path = os.path.join(sounds_dir, "low_pitch_speak.wav")
         self.type_sfx = pygame.mixer.Sound(type_path) if os.path.exists(type_path) else None
 
-        self.lose_music_path = os.path.join(musics_dir, "lose_music.ogg")
+        self.lose_music_path = os.path.join(musics_dir, "cant_give_up.wav")
 
         # 3. Yazı Tipi
         self.font_path = os.path.join(BASE_DIR, "fonts/unifont-18.0.01.otf")

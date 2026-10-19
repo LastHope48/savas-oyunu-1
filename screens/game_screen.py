@@ -32,6 +32,10 @@ class GameScreen(Screen):
         super().__init__(game)
         self.game: typehint_game.Game
 
+        # Sarsıntı ve Oyun İçi Efekt Katmanı (Render Surface)
+        self.render_surf = pygame.Surface((self.game.width, self.game.height))
+        self._was_deflecting = False
+
         self.font1 = get_font(
             self.game.fonts,
             Lang.USING_LANG,
@@ -159,7 +163,6 @@ class GameScreen(Screen):
 
         self.scene = None
         self.achievement_unlock_cd = Cooldown(3)
-
         self.max_combo = 0
 
         # Oyun Modu ve Free Play Dalga Değişkenleri
@@ -185,7 +188,6 @@ class GameScreen(Screen):
                 [classes.Effect("hp", 50, 0, flags=(classes.Item.APPENDER,))],
                 classes.Item.TUP_IKSIR
             ),
-
             classes.Item(
                 "Ölüm İksiri",
                 (0, 0, 255),
@@ -214,7 +216,6 @@ class GameScreen(Screen):
         
         if wave >= 4:
             pool.append(classes.Enemy.prepared_police)
-
             for _ in range(6):
                 pool.append(classes.Enemy.prepared_old)
 
@@ -271,14 +272,12 @@ class GameScreen(Screen):
             item_selected.set_pos(self.game.game_data.world)
             self.game.game_data.world.items.append(item_selected)
 
-        # Dalga temizlendiğinde oyuncuya ödül can tazelemesi ver
         self.game.game_data.player.hp = min(
             self.game.game_data.player.max_hp,
             self.game.game_data.player.hp + 45
         )
 
     def check_freeplay_wave(self, dt):
-        """Free Play modunda tüm düşmanlar temizlendiğinde yeni dalgayı başlatır."""
         all_dead = all(not enemy.living for enemy in self.game.game_data.enemy_data.values())
         if all_dead:
             self.wave_intermission_cd.reduce(dt)
@@ -288,55 +287,80 @@ class GameScreen(Screen):
                 self.wave_intermission_cd.refresh()
 
     def draw(self, surface: pygame.Surface):
-        self.game.game_data.world.draw(surface)
-        self.game.game_data.world.draw_items(surface, self.font3, self.game.game_data.player)
+        # 1. Ekran boyutuna göre render_surf'ü kontrol et
+        if not hasattr(self, "render_surf") or self.render_surf.get_size() != surface.get_size():
+            self.render_surf = pygame.Surface(surface.get_size())
+
+        target_surf = self.render_surf
+        target_surf.fill((0, 0, 0))
+
+        # -------------------------------------------------------------
+        # 2. DÜNYA VE VARLIKLAR (SARSINTIYA DAHİL OLAN KATMAN)
+        # -------------------------------------------------------------
+        self.game.game_data.world.draw(target_surf)
+        self.game.game_data.world.draw_items(target_surf, self.font3, self.game.game_data.player)
 
         if type(self.game.game_data.player.using_gun) == classes.Gun:
             self.game.game_data.player.using_gun.draw(
-                surface,
+                target_surf,
                 self.game.game_data.player.x + 30,
                 self.game.game_data.player.y + 10
             )
-
         elif type(self.game.game_data.player.using_gun) == classes.Charm:
             self.game.game_data.player.using_gun.draw(
-                surface,
+                target_surf,
                 self.game.game_data.player.x + 30,
                 self.game.game_data.player.y + 10
             )
 
         for enemy in self.game.game_data.enemy_data.values():
-            enemy.draw_arrows(surface)
-            enemy.draw_bombs(surface)
-            enemy.draw_sgrounds(surface)
+            enemy.draw_arrows(target_surf)
+            enemy.draw_bombs(target_surf)
+            enemy.draw_sgrounds(target_surf)
 
         classes.Enemy.draw(
-            surface,
+            target_surf,
             self.font3,
             list(self.game.game_data.enemy_data.values()),
             self.font1
         )
 
         classes.Boss.draw(
-            surface,
+            target_surf,
             self.font3,
             list(self.game.game_data.enemy_data.values()),
             self.dfont1
         )
 
-        self.game.game_data.player.draw(surface)
-        self.game.game_data.player.draw_dash(surface)
-        self.game.game_data.player.draw_teleport(surface)
+        # Hit-Flash Efekti (Darbe anında düşmanı saf beyaz parlat)
+        for enemy in self.game.game_data.enemy_data.values():
+            if getattr(enemy, "flash_timer", 0) > 0 and hasattr(enemy, "rect"):
+                flash_overlay = pygame.Surface(enemy.rect.size, pygame.SRCALPHA)
+                flash_overlay.fill((255, 255, 255, 200))
+                target_surf.blit(flash_overlay, enemy.rect, special_flags=pygame.BLEND_RGBA_ADD)
+
+        self.game.game_data.player.draw(target_surf)
+        self.game.game_data.player.draw_dash(target_surf)
+        self.game.game_data.player.draw_teleport(target_surf)
 
         for enemy in self.game.game_data.enemy_data.values():
-            enemy.draw_sneezes(surface)
+            enemy.draw_sneezes(target_surf)
+            enemy.draw_scr_lazers(target_surf)
 
+        # Neon kıvılcımları dünya yüzeyine çiz
+        self.game.juice.draw_sparks(target_surf)
+
+        # -------------------------------------------------------------
+        # 3. ANA EKRANA BLIT (ORGANİK SARSINTI UYGULANIR)
+        # -------------------------------------------------------------
+        shake_x, shake_y = self.game.juice.get_shake_offset()
+        surface.blit(target_surf, (shake_x, shake_y))
+
+        # -------------------------------------------------------------
+        # 4. HUD VE SABİT ARAYÜZ (SARSINTIDAN ETKİLENMEZ)
+        # -------------------------------------------------------------
         self.game.game_data.player.draw_statistics(surface, self.font2, self.game.info, self.game.clock)
 
-        for enemy in self.game.game_data.enemy_data.values():
-            enemy.draw_scr_lazers(surface)
-
-        # Free Play Modu Başlık Bilgisi
         if self.mode == "freeplay":
             alive_count = sum(1 for e in self.game.game_data.enemy_data.values() if e.living)
             wave_text = f"FREE PLAY  |  WAVE {self.freeplay_wave}  |  KALAN DUSMAN: {alive_count}"
@@ -366,13 +390,27 @@ class GameScreen(Screen):
         self.achievement_unlock_cd.reduce(dt)
 
         if self.scene is not None and self.scene.active:
+            self.game.juice.trauma = 0.0
             self.scene.update(dt, self.game.settings.get("sfx_volume"), self.game.settings.get("sfx"))
+            return
+
+        # -------------------------------------------------------------
+        # GAME JUICE & HITSTOP KONTROLÜ
+        # -------------------------------------------------------------
+        is_frozen = self.game.juice.update(dt)
+
+        # Beyaz flaş sayaçlarını azalt
+        for enemy in self.game.game_data.enemy_data.values():
+            if getattr(enemy, "flash_timer", 0) > 0:
+                enemy.flash_timer -= dt
+
+        # Mikro donma aktifken fizik ve hareket güncellemelerini atla
+        if is_frozen:
             return
 
         if not self.esc_screen and not self.gun_choosing:
             self.dash_cooldown.reduce(dt)
         self.cd_gun_choosing.reduce(dt)
-
         self.save_last_cd.reduce(dt)
 
         if self.save_last_cd.check():
@@ -381,6 +419,10 @@ class GameScreen(Screen):
         keys = pygame.key.get_pressed()
 
         if not self.gun_choosing and not self.esc_screen:
+            # Durum takibi (Hasar ve darbe tespiti için)
+            old_player_hp = self.game.game_data.player.hp
+            enemy_hps = {enemy.id: enemy.hp for enemy in self.game.game_data.enemy_data.values()}
+            old_deflect_count = len(getattr(self.game.game_data.player, "deflect_bullets", []))
 
             if keys[pygame.K_LSHIFT] and self.dash_cooldown.check() and not self.game.game_data.player.drawing and isinstance(self.game.game_data.player.using_gun, classes.Sword):
                 self.game.game_data.player.dash()
@@ -406,7 +448,6 @@ class GameScreen(Screen):
                     self.game.game_data.player.using_gun.fire()
 
             if not self.gun_choosing:
-
                 self.game.game_data.player.update(
                     pygame.mouse.get_pos(),
                     self.game.game_data.world,
@@ -445,7 +486,6 @@ class GameScreen(Screen):
                         self.game.game_data.enemy_data.values(),
                         self.game.cheated
                     )
-
                     enemy.update_arrows(self.game.game_data.player, dt)
                     enemy.summon(
                         dt,
@@ -453,7 +493,6 @@ class GameScreen(Screen):
                         self.game.game_data.world,
                         pending_enemies
                     )
-
                     enemy.update_bombs(self.game.game_data.player, dt)
                     enemy.update_cat_jump(self.game.game_data.player, dt)
                     enemy.update_scr_lazers(self.game.game_data.player, dt)
@@ -484,6 +523,54 @@ class GameScreen(Screen):
                 self.gun_choosing
             )
 
+            # ---------------------------------------------------------
+            # DARBE & VURUŞ TETİKLEYİCİLERİ (GAME JUICE FEEDBACK)
+            # ---------------------------------------------------------
+            # 1. Deflect (Mermi/Ok Karşılama)
+            new_deflect_count = len(getattr(self.game.game_data.player, "deflect_bullets", []))
+            curr_deflect_anim = getattr(self.game.game_data.player, "is_deflecting_anim", False)
+            if new_deflect_count > old_deflect_count or (curr_deflect_anim and not self._was_deflecting):
+                self.game.juice.hitstop(0.06)
+                self.game.juice.add_trauma(0.5)
+                self.game.juice.emit_sparks(
+                    self.game.game_data.player.x,
+                    self.game.game_data.player.y,
+                    count=14,
+                    color=(0, 240, 255)
+                )
+            self._was_deflecting = curr_deflect_anim
+
+            # 2. Oyuncunun Hasar Alması
+            if self.game.game_data.player.hp < old_player_hp:
+                self.game.juice.hitstop(0.04)
+                self.game.juice.add_trauma(0.4)
+                self.game.juice.emit_sparks(
+                    self.game.game_data.player.x,
+                    self.game.game_data.player.y,
+                    count=8,
+                    color=(255, 60, 60)
+                )
+
+            # 3. Düşmanların Hasar Alması ve Ölümü
+            for enemy in self.game.game_data.enemy_data.values():
+                prev_hp = enemy_hps.get(enemy.id, enemy.hp)
+                if enemy.hp < prev_hp:
+                    enemy.flash_timer = 0.08
+                    ex = getattr(enemy, "x", enemy.rect.centerx if hasattr(enemy, "rect") else self.game.width // 2)
+                    ey = getattr(enemy, "y", enemy.rect.centery if hasattr(enemy, "rect") else self.game.height // 2)
+
+                    if not enemy.living or enemy.hp <= 0:
+                        # Öldürücü vuruş
+                        self.game.juice.hitstop(0.07)
+                        self.game.juice.add_trauma(0.45)
+                        self.game.juice.emit_sparks(ex, ey, count=18, color=(255, 50, 50))
+                    else:
+                        # Normal darbe
+                        self.game.juice.hitstop(0.04)
+                        self.game.juice.add_trauma(0.25)
+                        spark_color = (0, 240, 255) if isinstance(self.game.game_data.player.using_gun, classes.Sword) else (255, 200, 50)
+                        self.game.juice.emit_sparks(ex, ey, count=10, color=spark_color)
+
             # Maksimum Kombo Takibi
             if getattr(self.game.game_data.player, "combo_meter", None):
                 current_combo = getattr(self.game.game_data.player.combo_meter, "combo", 0)
@@ -499,7 +586,6 @@ class GameScreen(Screen):
                                 args=("1_000_000_kill",),
                                 daemon=True
                             ).start()
-
                             self.achievement_unlock_cd.refresh()
 
                     if not self.game.achievements.achievements.get("10_000_kill").get("unlock"):
@@ -509,7 +595,6 @@ class GameScreen(Screen):
                                 args=("10_000_kill",),
                                 daemon=True
                             ).start()
-
                             self.achievement_unlock_cd.refresh()
 
                     if not self.game.achievements.achievements.get("500_kill").get("unlock"):
@@ -519,7 +604,6 @@ class GameScreen(Screen):
                                 args=("500_kill",),
                                 daemon=True
                             ).start()
-
                             self.achievement_unlock_cd.refresh()
 
             if self.game.game_data.player.hp <= 0:
@@ -576,7 +660,6 @@ class GameScreen(Screen):
             self.save_last()
 
     def handle_event(self, event: pygame.event.Event):
-
         if self.scene is not None and self.scene.active:
             self.scene.handle_event(event)
             return
@@ -617,10 +700,8 @@ class GameScreen(Screen):
 
             if event.key == pygame.K_ESCAPE and not self.gun_choosing:
                 self.esc_screen = not self.esc_screen
-
                 if self.esc_screen:
                     self.game.mixer.music.pause()
-
                 else:
                     self.game.mixer.music.unpause()
 
@@ -641,7 +722,6 @@ class GameScreen(Screen):
                                 old_gun.unequip(self.game.game_data.player)
                         self.game.game_data.player.using_gun = selected_gun
                     self.quick_gun_swap_index = secilen
-
                     self.gun_choosing = False
                     self.game.game_data.player.drawing = False
 
@@ -649,7 +729,6 @@ class GameScreen(Screen):
             if self.new_game_button.clicked(event, ScreenType.GAME):
                 if self.game.settings.get("sfx"):
                     self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
-
                 self.game.game_data = GameData.to_gamedata(game_data_defaults)
                 self.esc_screen = False
                 self.start_new_game(mode=self.mode)
@@ -658,7 +737,6 @@ class GameScreen(Screen):
             if self.continue_button.clicked(event, ScreenType.GAME):
                 if self.game.settings.get("sfx"):
                     self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
-
                 self.esc_screen = False
                 return
 
@@ -681,7 +759,6 @@ class GameScreen(Screen):
             if self.quit_button.clicked(event, ScreenType.GAME):
                 if self.game.settings.get("sfx"):
                     self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
-
                 self.game.screen_manager.set_screen(ScreenType.MENU)
                 return
 
@@ -690,22 +767,17 @@ class GameScreen(Screen):
 
     def check_win(self):
         if self.game.game_data.win:
-
             if not self.game.cheated:
                 if self.game.achievements is not None:
                     self.game.achievements.unlock("win")
-
                 if self.game.const_game_data is not None:
                     self.game.const_game_data["worlds_accessable"] = True
-
                 if self.game.dump("new_game"):
                     self.game.val_manager("win", 1, "change")
-
             else:
                 if self.game.last_boss == "urasin_sumuklu_pecetesi":
                     if self.game.achievements is not None:
                         self.game.achievements.unlock("masks_importance")
-
             self.game.screen_manager.set_screen(ScreenType.WIN)
 
     def update_level(self):
@@ -720,7 +792,6 @@ class GameScreen(Screen):
             if any(type(gun) == type(adding_gun) for gun in self.game.game_data.player.available_guns):
                 for i, gun in enumerate(self.game.game_data.player.available_guns):
                     gun: classes.Sword | classes.Gun
-
                     if type(gun) == type(adding_gun):
                         if classes.material_order[gun.material] <= classes.material_order[adding_gun.material]:
                             self.game.game_data.player.available_guns[i] = adding_gun
@@ -728,7 +799,6 @@ class GameScreen(Screen):
 
             if not found:
                 self.game.game_data.player.available_guns.append(adding_gun)
-
             self.game.game_data.player.using_gun = adding_gun
 
         except KeyError:
@@ -759,7 +829,6 @@ class GameScreen(Screen):
                     self.game.mixer.music.load(
                         os.path.join(BASE_DIR, r"musics/kim_ne_derse_desin.oga")
                     )
-
                     self.game.mixer.music.play(-1)
                     break
 
@@ -773,7 +842,6 @@ class GameScreen(Screen):
                         target_w = scale(320)
                         target_h = int(image.get_height() * (target_w / image.get_width()))
                         image = pygame.transform.smoothscale(image, (target_w, target_h))
-
                     elif speaker == "Player":
                         image = create_player_dialogue_portrait(width=380, height=430)
 
@@ -796,9 +864,7 @@ class GameScreen(Screen):
     def check_level(self):
         if all(not enemy.living for enemy in self.game.game_data.enemy_data.values()):
             self.game.game_data.level += 1
-
             self.game.logger.info(f"Started level {self.game.game_data.level}")
-
             self.update_level()
 
     def start_new_game(self, mode: str = "campaign"):
@@ -861,6 +927,10 @@ class GameScreen(Screen):
         self.save_last_cd.refresh()
 
     def on_enter(self, transfer_datas):
+        # Oyuncu nesnesine juice referansı ata
+        if hasattr(self.game.game_data, "player"):
+            self.game.game_data.player.juice = self.game.juice
+
         self.font1 = get_font(
             self.game.fonts,
             Lang.USING_LANG,
@@ -965,38 +1035,31 @@ class GameScreen(Screen):
         )
 
         self.game.mixer.music.stop()
-
         self.game.dump("last_music", "__change__")
+
         if self.game.settings.get("music"):
             for enemy in self.game.game_data.enemy_data.values():
                 if type(enemy) == classes.Boss and enemy.name.lower() == "uras'ın sümüklü peçetesi":
                     self.game.mixer.music.load(
                         os.path.join(BASE_DIR, r"musics/kim_ne_derse_desin.oga")
                     )
-
                     self.game.mixer.music.play(-1)
                     break
 
             try:
                 filename = ""
-
                 if self.game.settings.get("music_source").get("english").lower() == "music path":
                     filename = self.game.settings.get("other_music")
-
                 elif self.game.settings.get("music_source").get("english").lower() == "selected music":
-
                     if isinstance(self.game.settings.get("selected_music"), (classes.Music, Music)):
                         filename = self.game.settings.get("selected_music").filename
 
                 self.game.mixer.music.load(filename)
-
                 self.game.mixer.music.play(-1)
-
                 self.game.dump("last_music", filename)
 
             except FileNotFoundError:
                 self.game.logger.warning(f"Music {filename} is not found.")
-
             except pygame.error as e:
                 self.game.logger.error(f"Loading File {filename} caused pygame.error: {e}")
 

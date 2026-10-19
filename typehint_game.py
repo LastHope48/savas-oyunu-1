@@ -8,7 +8,6 @@ from gamedata import GameData
 from screens.typehint_screen_manager import ScreenManager
 
 from save_manager import SaveManager
-from pass_manager import HashManager
 from settings import Settings
 from console import CommandParser
 from sfx_manager import SFXManager
@@ -19,6 +18,7 @@ from val_manager import ValueManager
 from typing import NoReturn, Literal
 from userfont import userFont
 from dfont import DynamicFont
+from juice import JuiceManager
 
 LAST_BOSS_TYPES = Literal['normal', 'urasin_sumuklu_pecetesi']
 
@@ -40,12 +40,12 @@ class Game:
         self.running: bool
 
         self.save_manager: SaveManager
-        self.hash_manager: HashManager
         self.settings: Settings
         self.command_parser: CommandParser
         self.sfx_manager: SFXManager
         self.achievements: Achievements
         self.val_manager: ValueManager
+        self.juice: JuiceManager
         self.device: DeviceID
         self.dump: Dump
         self.illegal: bool

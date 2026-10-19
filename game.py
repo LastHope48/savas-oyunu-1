@@ -74,12 +74,12 @@ from update_manager import apply_pending_update
 
 from save_manager import SaveManager
 from settings import Settings
-from pass_manager import HashManager
 from console import CommandParser
 from sfx_manager import SFXManager
 from achievements import Achievements
 from device_id import DeviceID
 from val_manager import ValueManager
+from juice import JuiceManager
 
 from dump import Dump
 
@@ -126,8 +126,6 @@ class Game:
 
         self.save_manager = SaveManager(os.path.join(BASE_DIR, "saves"))
 
-        self.hash_manager = HashManager(filename=os.path.join(BASE_DIR, "securedvars"))
-
         self.settings = Settings(file=os.path.join(BASE_DIR, "settings.json"))
         self.settings.load()
 
@@ -160,6 +158,10 @@ class Game:
         threading.Thread(target=self.initialize_online_data, daemon=True).start()
 
         self.val_manager = ValueManager()
+
+        # Oyunun heyecanını katan manager!
+        self.juice = JuiceManager()
+        self.render_surf = pygame.Surface((self.width, self.height))
 
         if self.settings.get("music"):
             self.mixer.music.set_volume(self.settings.get("music_volume"))
@@ -581,7 +583,6 @@ class Game:
                         pygame.image.save(self.screen, os.path.join(desktop_path, rf"scr_shot - {datetime.now()}.png"))
 
                 self.screen_manager.handle_event(event)
-
 
             self.screen_manager.update(dt)
             # 1. Update kısmında:

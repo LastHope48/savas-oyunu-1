@@ -7,7 +7,6 @@ from zaman import after
 import copy
 import uuid
 import logging
-import settings_manager
 from exceptions import EnemyPositionError
 from enum import Enum, auto
 import _pickle
@@ -30,17 +29,14 @@ from collections import deque
 
 from typing import Final
 
-manager = settings_manager.SettingsManager("settings", os.path.join(BASE_DIR,"settings"), "TEST", "2.0")
-
 
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(filename)s: %(lineno)d [%(funcName)s] | %(message)s',
-    level=logging.DEBUG if manager.get_attribute("DEBUG") else logging.INFO,
+    level=logging.INFO,
     filename="game.log"
 )
 
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG if manager.get_attribute("DEBUG") else logging.INFO)
 pygame.mixer.pre_init(44100, -16, 2, 512)
 pygame.init()
 info = pygame.display.Info()
@@ -1736,6 +1732,9 @@ class Player:
         # Available Guns
         self.transparency_hover = 0
 
+        self.ghost_trail = []       # Hayalet izleri listesi
+        self.ghost_spawn_timer = 0.0
+
     @classmethod
     def set_settings_manager(cls, settings):
 
@@ -1782,6 +1781,13 @@ class Player:
                 swing_sound.play()
 
     def draw(self, surface: pygame.Surface):
+        for g in self.ghost_trail:
+            ghost_surf = g["image"].copy()
+            ghost_surf.set_alpha(int(g["alpha"]))
+            # Neon mavi bir tonlama vermek istersen:
+            ghost_surf.fill((0, 200, 255), special_flags=pygame.BLEND_RGB_MULT)
+            surface.blit(ghost_surf, g["rect"])
+            
         # 1. Mevcut animasyon durumunu kontrol et
         curr_state = getattr(self.anim, "current_state", "idle") if getattr(self, "anim", None) else "idle"
         is_deflecting = curr_state in ("deflect", "deflect_ready") or getattr(self, "is_deflecting_anim", False)
@@ -1868,6 +1874,25 @@ class Player:
         return hitbox
 
     def update(self, mouse_pos, world, dt, swidth: int, sheight: int, enemies: list):
+        # İz bırakma
+        alive_ghosts = []
+        for g in self.ghost_trail:
+            g["alpha"] -= 600 * dt  # Çok hızlı solar
+            if g["alpha"] > 0:
+                alive_ghosts.append(g)
+        self.ghost_trail = alive_ghosts
+
+        if self.drawing:
+            self.ghost_spawn_timer += dt
+            if self.ghost_spawn_timer >= 0.04:
+                self.ghost_spawn_timer = 0.0
+                if getattr(self, "image", None):
+                    self.ghost_trail.append({
+                        "image": self.image.copy(),
+                        "rect": self.image_rect.copy(),
+                        "alpha": 180.0
+                    })
+
         # 1. Mermi sektirme (Deflect) güncellemeleri
         for bullet in self.deflect_bullets:
             bullet: Bullet
@@ -1895,8 +1920,12 @@ class Player:
                         move_dist = self.speed * dt
                         step = min(move_dist, self.distance)
 
-                        target_vx = (self.dx / self.distance) * step
-                        target_vy = (self.dy / self.distance) * step
+                        radians = math.atan2(self.dy, self.dx)
+                        move_x = math.cos(radians)
+                        move_y = math.sin(radians)
+
+                        target_vx = move_x * step
+                        target_vy = move_y * step
 
                         # --- ADIM 1: X EKSENİ TESTİ (Yatay Kayma) ---
                         test_x = self.x + target_vx
@@ -2155,6 +2184,7 @@ class Player:
                         if Enemy.DAMAGE_SWORD_DASH in enemy.damagables:
                             if self.image_rect.colliderect(enemy.image_rect):
                                 enemy.hp -= self.using_gun.attack
+                                enemy.flash_timer = 0.07
 
                                 hit_anyone = True
 
@@ -2196,6 +2226,7 @@ class Player:
                             if Enemy.DAMAGE_SWORD in enemy.damagables:
                                 if hit_box.colliderect(enemy.image_rect):
                                     enemy.hp -= self.using_gun.attack
+                                    enemy.flash_timer = 0.07
 
                                     hit_anyone = True
 
@@ -2648,6 +2679,9 @@ class Player:
         state.pop("parlama_image2", None)
         state.pop("parlama_image_orig", None)
         state.pop("anim", None)
+
+        # Hayalet iz siliniyor
+        self.ghost_trail.clear()
         
         # Tüm ses değişkenlerini pickle dışı bırakıyoruz:
         state.pop("attack_swings", None)
@@ -3469,6 +3503,7 @@ class Enemy:
         self.charging_ability = None
 
         self.sneeze: list[Sneeze] = []
+        self.flash_timer = 0.0 # Darbe beyazlama sayacı
 
     @classmethod
     def set_val_manager(cls, val_manager: ValueManager):
@@ -3537,7 +3572,7 @@ class Enemy:
             self.rect = self.uimage.get_rect(topleft=(self.x, self.y))
 
             if player.image_rect.colliderect(self.image_rect):
-                player.movable=False
+                player.movable = False
                 player.hp -= int(30 * dt)
 
     def update_scr_lazers(self, player: Player, dt):
@@ -3838,7 +3873,8 @@ class Enemy:
         )
 
     def update(self, player: Player, world: World, dt, level: list, cheated=False):
-
+        if self.flash_timer > 0:
+            self.flash_timer -= dt
 
         if not self.cat_jumping:
 
@@ -4094,6 +4130,8 @@ class Boss(Enemy):
 
 
     def update(self, player: Player, world: World, dt, level: list, cheated=False):
+        if self.flash_timer > 0:
+            self.flash_timer -= dt
 
         if not self.cat_jumping:
 
