@@ -17,6 +17,9 @@ Format [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) standardını te
 ### Removed
 - `settings_manager.py` ve `pass_manager.py` modülleri kullanımdan kaldırıldı.
 
+### Changed
+- lose_music.ogg yerini cant_give_up.wav aldı.
+
 ### Fixed
 - Ayarlar ekranının kaydırma sistemi düzeltildi.
 - Başarıların ekrandan taşması düzeltildi.
