@@ -1,5 +1,6 @@
 import math
 from dataclasses import dataclass
+from calcs import scale
 
 import pygame
 
@@ -29,7 +30,8 @@ class Scene:
         msgbox_padding: int = 15,
         text_color: tuple[int, int, int] | str = "black",
         typing_speed: float = 10.0,
-        typing_sound: pygame.mixer.Sound = None,
+        typing_sound1: pygame.mixer.Sound = None,
+        typing_sound2: pygame.mixer.Sound = None
     ):
         self.font = font
         self.dialogues = dialogues
@@ -47,7 +49,8 @@ class Scene:
         self.text_color = text_color
         self.typing_speed = typing_speed
 
-        self.typing_sound = typing_sound
+        self.typing_sound1 = typing_sound1
+        self.typing_sound2 = typing_sound2
 
         # ---------------------------------
         # DURUM
@@ -64,7 +67,7 @@ class Scene:
         self.character_scale = 0.0
         self.character_animation_time = 0.0
         self.character_animation_duration = 0.25
-        self.character_max_height = 430
+        self.character_max_height = scale(430)
 
         # Performans için önbellek değişkenleri
         self.cached_character: pygame.Surface | None = None
@@ -142,11 +145,20 @@ class Scene:
         self.cached_char_h = target_h
 
     def update(self, dt: float, volume=None, play=True):
+
         if not self.active:
             return
 
+        dialogue = self.current_dialogue
+        
+        if dialogue.speaker.lower() == "player":
+            type_sound = self.typing_sound2
+
+        elif dialogue.speaker.lower() == "boss":
+            type_sound = self.typing_sound1
+
         if self.msgbox is not None:
-            self.msgbox.update(dt, self.typing_sound, volume, play)
+            self.msgbox.update(dt, type_sound, volume, play)
 
         # Karakter giriş animasyonu
         if self.character_scale < 1.0:
@@ -232,14 +244,14 @@ class Scene:
         if self.msgbox is None or not self.msgbox.finished:
             return
 
-        offset = math.sin(self.arrow_time * 5) * 6
-        x = screen_w - 40
-        y = screen_h - 32 + offset
+        offset = math.sin(self.arrow_time * 5) * scale(6)
+        x = screen_w - scale(40)
+        y = screen_h - scale(32) + offset
 
         points = [
-            (x - 18, y - 8),
-            (x + 18, y - 8),
-            (x, y + 13)
+            (x - scale(18), y - scale(8)),
+            (x + scale(18), y - scale(8)),
+            (x, y + scale(13))
         ]
         pygame.draw.polygon(surface, (255, 210, 0), points)
 

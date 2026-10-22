@@ -9,6 +9,16 @@ Format [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) standardını te
 - Yeni "Aether Katana" silahı ve Siber Dünya temalı yeni harita için altyapı çalışmaları.
 - Farklı dünyalar eklemek için altyapı ve OOP çalışmaları.
 
+## [0.4.2] - 2026-10-21
+### Fixed
+- İstatistiklerin ekrandan taşması düzeltildi.
+- Güncelleme düzeltildi.
+- Konuşma sahneleri ölçeklendirildi.
+
+### Added
+- Daha fazla müzik eklendi.
+- Düşman görseli bulunamadığında kullanılması için görsel üretildi.
+
 ## [0.4.1] - 2026-10-19
 ### Added
 - Gerçekçi oyun mekanikleri.
@@ -45,6 +55,7 @@ Format [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) standardını te
 - Düşmanların bazı ekranlarda gereğinden çok küçük görünmesine yol açan hata giderildi.
 - Çarpışma ve temas alanlarındaki (*hitbox*) hatalı sınır hesaplamaları düzeltildi.
 
-[Unreleased]: https://github.com/LastHope48/savas-oyunu-1/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/LastHope48/savas-oyunu-1/compare/v0.4.2...HEAD
+[0.4.2]: https://github.com/LastHope48/savas-oyunu-1/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/LastHope48/savas-oyunu-1/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/LastHope48/savas-oyunu-1/compare/v0.3.1...v0.4.0

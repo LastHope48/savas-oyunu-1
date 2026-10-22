@@ -16,11 +16,12 @@ from version import VERSION
 
 
 if getattr(sys, "frozen", False):
-    # PyInstaller
     GAME_DIR = Path(sys.executable).parent
+    # PyInstaller 6 onedir modunda sys._MEIPASS doğrudan _internal klasörünü işaret eder:
+    INTERNAL_DIR = Path(getattr(sys, "_MEIPASS", GAME_DIR / "_internal"))
 else:
-    # Normal Python
     GAME_DIR = Path(__file__).resolve().parent
+    INTERNAL_DIR = GAME_DIR
 
 GITHUB_API = (
     "https://api.github.com/repos/"
@@ -269,74 +270,66 @@ def verify_update():
 
 def prepare_update(url, signature_url, progress_callback=None):
     try:
-        # Eski güncelleme dosyalarını temizle
+        # 1. İNDİRME BAŞLAMADAN ÖNCE KRİTİK KONTROLLER (Sonradan sürpriz yaşanmasın)
+        if not PUBLIC_KEY_FILE.exists():
+            return False, f"Güncelleme hatası: Public key bulunamadı ({PUBLIC_KEY_FILE.name})"
+
+        # Eski güncelleme kalıntılarını temizle
         if UPDATE_DIR.exists():
-            shutil.rmtree(UPDATE_DIR)
+            try:
+                shutil.rmtree(UPDATE_DIR)
+            except PermissionError:
+                return False, "Güncelleme hatası: Eski dosyalar silinemedi (Yönetici izni gerekebilir)."
 
         UPDATE_FILES_DIR.mkdir(parents=True, exist_ok=True)
 
-        # ZIP'i indir
-        download_file(
-            url,
-            UPDATE_ZIP,
-            progress_callback
-        )
+        # 2. İNDİRME İŞLEMLERİ
+        download_file(url, UPDATE_ZIP, progress_callback)
+        download_file(signature_url, SIGNATURE_FILE)
 
-        # Dijital imzayı indir
-        download_file(
-            signature_url,
-            SIGNATURE_FILE
-        )
-
-        # Dijital imzayı doğrula
+        # 3. İMZA DOĞRULAMA
         verify_update()
 
-        # Doğrulama başarılıysa ZIP'i aç
+        # 4. ARŞİVİ AÇMA
         with zipfile.ZipFile(UPDATE_ZIP, "r") as zip_file:
             zip_file.extractall(UPDATE_FILES_DIR)
 
-        # Geçici dosyaları sil
-        UPDATE_ZIP.unlink()
-        SIGNATURE_FILE.unlink()
+        # Geçici dosyaları temizle
+        UPDATE_ZIP.unlink(missing_ok=True)
+        SIGNATURE_FILE.unlink(missing_ok=True)
 
         if progress_callback:
             progress_callback(100)
 
         return True, None
 
+    # --- ÖZEL HATA YAKALAMA BLOKLARI (Son except'e düşmeyi önler) ---
+
     except InvalidSignature:
         shutil.rmtree(UPDATE_DIR, ignore_errors=True)
+        return False, "Güncelleme hatası: Dijital imza geçersiz (Güvenlik doğrulaması başarısız)."
 
-        return (
-            False,
-            "Güncelleme hatası: Güncellemenin doğrulaması başarısız oldu."
-        )
-
-    except requests.RequestException:
+    except requests.RequestException as e:
         shutil.rmtree(UPDATE_DIR, ignore_errors=True)
-
-        return (
-            False,
-            "Güncelleme hatası: Güncelleme indirilemedi."
-        )
+        return False, f"Güncelleme hatası: İndirme başarısız (İnternet bağlantınızı kontrol edin)."
 
     except zipfile.BadZipFile:
         shutil.rmtree(UPDATE_DIR, ignore_errors=True)
+        return False, f"Güncelleme hatası: İndirilen güncelleme dosyası bozuk veya eksik."
 
-        return (
-            False,
-            "Güncelleme hatası: Güncelleme dosyası bozuk."
-        )
+    except RuntimeError as e:
+        shutil.rmtree(UPDATE_DIR, ignore_errors=True)
+        return False, f"Güncelleme hatası: {e}"
+
+    except PermissionError:
+        shutil.rmtree(UPDATE_DIR, ignore_errors=True)
+        return False, f"Güncelleme hatası: Dosya yazma izni yok (Akıllı tahta koruması aktif olabilir)."
 
     except Exception as e:
+        # Gerçekten öngörülemeyen nadir bir şey olursa en azından hatayı logla ve gizleme
         shutil.rmtree(UPDATE_DIR, ignore_errors=True)
-
-        print(f"HATA: {e}")
-
-        return (
-            False,
-            "Güncelleme hatası: Beklenmeyen bir hata oluştu."
-        )
+        print(f"KRİTİK HATA DETAYI: {type(e).__name__} - {e}")
+        return False, f"Güncelleme hatası [{type(e).__name__}]: {e}"
 
 
 def apply_pending_update():

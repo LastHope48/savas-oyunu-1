@@ -541,9 +541,11 @@ class Settings:
                 "type": "select",
                 "values": [
                     Music(os.path.join(BASE_DIR, r"musics/eba_phonk.mp3"), "Eba Fank"),
+                    Music(os.path.join(BASE_DIR, r"musics/zil_caldi_uctuk_biz.ogg"), "Zil Çaldı Uçtuk Biz"),
                     Music(os.path.join(BASE_DIR, r"musics/bouncing_seals.mp3"), "Zıplayan foklar"),
                     Music(os.path.join(BASE_DIR, r"musics/miguel_phonk.mp3"), "Miguel Phonk"),
                     Music(os.path.join(BASE_DIR, r"musics/verity_obesity.mp3"), "Obez Verity"),
+                    Music(os.path.join(BASE_DIR, r"musics/vanilla_takilmak.ogg"), "Yobaz Verity"),
                     Music(os.path.join(BASE_DIR, r"musics/overclock.ogg"), "Overclock")
                 ],
                 "font_size": 24

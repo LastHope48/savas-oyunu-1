@@ -1,5 +1,7 @@
 import os
 import platform
+import base64
+
 os.environ['SDL_VIDEO_X11_WMCLASS'] = "savas_oyunu"
 os.environ['SDL_VIDEO_WAYLAND_WMCLASS'] = "savas_oyunu"
 
@@ -20,14 +22,13 @@ import json
 from datetime import datetime
 
 import logging
+
 from classes import defaults as game_data_defaults
 from classes import constant_defaults
 
 import classes
 import colours
 import copy
-
-from levels import level17, levels
 
 from fonts import (
     font1_univ,
@@ -88,7 +89,7 @@ import os
 from basedir import BASE_DIR
 
 from screens.screen_manager import ScreenManager
-
+from levels import level17, levels
 
 class Game:
     GAME_FILE = os.path.join(BASE_DIR, "game_data.dat")
@@ -96,9 +97,29 @@ class Game:
         "worlds_accessable": False
     }
 
+    IMG_FALLBACKS = {
+        "enemy_r": "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",
+        "enemy_l": "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"
+    }
+
+    IMG_FALLBACK_PATHS = {
+        "enemy_r": os.path.join(BASE_DIR, r"images/fallback_enemyr.png"),
+        "enemy_l": os.path.join(BASE_DIR, r"images/fallback_enemyl.png")
+    }
+
     def __init__(self):
         pygame.init()
         mixer.init()
+
+        logging.basicConfig(
+            level=logging.DEBUG,
+            format='%(asctime)s - %(levelname)s - %(filename)s: %(lineno)d [%(funcName)s] | %(message)s',
+            filename="game.log"
+        )
+
+        self.logger = logging.getLogger(__name__)
+
+        self._check_fallbacks()
 
         self.mixer = mixer
 
@@ -113,14 +134,6 @@ class Game:
 
         pygame.display.set_caption("Öz Hakiki GTA 7")
         self.clock = pygame.time.Clock()
-
-        logging.basicConfig(
-            level=logging.DEBUG,
-            format='%(asctime)s - %(levelname)s - %(filename)s: %(lineno)d [%(funcName)s] | %(message)s',
-            filename="game.log"
-        )
-
-        self.logger = logging.getLogger(__name__)
 
         self.GAME_VERSION = VERSION
 
@@ -309,6 +322,21 @@ class Game:
         self.cheated = True
 
         return SUCCESS, f"Oyun {self.command_parser.variables['dt_multiplier']} kat daha hızlı."
+
+    def _check_fallbacks(self):
+        self.logger.info("Checking if fallback images deleted.")
+
+        for key, value in Game.IMG_FALLBACK_PATHS.items():
+            if not os.path.exists(value):
+                self.logger.warning(f"{value} fallback image not found. Recovering image by base64.")
+
+                try:
+                    fallback_bytes = base64.b64decode(Game.IMG_FALLBACKS[key])
+                    with open(value, "wb") as f:
+                        f.write(fallback_bytes)
+
+                except Exception as e:
+                    self.logger.error(f"Fallback recover caused error: {e}")
 
     def fun(self, key: str):
         def append_cheat_gun():

@@ -561,12 +561,14 @@ class GameScreen(Screen):
 
                     if not enemy.living or enemy.hp <= 0:
                         # Öldürücü vuruş
-                        self.game.juice.hitstop(0.07)
+                        if type(self.game.game_data.player.using_gun) != classes.Gun:
+                            self.game.juice.hitstop(0.07)
                         self.game.juice.add_trauma(0.45)
                         self.game.juice.emit_sparks(ex, ey, count=18, color=(255, 50, 50))
                     else:
                         # Normal darbe
-                        self.game.juice.hitstop(0.04)
+                        if type(self.game.game_data.player.using_gun) != classes.Gun:
+                            self.game.juice.hitstop(0.04)
                         self.game.juice.add_trauma(0.25)
                         spark_color = (0, 240, 255) if isinstance(self.game.game_data.player.using_gun, classes.Sword) else (255, 200, 50)
                         self.game.juice.emit_sparks(ex, ey, count=10, color=spark_color)
@@ -842,6 +844,9 @@ class GameScreen(Screen):
                         target_w = scale(320)
                         target_h = int(image.get_height() * (target_w / image.get_width()))
                         image = pygame.transform.smoothscale(image, (target_w, target_h))
+
+                        boss_typing_sound = enemy.typing_sound
+
                     elif speaker == "Player":
                         image = create_player_dialogue_portrait(width=380, height=430)
 
@@ -857,7 +862,8 @@ class GameScreen(Screen):
             self.scene = Scene(
                 font=self.dfont1,
                 dialogues=dialogues,
-                typing_sound=self.typing_sound
+                typing_sound2=self.typing_sound,
+                typing_sound1=boss_typing_sound
             )
             self.scene.start()
 
@@ -900,6 +906,8 @@ class GameScreen(Screen):
             self.spawn_freeplay_wave(self.freeplay_wave)
         else:
             self.game.game_data.level = 1
+
+
             if not getattr(self, "_special_events_injected", False):
                 levels[14].append(classes.Enemy.skzoo(self.game.game_data.player, special=True))
                 level_item_map["level7"][0].effects.append(

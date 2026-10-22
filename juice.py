@@ -1,10 +1,11 @@
 import pygame
 import random
 import math
+from calcs import scale
 
 class Spark:
     """Mermi sektirme veya kılıç vuruşunda fırlayan neon çizgi kıvılcımı."""
-    def __init__(self, x: float, y: float, angle: float, speed: float, color: tuple, length: float = 12.0):
+    def __init__(self, x: float, y: float, angle: float, speed: float, color: tuple, length: float = scale(12.0)):
         self.x = x
         self.y = y
         self.angle = angle
@@ -28,7 +29,7 @@ class Spark:
         end_x = self.x + math.cos(self.angle) * cur_len
         end_y = self.y + math.sin(self.angle) * cur_len
         # Parlak çekirdek ve renk
-        pygame.draw.line(surface, (255, 255, 255), (self.x, self.y), (end_x, end_y), width=max(1, int(2 * self.life)))
+        pygame.draw.line(surface, (255, 255, 255), (self.x, self.y), (end_x, end_y), width=max(1, int(scale(2) * self.life)))
         pygame.draw.line(surface, self.color, (self.x, self.y), (end_x, end_y), width=max(1, int(3 * self.life)))
 
 
@@ -54,7 +55,7 @@ class JuiceManager:
             ang_deg = base_angle + random.uniform(-spread / 2, spread / 2)
             rad = math.radians(ang_deg)
             spd = random.uniform(250, 650)
-            self.sparks.append(Spark(x, y, rad, spd, color, length=random.uniform(8, 16)))
+            self.sparks.append(Spark(x, y, rad, spd, color, length=random.uniform(scale(8), scale(16))))
 
     def update(self, dt: float) -> bool:
         """

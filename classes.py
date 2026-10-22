@@ -2299,41 +2299,65 @@ class Player:
             "speed": Lang(türkçe="Hız", english="Speed", arabic="سرعة", sanskrit="गति")
         }
 
-        y = info.current_h - 225
-        h = 56  # Daha derli toplu ve ergonomik bir yükseklik
-        bar_padding = 40  # Kapsül iç boşluğu
+        # ---------------------------------------------------------
+        # TÜM ÖLÇÜLERİN DİNAMİK ORANLANMASI (1:1 Görsel Koruma)
+        # ---------------------------------------------------------
+        y = info.current_h - int(scale(120))
+        h = max(18, int(scale(28)))
+
+        bar_padding = int(scale(20))
+        item_padding = int(scale(18))
+        fps_padding = int(scale(15))
+        min_gap = max(1, int(scale(6)))
+
+        # Kart & Çerçeve Ölçekleri
+        shadow_offset = max(1, int(scale(4)))
+        r_outer = 9
+        r_inner = 9
+        border_w = max(1, int(scale(2)))
+        inner_pad = max(2, int(scale(8)))
+        min_fill_w = max(2, int(scale(6)))
+
+        # Metin & Vurgu Çizgisi Ölçekleri
+        accent_w = max(1, int(scale(3)))
+        accent_x = int(scale(8))
+        accent_y = max(2, int(scale(5)))
+        text_start_pad = int(scale(18))
+        text_shadow_off = max(1, int(scale(1)))
+
+        in_pad = scale(16) # İstatistik kutusunun kenar yumuşatması yüzünden yazının taşmasını engellemek için.
 
         # ---------------------------------------------------------
         # 1. DİNAMİK GENİŞLİK HESAPLAMALARI
         # ---------------------------------------------------------
         raw_items: list[tuple[str, int, dict]] = []
 
-        # CAN BARI (Maksimum can referans alınır)
+        # CAN BARI
         hp_max_text = f"{langs['hp']()}: {self.max_hp:.1f}"
-        hp_width = font.font.size(hp_max_text)[0] + bar_padding
+        hp_width = font.font.size(hp_max_text)[0] + bar_padding 
         raw_items.append(("hp", hp_width, {}))
 
-        # HEAL BARI (Aktifse, HP ile aynı genişlikte simetrik durur)
+        # HEAL BARI
         if self.ability_healing:
             raw_items.append(("heal", hp_width, {}))
 
         # SİLAH
         w_lbl = f"{langs['weapon']()}: "
         w_val = f"{self.using_gun.name}"
-        weapon_width = font.font.size(w_lbl + w_val)[0] + 32
+        weapon_width = font.font.size(w_lbl + w_val)[0] + item_padding + in_pad
         raw_items.append(("weapon", weapon_width, {"lbl": w_lbl, "val": w_val}))
 
         # HIZ
         s_lbl = f"{langs['speed']()}: "
         s_val = f"{int(self.speed / 100)}"
-        speed_width = font.font.size(s_lbl + s_val)[0] + 32
+        speed_width = font.font.size(s_lbl + s_val)[0] + item_padding + in_pad
         raw_items.append(("speed", speed_width, {"lbl": s_lbl, "val": s_val}))
 
         # FPS
         fps_lbl = "FPS: "
         fps_val = f"{int(clock.get_fps())}"
         fps_max_val = f"{Player.SETTINGS.get('fps')}"
-        fps_width = font.font.size(fps_lbl + fps_max_val)[0] + 30
+        fps_width = font.font.size(fps_lbl + fps_max_val)[0] + fps_padding + in_pad
         raw_items.append(("fps", fps_width, {"lbl": fps_lbl, "val": fps_val}))
 
         # ---------------------------------------------------------
@@ -2341,7 +2365,7 @@ class Player:
         # ---------------------------------------------------------
         total_content_width = sum(w for _, w, _ in raw_items)
         num_items = len(raw_items)
-        gap = max(12, (info.current_w - total_content_width) // (num_items + 1))
+        gap = max(min_gap, (info.current_w - total_content_width) // (num_items + 1))
 
         elements: list[tuple[str, pygame.Rect, dict]] = []
         current_x = gap
@@ -2356,12 +2380,12 @@ class Player:
         # ---------------------------------------------------------
         for element, rect, meta in elements:
 
-            # Ortak Kart Gölgesi (Hafif 3D derinlik katar)
-            shadow_rect = rect.move(0, 4)
-            pygame.draw.rect(surface, (12, 14, 18), shadow_rect, border_radius=14)
+            # Ortak Kart Gölgesi
+            shadow_rect = rect.move(0, shadow_offset)
+            pygame.draw.rect(surface, (12, 14, 18), shadow_rect, border_radius=r_outer)
 
-            # Ortak Kart Gövdesi (Koyu grafit panel)
-            pygame.draw.rect(surface, (24, 28, 36), rect, border_radius=14)
+            # Ortak Kart Gövdesi
+            pygame.draw.rect(surface, (24, 28, 36), rect, border_radius=r_outer)
 
             # -----------------------------------------------------
             # A) CAN BARI (HP)
@@ -2370,28 +2394,28 @@ class Player:
                 percent = max(0.0, min(1.0, self.hp / self.max_hp)) if self.max_hp > 0 else 0
 
                 # İç oyuk hazne (Track)
-                inner_rect = rect.inflate(-8, -8)
-                pygame.draw.rect(surface, (45, 16, 20), inner_rect, border_radius=10)
+                inner_rect = rect.inflate(-inner_pad, -inner_pad)
+                pygame.draw.rect(surface, (45, 16, 20), inner_rect, border_radius=r_inner)
 
                 # Doldurulan Can Barı
                 if percent > 0:
-                    fill_w = max(6, int(inner_rect.width * percent))
+                    fill_w = max(min_fill_w, int(inner_rect.width * percent))
                     fill_rect = pygame.Rect(inner_rect.left, inner_rect.top, fill_w, inner_rect.height)
                     
-                    # Can kritik seviyedeyse turuncu/kırmızı, normalse canlı kırmızı
                     hp_color = (235, 48, 64) if percent > 0.25 else (245, 95, 35)
-                    pygame.draw.rect(surface, hp_color, fill_rect, border_radius=10)
+                    pygame.draw.rect(surface, hp_color, fill_rect, border_radius=r_inner)
 
                     # Üst Cam Parlaması (Glossy Highlight)
-                    sheen_rect = pygame.Rect(fill_rect.left, fill_rect.top, fill_rect.width, max(2, fill_rect.height // 3))
-                    pygame.draw.rect(surface, (255, 120, 130), sheen_rect, border_top_left_radius=10, border_top_right_radius=10)
+                    sheen_h = max(2, fill_rect.height // 3)
+                    sheen_rect = pygame.Rect(fill_rect.left, fill_rect.top, fill_rect.width, sheen_h)
+                    pygame.draw.rect(surface, (255, 120, 130), sheen_rect, border_top_left_radius=r_inner, border_top_right_radius=r_inner)
 
                 # Dış metalik çerçeve çizgisi
-                pygame.draw.rect(surface, (70, 78, 92), rect, width=2, border_radius=14)
+                pygame.draw.rect(surface, (70, 78, 92), rect, width=border_w, border_radius=r_outer)
 
                 # Metin ve Metin Gölgesi
                 hp_str = f"{langs['hp']()}: {self.hp:.1f}"
-                font.draw_text(hp_str, (rect.centerx + 1, rect.centery + 1), surface, (20, 20, 20), hiza="center")
+                font.draw_text(hp_str, (rect.centerx + text_shadow_off, rect.centery + text_shadow_off), surface, (20, 20, 20), hiza="center")
                 font.draw_text(hp_str, rect.center, surface, colours.WHITE, hiza="center")
 
             # -----------------------------------------------------
@@ -2400,23 +2424,22 @@ class Player:
             elif element == "heal":
                 percent_heal = max(0.0, min(1.0, self.heal_cooldown / self.heal_cooldown_orig)) if self.heal_cooldown_orig > 0 else 0
 
-                inner_rect = rect.inflate(-8, -8)
-                # İyileşme hazır değilken bekleme göstergesi
-                pygame.draw.rect(surface, (18, 32, 54), inner_rect, border_radius=10)
+                inner_rect = rect.inflate(-inner_pad, -inner_pad)
+                pygame.draw.rect(surface, (18, 32, 54), inner_rect, border_radius=r_inner)
 
                 if percent_heal > 0:
-                    fill_w = max(6, int(inner_rect.width * percent_heal))
+                    fill_w = max(min_fill_w, int(inner_rect.width * percent_heal))
                     fill_rect = pygame.Rect(inner_rect.left, inner_rect.top, fill_w, inner_rect.height)
-                    pygame.draw.rect(surface, (40, 135, 245), fill_rect, border_radius=10)
+                    pygame.draw.rect(surface, (40, 135, 245), fill_rect, border_radius=r_inner)
 
-                    # Üst Cam Parlaması
-                    sheen_rect = pygame.Rect(fill_rect.left, fill_rect.top, fill_rect.width, max(2, fill_rect.height // 3))
-                    pygame.draw.rect(surface, (110, 190, 255), sheen_rect, border_top_left_radius=10, border_top_right_radius=10)
+                    sheen_h = max(2, fill_rect.height // 3)
+                    sheen_rect = pygame.Rect(fill_rect.left, fill_rect.top, fill_rect.width, sheen_h)
+                    pygame.draw.rect(surface, (110, 190, 255), sheen_rect, border_top_left_radius=r_inner, border_top_right_radius=r_inner)
 
-                pygame.draw.rect(surface, (60, 85, 120), rect, width=2, border_radius=14)
+                pygame.draw.rect(surface, (60, 85, 120), rect, width=border_w, border_radius=r_outer)
 
                 heal_str = f"{self.heal_cooldown:.2f}s"
-                font.draw_text(heal_str, (rect.centerx + 1, rect.centery + 1), surface, (15, 20, 30), hiza="center")
+                font.draw_text(heal_str, (rect.centerx + text_shadow_off, rect.centery + text_shadow_off), surface, (15, 20, 30), hiza="center")
                 font.draw_text(heal_str, rect.center, surface, (220, 240, 255), hiza="center")
 
             # -----------------------------------------------------
@@ -2426,20 +2449,24 @@ class Player:
                 lbl = meta["lbl"]
                 val = meta["val"]
 
-                # İnce panel çerçevesi
-                pygame.draw.rect(surface, (50, 58, 70), rect, width=2, border_radius=14)
+                pygame.draw.rect(surface, (50, 58, 70), rect, width=border_w, border_radius=r_outer)
 
-                # Sol tarafa minik şık bir vurgu çizgisi (Neon accent)
+                # Sol neon vurgusu (Kenarlardan accent_y kadar boşluk bırakılarak kart boyuna ortalanır)
                 accent_color = (255, 205, 50) if element == "weapon" else ((65, 220, 240) if element == "speed" else (80, 230, 120))
-                pygame.draw.line(surface, accent_color, (rect.left + 8, rect.top + 14), (rect.left + 8, rect.bottom - 14), width=3)
+                line_x = rect.left + accent_x
+                pygame.draw.line(
+                    surface,
+                    accent_color,
+                    (line_x, rect.top + accent_y),
+                    (line_x, rect.bottom - accent_y),
+                    width=accent_w
+                )
 
                 # Metin Konumlandırma
                 lbl_w = font.font.size(lbl)[0]
-                text_start_x = rect.left + 18
+                text_start_x = rect.left + text_start_pad
 
-                # 1. Başlık Etiketi (Muted açık gri)
                 font.draw_text(lbl, (text_start_x, rect.centery), surface, (155, 168, 185), hiza="midleft")
-                # 2. Değer (Vurgulu parıldayan renk)
                 font.draw_text(val, (text_start_x + lbl_w, rect.centery), surface, accent_color, hiza="midleft")
 
     def copy(self):
@@ -2776,10 +2803,10 @@ class World:
                         self.rocks_rects.append(collision_rect)
                         break
 
-                if deneme > 10 and not uyarildi:
-                    logging.warning("Creating rocks try exceed 10.")
+                if deneme > 20 and not uyarildi:
+                    logging.warning(f"Creating rocks try exceed 20. Try: {deneme}")
                 if deneme > 50:
-                    logging.error("Creating rocks limit.")
+                    logging.error(f"Creating rocks limit. Try: {deneme}")
                     break
 
     def draw(self, screen: pygame.Surface):
@@ -3428,8 +3455,20 @@ class Enemy:
         self.limage_name = l_image_name
         self.image_size = size
 
-        self.image_r = pygame.image.load(self.rimage_name)
-        self.image_l = pygame.image.load(self.limage_name)
+        fallback_r = os.path.join(BASE_DIR, r"images/fallback_enemyr.png")
+        fallback_l = os.path.join(BASE_DIR, r"images/fallback_enemyr.png")
+
+        try:
+            self.image_r = pygame.image.load(self.rimage_name)
+
+        except FileNotFoundError:
+            self.image_r = pygame.image.load(fallback_r)
+
+        try:
+            self.image_l = pygame.image.load(self.limage_name)
+
+        except FileNotFoundError:
+            self.image_l = pygame.image.load(fallback_l)
 
         # Ekranın yüzde kaçını kaplayacak
         screen_fill_percentage = 0.06
@@ -3787,7 +3826,7 @@ class Enemy:
                 head_y = enemy.y
                 enemy.telegraph.draw(surface, (head_x, head_y))
 
-                font.draw_text(str(enemy.hp), (enemy.x+enemy.uimage.get_width()/2, enemy.y-10), surface, colours.BLACK, hiza="center")
+                font.draw_text(str(max(0, enemy.hp)), (enemy.x+enemy.uimage.get_width()/2, enemy.y-10), surface, colours.BLACK, hiza="center")
                 surface.blit(enemy.uimage, (enemy.x, enemy.y))
     
     @classmethod
@@ -4026,6 +4065,38 @@ class Enemy:
         if getattr(self, "telegraph", None):
             self.telegraph.cancel()
 
+    def _load_images(self):
+        fallback_r = os.path.join(BASE_DIR, r"images/fallback_enemyr.png")
+        fallback_l = os.path.join(BASE_DIR, r"images/fallback_enemyr.png")
+
+        try:
+            self.image_r = pygame.image.load(self.rimage_name)
+
+        except FileNotFoundError:
+
+            try:
+                logging.warning(f"{self.rimage_name} not found. Falling back to fallback image: {fallback_r}")
+                self.image_r = pygame.image.load(fallback_r)
+
+            except FileNotFoundError:
+                logging.error(f"Fallback image not found for enemy {self}: {fallback_r}")
+                self.image_r = pygame.Surface((100, 100))
+                self.image_r.fill('purple')
+
+        try:
+            self.image_l = pygame.image.load(self.limage_name)
+
+        except FileNotFoundError:
+
+            try:
+                logging.warning(f"{self.limage_name} not found. Falling back to fallback image: {fallback_l}")
+                self.image_l = pygame.image.load(fallback_l)
+
+            except FileNotFoundError:
+                logging.error(f"Fallback image not found for enemy {self}: {fallback_l}")
+                self.image_l = pygame.Surface((100, 100))
+                self.image_l.fill('purple')
+
     def __getstate__(self):
         state = self.__dict__.copy()
         if state.get("image_r"):
@@ -4038,8 +4109,7 @@ class Enemy:
     
     def __setstate__(self, state):
         self.__dict__.update(state)
-        self.image_r = pygame.image.load(self.rimage_name)
-        self.image_l = pygame.image.load(self.limage_name)
+        self._load_images()
 
         # Ekranın yüzde kaçını kaplayacak
         screen_fill_percentage = 0.06
@@ -4097,6 +4167,7 @@ class Boss(Enemy):
             summons: list = None,
             cooldown_summons = Cooldown(3),
             scene_dialogues=None,
+            typing_sound=None
         ):
 
         super().__init__(
@@ -4124,7 +4195,17 @@ class Boss(Enemy):
         self.drops = drops or []
         self.summons = summons or []
         self.summon_cooldown = cooldown_summons
-        self.full_image = pygame.image.load(r_image_name)
+
+        try:
+            self.full_image = pygame.image.load(r_image_name)
+
+        except FileNotFoundError:
+            self.full_image = pygame.image.load(
+                os.path.join(BASE_DIR, r"images/fallback_enemyr.png")
+            )
+
+        self.typing_sound_filename = typing_sound or os.path.join(BASE_DIR, r"sounds/heavy_speak.wav")
+        self.typing_sound = pygame.mixer.Sound(self.typing_sound_filename)
 
         self.scene_dialogues = scene_dialogues or []
 
@@ -4244,11 +4325,11 @@ class Boss(Enemy):
 
             pygame.draw.rect(surface, colours.GRAY, unfill_rect, border_radius=20)
 
-            percent = max(0.0, min(1.0, enemy.hp / enemy.origin_hp))
+            percent = max(0.0, min(1.0, max(0, enemy.hp) / enemy.origin_hp))
             fill_rect = pygame.Rect(unfill_rect.left, unfill_rect.top, int(bar_w * percent), bar_height)
             pygame.draw.rect(surface, colours.RED, fill_rect, border_radius=20)
 
-            rendered, _ = bossFont.render(f"{enemy.origin_hp}/{enemy.hp}", colours.BLACK, surface, gap=10)
+            rendered, _ = bossFont.render(f"{enemy.origin_hp}/{max(0, enemy.hp)}", colours.BLACK, surface, gap=10)
             surface.blit(
                 rendered,
                 (
@@ -4348,13 +4429,27 @@ class Boss(Enemy):
             del state["arrow_image"]
 
             del state["full_image"]
+            del state["typing_sound"]
         
         return state
     
     def __setstate__(self, state):
         self.__dict__.update(state)
-        self.image_r = pygame.image.load(self.rimage_name)
-        self.image_l = pygame.image.load(self.limage_name)
+
+        fallback_r = os.path.join(BASE_DIR, r"images/fallback_enemyr.png")
+        fallback_l = os.path.join(BASE_DIR, r"images/fallback_enemyr.png")
+
+        try:
+            self.image_r = pygame.image.load(self.rimage_name)
+
+        except FileNotFoundError:
+            self.image_r = pygame.image.load(fallback_r)
+
+        try:
+            self.image_l = pygame.image.load(self.limage_name)
+
+        except FileNotFoundError:
+            self.image_l = pygame.image.load(fallback_l)
 
         # Ekranın yüzde kaçını kaplayacak
         screen_fill_percentage = 0.06
@@ -4376,9 +4471,15 @@ class Boss(Enemy):
         self.arrow_image = pygame.image.load(self.arrow_image_name)
         self.arrow_image = pygame.transform.scale_by(self.arrow_image, SCALE)
 
-        self.full_image = pygame.image.load(self.rimage_name)
+        try:
+            self.full_image = pygame.image.load(self.rimage_name)
 
-
+        except FileNotFoundError:
+            self.full_image = pygame.image.load(
+                os.path.join(BASE_DIR, r"images/fallback_enemyr.png")
+            )
+        self.typing_sound = pygame.mixer.Sound(self.typing_sound_filename)
+    
 
 logging.info("Created classes.")
 item1 = Item("Zıkkımın Kökü", colours.GREEN, 20, "hp", 20, Item.REDUCER, Item.TUP_IKSIR)
