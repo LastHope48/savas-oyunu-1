@@ -11,7 +11,6 @@ RUN dpkg --add-architecture i386 && \
     ca-certificates \
     curl \
     gnupg2 \
-    unzip \
     && mkdir -pm755 /etc/apt/keyrings \
     && curl -sSL https://dl.winehq.org/wine-builds/winehq.key | gpg --dearmor -o /etc/apt/keyrings/winehq-archive.key \
     && curl -sSL -o /etc/apt/sources.list.d/winehq-jammy.sources https://dl.winehq.org/wine-builds/ubuntu/dists/jammy/winehq-jammy.sources \
@@ -24,22 +23,14 @@ RUN wineboot --init && wineserver -w && \
     wine reg add "HKEY_CURRENT_USER\\Software\\Wine" /v Version /t REG_SZ /d win10 /f && \
     wineserver -w
 
-# 3. Windows Python 3.10 Embeddable paketini kur
-WORKDIR /root/.wine/drive_c/Python310
-RUN curl -sSL -o python.zip https://www.python.org/ftp/python/3.10.11/python-3.10.11-embed-amd64.zip && \
-    unzip python.zip && \
-    rm python.zip
-
-# site-packages desteğini aç
-RUN sed -i 's/#import site/import site/' python310._pth
-
-# 4. pip kurulumu
-RUN curl -sSL -o get-pip.py https://bootstrap.pypa.io/get-pip.py && \
-    wine C:\\Python310\\python.exe get-pip.py && \
+# 3. Tam Windows Python 3.10 Yükleyicisini (Tcl/Tk ve pip dahil) Kur
+WORKDIR /tmp
+RUN curl -sSL -o python-installer.exe https://www.python.org/ftp/python/3.10.11/python-3.10.11-amd64.exe && \
+    wine python-installer.exe /quiet InstallAllUsers=1 PrependPath=1 TargetDir=C:\\Python310 Include_tcltk=1 Include_pip=1 Include_test=0 && \
     wineserver -w && \
-    rm get-pip.py
+    rm python-installer.exe
 
-# 5. Bağımlılıklar ve PyInstaller kurulumu
+# 4. Bağımlılıklar ve PyInstaller kurulumu
 WORKDIR /src
 COPY requirements.txt .
 RUN wine C:\\Python310\\python.exe -m pip install --no-warn-script-location --upgrade pip && \
@@ -47,13 +38,12 @@ RUN wine C:\\Python310\\python.exe -m pip install --no-warn-script-location --up
     wine C:\\Python310\\python.exe -m pip install --no-warn-script-location -r requirements.txt && \
     wineserver -w
 
-
-# 6. Proje kodlarını kopyala ve derle
+# 5. Proje kodlarını kopyala ve derle
 COPY . .
 RUN wine C:\\Python310\\python.exe -m PyInstaller --clean --noconfirm main2.spec && \
     wine C:\\Python310\\python.exe -m PyInstaller --clean --noconfirm --noconsole --onefile --distpath /src/dist/main2 updater.py && \
     wineserver -w
 
-# 7. Çıktıyı dışarı aktarma katmanı
+# 6. Çıktıyı dışarı aktarma katmanı
 FROM scratch AS export
 COPY --from=builder /src/dist/ /
