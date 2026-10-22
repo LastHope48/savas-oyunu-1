@@ -16,6 +16,7 @@ class CassetteWorld:
     def __init__(
         self, 
         world: World, 
+        world_id: int,
         title: str, 
         tagline: str,
         preview_path: str, 
@@ -24,6 +25,7 @@ class CassetteWorld:
         unlocked: bool = True
     ):
         self.world = world
+        self.world_id = world_id
         self.title = title
         self.tagline = tagline
         self.preview_path = preview_path
@@ -100,6 +102,7 @@ class WorldSelectScreen(MenuScreen):
         # 2. Dünyaları Tanımla
         self.worlds = [
             CassetteWorld(
+                world="__default__",
                 world_id=1,
                 title="Sector 01: Familiar Enemies",
                 tagline="MISSION: Kill them all (by your own)",
@@ -118,6 +121,7 @@ class WorldSelectScreen(MenuScreen):
             #    unlocked=True
             #),
             CassetteWorld(
+                world="__freeplay__",
                 world_id=99,
                 title="FREE PLAY: Play only!",
                 tagline="Stickman fight back in 2000s",
