@@ -3,7 +3,7 @@ import random
 import pygame
 from .menu_screen import MenuScreen
 from basedir import BASE_DIR
-from classes import Button
+from classes import Button, World
 from fonts import all_font1, all_font3
 import colours
 from screens.types import ScreenType
@@ -15,7 +15,7 @@ class CassetteWorld:
     """Tek bir kasetin temsil ettiği dünyayı, modu ve kuralları yöneten sınıf."""
     def __init__(
         self, 
-        world_id: int, 
+        world: World, 
         title: str, 
         tagline: str,
         preview_path: str, 
@@ -23,7 +23,7 @@ class CassetteWorld:
         theme: str = "default",       # "rooftop", "digital_crew", "endless_void"
         unlocked: bool = True
     ):
-        self.world_id = world_id
+        self.world = world
         self.title = title
         self.tagline = tagline
         self.preview_path = preview_path

@@ -7,7 +7,7 @@ from zaman import after
 import copy
 import uuid
 import logging
-from exceptions import EnemyPositionError
+from exceptions import EnemyPositionError, LevelPrepareError
 from enum import Enum, auto
 import _pickle
 from cooldown import Cooldown
@@ -26,8 +26,9 @@ from settings import Settings
 from calcs import scale, SCALE
 import time
 from collections import deque
+from flags import *
 
-from typing import Final
+from typing import Final, Literal
 
 
 logging.basicConfig(
@@ -2739,9 +2740,35 @@ class Player:
 
 class World:
 
-    def __init__(self, terrain_color: tuple, rock0: tuple, rock1: tuple, items: list, terrain_image: os.PathLike=None, dirt_image: os.PathLike=None):
+    def __init__(
+            self,
+            terrain_color: tuple,
+            rock0: tuple,
+            rock1: tuple,
+            items: list,
+            terrain_image: os.PathLike=None,
+            dirt_image: os.PathLike=None, 
+            theme: str = DefaultWorld(),
+            levels: dict[
+                Literal["levels", "levels_sword_map", "levels_item_map"],
+                list[list["Enemy"]] | dict[str, Sword] | dict[str, Item]
+            ] = None
+        ):
         self.rocks = []
         self.rocks_rects = []
+
+        self.theme = theme
+
+        if type(self.theme) == DefaultWorld or self.theme == DefaultWorld:
+            pass
+
+        else:
+            self.levels_data: dict[
+                Literal["levels", "levels_sword_map", "levels_item_map"],
+                list[list[Enemy]] | dict[str, Sword] | dict[str, Item]
+            ] = levels or {}
+            self.current_level = 0
+
         self.terrain_color = terrain_color
         self.rock0 = rock0
         self.rock1 = rock1
@@ -2763,6 +2790,7 @@ class World:
             self.dirt_rect = self.dirt_image.get_rect(topleft=(0, info.current_h/5*4))
         else:
             self.dirt_image = None
+        self.id = str(uuid.uuid4())
 
     def create_rocks(self, screen_x: int, screen_y: int):
         for _ in range(self.rockNum):
@@ -2925,6 +2953,31 @@ class World:
             if enemy.living
         ]
         return enemy_list
+
+    def next_level(self) -> tuple[list["Enemy"], Sword | NoSword, list[Item] | NoItem] | Literal[True] | DefaultWorld:
+        if type(getattr(self, "current_level", False)) == int:
+            self.current_level += 1
+
+            try:
+                level = self.levels_data["levels"][self.current_level]
+                sword = self.levels_data["levels_sword_map"].get(f"level{self.current_level + 1}", NoSword())
+                items = self.levels_data["levels_item_map"].get(f"level{self.current_level + 1}", NoItem())
+
+                return level, sword, items
+
+            except IndexError:
+                win = True
+                return win
+
+            except Exception as e:
+                print(f"Bilinmeyen hata: {e}")
+                logging.error(f"Getting next level on world caused error:")
+                logging.exception(e)
+
+                raise LevelPrepareError(self.current_level, e)
+
+        else:
+            return DefaultWorld()
 
     def __getstate__(self):
         state = self.__dict__.copy()

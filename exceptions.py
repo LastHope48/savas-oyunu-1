@@ -36,6 +36,14 @@ class EnemyPositionError(GameError):
         super().__init__(message)
 
 
-class InvalidGameStateError(GameError):
-    def __init__(self, state):
-        super().__init__(f"Oyun durumu {state} geçerli değil.")
+class LevelPrepareError(GameError):
+    def __init__(self, level: int, exc_message: str):
+        self.level = level
+        self.exc_message = exc_message
+
+        message = (
+            f"{level} seviyesini hazırlarken hata oluştu:"
+            f"{self.exc_message}"
+        )
+
+        super().__init__(message)

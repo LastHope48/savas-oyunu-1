@@ -9,6 +9,10 @@ Format [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) standardını te
 - Yeni "Aether Katana" silahı ve Siber Dünya temalı yeni harita için altyapı çalışmaları.
 - Farklı dünyalar eklemek için altyapı ve OOP çalışmaları.
 
+## [0.4.3] - 2026-10-22
+### Fixed
+- Güncelleme düzeltildi.
+
 ## [0.4.2] - 2026-10-21
 ### Fixed
 - İstatistiklerin ekrandan taşması düzeltildi.

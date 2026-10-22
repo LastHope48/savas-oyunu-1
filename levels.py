@@ -1,3 +1,10 @@
+'''
+Bu dosya normal (varsayılan) dünyanın düşmanlarının listelerini ve 
+seviye-item, seviye-kılıç sözlüklerini içerir.
+
+NOT: SADECE VARSAYILAN DÜNYA (Yeni Oyun butonuna basılınca açılan dünya) İÇİN HAZIRLANMIŞTIR. BAŞKA DÜNYALARIN SEVİYELERİ `custom_levels.py` İÇİNDEDİR.
+'''
+
 import logging
 import classes
 import colours
@@ -26,8 +33,6 @@ gold_sword = classes.Sword("Altın Kılıç", 50, colours.darker(colours.YELLOW,
 
 bronze_gun = classes.Gun("Normal Silah", colours.lighter(colours.BLACK, 30), 20, 500, os.path.join(BASE_DIR,r"images/bronz_silahr.png"), os.path.join(BASE_DIR,r"images/bronz_silah_mermi.png"), 0.3, classes.MaterialFlags.BRONZE)
 silver_gun = classes.Gun("Gümüş Silah", colours.lighter(colours.BLACK, 30), 40, 640, os.path.join(BASE_DIR,r"images/silver_silahr.png"), os.path.join(BASE_DIR,r"images/silver_silah_mermi.png"), 0.15, classes.MaterialFlags.SILVER)
-
-# aether_katana = classes.CyberKatana() NEXT VERSION
 
 level1 = [
     classes.Enemy(100, 5)

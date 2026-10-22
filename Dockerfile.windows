@@ -47,9 +47,11 @@ RUN wine C:\\Python310\\python.exe -m pip install --no-warn-script-location --up
     wine C:\\Python310\\python.exe -m pip install --no-warn-script-location -r requirements.txt && \
     wineserver -w
 
+
 # 6. Proje kodlarını kopyala ve derle
 COPY . .
 RUN wine C:\\Python310\\python.exe -m PyInstaller --clean --noconfirm main2.spec && \
+    wine C:\\Python310\\python.exe -m PyInstaller --clean --noconfirm --noconsole --onefile --distpath /src/dist/main2 updater.py && \
     wineserver -w
 
 # 7. Çıktıyı dışarı aktarma katmanı

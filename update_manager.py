@@ -5,6 +5,7 @@ import zipfile
 import hashlib
 from pathlib import Path
 import sys
+import subprocess
 
 from cryptography.hazmat.primitives import serialization
 from cryptography.exceptions import InvalidSignature
@@ -336,49 +337,58 @@ def apply_pending_update():
     if not UPDATE_FILES_DIR.exists():
         return
 
-    protected_files = {
-        "achievements.dat",
-        "device_data.dat",
-        "settings.json",
-    }
+    # --- WINDOWS SİSTEMLER ---
+    if platform.system() == "Windows":
+        updater_exe = Path(GAME_DIR) / "updater.exe"
 
-    protected_directories = {
-        "saves",
-    }
+        if updater_exe.exists():
+            # DETACHED_PROCESS (0x00000008): Ana oyun kapansa bile updater'ın bağımsız çalışmasını sağlar
+            DETACHED_PROCESS = 0x00000008
 
-    game_dir = Path(GAME_DIR)
+            subprocess.Popen(
+                [
+                    str(updater_exe),
+                    str(UPDATE_FILES_DIR),
+                    str(GAME_DIR),
+                    str(UPDATE_DIR),
+                    str(sys.executable)  # savas_oyunu1.exe yolu
+                ],
+                creationflags=DETACHED_PROCESS,
+                close_fds=True
+            )
+            # Ana oyun sürecini derhal kapatarak dosya kilitlerini serbest bırak
+            sys.exit(0)
+        return
 
-    for source in UPDATE_FILES_DIR.rglob("*"):
+    # --- LINUX SİSTEMLER (Mevcut yapınız aynen korunur) ---
+    if platform.system() == "Linux":
+        protected_files = {
+            "achievements.dat",
+            "device_data.dat",
+            "settings.json",
+        }
 
-        if not source.is_file():
-            continue
+        protected_directories = {
+            "saves",
+        }
 
-        relative_path = source.relative_to(UPDATE_FILES_DIR)
+        game_dir = Path(GAME_DIR)
 
-        # Korunan klasörün içindeyse atla
-        if any(
-            part in protected_directories
-            for part in relative_path.parts
-        ):
-            continue
+        for source in UPDATE_FILES_DIR.rglob("*"):
+            if not source.is_file():
+                continue
 
-        # Korunan dosyaysa atla
-        if relative_path.name in protected_files:
-            continue
+            relative_path = source.relative_to(UPDATE_FILES_DIR)
 
-        destination = game_dir / relative_path
+            if any(part in protected_directories for part in relative_path.parts):
+                continue
 
-        destination.parent.mkdir(
-            parents=True,
-            exist_ok=True
-        )
+            if relative_path.name in protected_files:
+                continue
 
-        shutil.copy2(
-            source,
-            destination
-        )
+            destination = game_dir / relative_path
+            destination.parent.mkdir(parents=True, exist_ok=True)
 
-    shutil.rmtree(
-        UPDATE_DIR,
-        ignore_errors=True
-    )
+            shutil.copy2(source, destination)
+
+        shutil.rmtree(UPDATE_DIR, ignore_errors=True)
