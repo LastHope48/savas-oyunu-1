@@ -43,18 +43,23 @@ with open(PRIVATE_KEY_FILE, "rb") as file:
         password=None
     )
 
+try:
+    file_hash = calculate_sha256(ZIP_FILE)
 
-file_hash = calculate_sha256(ZIP_FILE)
+    signature = private_key.sign(file_hash)
 
-signature = private_key.sign(file_hash)
+    SIGNATURE_FILE.write_bytes(signature)
 
-SIGNATURE_FILE.write_bytes(signature)
+except: pass
 
-file_hash = calculate_sha256(ZIP_FILE_WINDOWS)
+try:
+    file_hash = calculate_sha256(ZIP_FILE_WINDOWS)
 
-signature = private_key.sign(file_hash)
+    signature = private_key.sign(file_hash)
 
-SIGNATURE_FILE_WINDOWS.write_bytes(signature)
+    SIGNATURE_FILE_WINDOWS.write_bytes(signature)
+
+except: pass
 
 print("İmzalama başarılı!")
 print("İmza:", SIGNATURE_FILE, SIGNATURE_FILE_WINDOWS)
