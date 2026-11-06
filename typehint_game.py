@@ -19,6 +19,7 @@ from typing import NoReturn, Literal
 from userfont import userFont
 from dfont import DynamicFont
 from juice import JuiceManager
+from mod_manager import ModManager
 
 LAST_BOSS_TYPES = Literal['normal', 'urasin_sumuklu_pecetesi']
 
@@ -46,6 +47,7 @@ class Game:
         self.achievements: Achievements
         self.val_manager: ValueManager
         self.juice: JuiceManager
+        self.mod_manager: ModManager
         self.device: DeviceID
         self.dump: Dump
         self.illegal: bool

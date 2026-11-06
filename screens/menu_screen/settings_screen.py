@@ -329,7 +329,14 @@ class SettingsScreen(MenuScreen):
             if self.quit_icon_rect.collidepoint(event.pos):
                 if self.game.settings.get("sfx"):
                     self.game.sfx_manager.play("click", self.game.settings.get("sfx_volume"))
-                self.game.screen_manager.set_screen(self.game.screen_manager.get_last_screen())
+
+                last_screen = self.game.screen_manager.get_last_screen()
+
+                if last_screen in [ScreenType.GAME, ScreenType.MENU]:
+                    self.game.screen_manager.set_screen(last_screen)
+
+                else:
+                    self.game.screen_manager.set_screen(ScreenType.MENU)
 
         self.console.handle_event(event)
 

@@ -2,7 +2,7 @@ import os
 import math
 import random
 import pygame
-import colours
+from calcs import scale, SCALE
 
 from basedir import BASE_DIR
 from dfont import DynamicFont
@@ -228,10 +228,10 @@ class WinScreen(Screen):
         self.last_screen_size = (screen_w, screen_h)
 
         # Orantılı Font Boyutları
-        self.font_banner = DynamicFont(self.font_path, max(28, int(screen_h * 0.070)), 100)
-        self.font_card_title = DynamicFont(self.font_path, max(16, int(screen_h * 0.024)), 100)
-        self.font_card_val = DynamicFont(self.font_path, max(26, int(screen_h * 0.055)), 100)
-        self.font_prompt = DynamicFont(self.font_path, max(14, int(screen_h * 0.022)), 100)
+        self.font_banner = DynamicFont(self.font_path, max(scale(14), int(screen_h * (0.035 * SCALE))), scale(50))
+        self.font_card_title = DynamicFont(self.font_path, max(scale(8), int(screen_h * (0.012 * SCALE))), scale(50))
+        self.font_card_val = DynamicFont(self.font_path, max(scale(13), int(screen_h * (0.0275 * SCALE))), scale(50))
+        self.font_prompt = DynamicFont(self.font_path, max(scale(7), int(screen_h * (0.011 * SCALE))), scale(50))
 
     def on_enter(self, transfer_datas=None):
         self.timer = 0.0

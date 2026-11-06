@@ -7,6 +7,7 @@ from .menu_screen.save_screen import SaveScreen
 from .menu_screen.settings_screen import SettingsScreen
 from .menu_screen.achievements_screen import AchievementsScreen
 from .menu_screen.world_select_screen import WorldSelectScreen
+from .menu_screen.mods_screen import ModsScreen
 
 from .win_screen import WinScreen
 from .lose_screen import LoseScreen
@@ -27,6 +28,7 @@ class ScreenManager:
             ScreenType.LOAD: LoadScreen(self.game),
             ScreenType.SAVE: SaveScreen(self.game),
             ScreenType.SETTINGS: SettingsScreen(self.game),
+            ScreenType.MODS: ModsScreen(self.game),
             ScreenType.ACHIEVEMENTS: AchievementsScreen(self.game),
             ScreenType.WIN: WinScreen(self.game),
             ScreenType.LOSE: LoseScreen(self.game),

@@ -45,9 +45,7 @@ Example:
 import logging
 import classes
 import colours
-from bidi.algorithm import get_display
-import arabic_reshaper
-import random
+from gamedata import GameData
 import pygame
 from cooldown import Cooldown
 import os
@@ -72,11 +70,15 @@ iron_sword = classes.Sword(
     classes.MaterialFlags.IRON
 )
 
-levels_cyber_world: dict[Literal["levels", "levels_sword_map", "levels_item_map"], list[list[classes.Enemy]] | dict[str, classes.Sword] | dict[str, classes.Item]] = {
+LEVEL_TYPE = dict[Literal["levels", "levels_sword_map", "levels_item_map"], list[list[classes.Enemy]] | dict[str, classes.Sword] | dict[str, classes.Item]]
+
+# Cyber World
+
+levels_cyber_world: LEVEL_TYPE = {
     "levels": [
         [
-            classes.Enemy(300, 5),
-            classes.Enemy(300, 5)
+            classes.Enemy(300, 5, sprites_name=os.path.join(BASE_DIR, r"sprites/ledadam.sospr")),
+            classes.Enemy(300, 5, sprites_name=os.path.join(BASE_DIR, r"sprites/ledadam.sospr"))
         ]
     ],
     "levels_item_map": {
@@ -101,3 +103,29 @@ levels_cyber_world: dict[Literal["levels", "levels_sword_map", "levels_item_map"
         "level1": iron_sword
     }
 }
+
+player_cyber_world: classes.Player = classes.Player(
+    200,
+    iron_sword,
+    os.path.join(BASE_DIR, r"images/stickmanr.png"),
+    None,
+    anim_dir=os.path.join(BASE_DIR, r"images/stickman_sprites")
+)
+
+world_cyber_world: classes.World = classes.World(
+    colours.GRAY,
+    colours.darker(colours.GRAY, 45),
+    colours.lighter(colours.GRAY, 10),
+    [],
+    os.path.join(BASE_DIR, r"images/metalic_map.png"),
+    os.path.join(BASE_DIR, r"images/metaldirt_pattern.png"),
+    "cyber",
+    levels_cyber_world,
+    grid=True,
+    rock_type="cyber"
+)
+
+game_data_cyber_world: GameData = GameData(
+    player_cyber_world,
+    world_cyber_world
+)

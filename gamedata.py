@@ -1,5 +1,10 @@
 import classes
 from copy import deepcopy
+import pygame
+from classes import defaults
+
+pygame.init()
+info = pygame.display.Info()
 
 class GameData:
     def __init__(
@@ -8,13 +13,20 @@ class GameData:
             world: classes.World = None
     ):
 
-        self.player = player
-        self.world = world
+        self.player: classes.Player = player
+        self.world: classes.World = world
 
         self.level = 1
         self.enemy_data: dict[int, classes.Enemy] = {}
 
         self.win = False
+
+    def init_prepare(self):
+        self.player.set_pos(self.world)
+        self.world.create_rocks(info.current_w, info.current_h)
+
+        for enemy in self.enemy_data.values():
+            enemy.set_pos(self.world, info)
 
     @staticmethod
     def to_gamedata(obj: dict):

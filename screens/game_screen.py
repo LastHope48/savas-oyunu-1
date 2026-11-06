@@ -210,7 +210,7 @@ class GameScreen(Screen):
                 classes.Item(
                     "Can İksiri",
                     (255, 0, 0),
-                    [classes.Effect("hp", 50, 0, flags=(classes.Item.APPENDER))],
+                    [classes.Effect("hp", 50, 0, flags=(classes.Item.APPENDER,))],
                     classes.Item.TUP_IKSIR
                 )
             )
@@ -224,7 +224,7 @@ class GameScreen(Screen):
                 classes.Item(
                     "Ölüm İksiri",
                     (0, 0, 255),
-                    [classes.Effect("hp", 25, 0, flags=(classes.Item.REDUCER))],
+                    [classes.Effect("hp", 25, 0, flags=(classes.Item.REDUCER,))],
                     classes.Item.YUVARLAK_IKSIR,
                     pickable=True
                 )
@@ -784,18 +784,22 @@ class GameScreen(Screen):
             self.game.screen_manager.set_screen(ScreenType.WIN)
 
     def update_level(self):
-        if len(self.levels) < self.game.game_data.level:
-            self.game.game_data.win = True
-            return
-
         new_level = self.game.game_data.world.next_level()
 
-        if new_level == True:
+        # Dünya bittiyse kazan
+        if new_level is True:
             self.game.game_data.win = True
             return
 
-        elif type(new_level) == DefaultWorld:
-        
+        # -------------------------------------------------------------
+        # 1. VARSAYILAN DÜNYA (DEFAULT WORLD)
+        # -------------------------------------------------------------
+        if type(new_level) == DefaultWorld:
+            # Sadece varsayılan dünyada self.levels uzunluğunu baz al
+            if self.game.game_data.level > len(self.levels):
+                self.game.game_data.win = True
+                return
+
             try:
                 adding_gun = level_sword_map[f"level{self.game.game_data.level}"]
                 found = False
@@ -811,7 +815,6 @@ class GameScreen(Screen):
                 if not found:
                     self.game.game_data.player.available_guns.append(adding_gun)
                 self.game.game_data.player.using_gun = adding_gun
-
             except KeyError:
                 pass
 
@@ -820,12 +823,10 @@ class GameScreen(Screen):
                     new_item = item.copy()
                     new_item.set_pos(self.game.game_data.world)
                     self.game.game_data.world.items.append(new_item)
-
             except KeyError:
                 pass
 
             self.game.game_data.enemy_data = {}
-
             for enemy in self.levels[self.game.game_data.level - 1]:
                 fresh_enemy = enemy.copy()
                 fresh_enemy.reset(self.game.game_data.world)
@@ -834,50 +835,10 @@ class GameScreen(Screen):
             for enemy in self.game.game_data.enemy_data.values():
                 enemy.set_pos(self.game.game_data.world, self.game.info)
 
-            if self.game.settings.get("music"):
-                for enemy in self.game.game_data.enemy_data.values():
-                    if type(enemy) == classes.Boss and enemy.name.lower() == "uras'ın sümüklü peçetesi":
-                        self.game.mixer.music.load(
-                            os.path.join(BASE_DIR, r"musics/kim_ne_derse_desin.oga")
-                        )
-                        self.game.mixer.music.play(-1)
-                        break
-
-            dialogues = []
-
-            for enemy in self.game.game_data.enemy_data.values():
-                if type(enemy) == classes.Boss and enemy.scene_dialogues:
-                    for speaker, text in enemy.scene_dialogues:
-                        if speaker == "Boss":
-                            image = enemy.full_image
-                            target_w = scale(320)
-                            target_h = int(image.get_height() * (target_w / image.get_width()))
-                            image = pygame.transform.smoothscale(image, (target_w, target_h))
-
-                            boss_typing_sound = enemy.typing_sound
-
-                        elif speaker == "Player":
-                            image = create_player_dialogue_portrait(width=380, height=430)
-
-                        dialogues.append(
-                            SceneDialogue(
-                                speaker,
-                                text,
-                                image
-                            )
-                        )
-
-            if dialogues:
-                self.scene = Scene(
-                    font=self.dfont1,
-                    dialogues=dialogues,
-                    typing_sound2=self.typing_sound,
-                    typing_sound1=boss_typing_sound
-                )
-                self.scene.start()
-
-        else: # Eğer world özel ise
-
+        # -------------------------------------------------------------
+        # 2. ÖZEL DÜNYALAR (SİBER DÜNYA VB.)
+        # -------------------------------------------------------------
+        else:
             level, sword, items = new_level
 
             self.game.game_data.enemy_data = {}
@@ -885,13 +846,12 @@ class GameScreen(Screen):
             for enemy in level:
                 fresh_enemy = enemy.copy()
                 fresh_enemy.reset(self.game.game_data.world)
-
                 self.game.game_data.enemy_data[fresh_enemy.id] = fresh_enemy
 
             for enemy in self.game.game_data.enemy_data.values():
                 enemy.set_pos(self.game.game_data.world, self.game.info)
 
-            if type(sword) != NoSword: # Kılıç eklenecekse
+            if type(sword) != NoSword:
                 adding_gun = sword
                 found = False
 
@@ -909,45 +869,48 @@ class GameScreen(Screen):
 
             if type(items) != NoItem:
                 for item in items:
-                    item: classes.Item
-                    
                     new_item = item.copy()
                     new_item.set_pos(self.game.game_data.world)
                     self.game.game_data.world.items.append(new_item)
 
-            # Konuşma sahnesi hazırlama
-            dialogues = []
-
+        # -------------------------------------------------------------
+        # DİYALOG VE MÜZİK (HER İKİ TÜR İÇİN ORTAK)
+        # -------------------------------------------------------------
+        if self.game.settings.get("music"):
             for enemy in self.game.game_data.enemy_data.values():
-                if type(enemy) == classes.Boss and enemy.scene_dialogues:
-                    for speaker, text in enemy.scene_dialogues:
-                        if speaker == "Boss":
-                            image = enemy.full_image
-                            target_w = scale(320)
-                            target_h = int(image.get_height() * (target_w / image.get_width()))
-                            image = pygame.transform.smoothscale(image, (target_w, target_h))
+                if type(enemy) == classes.Boss:
+                    enemy.music.play(self.game.settings.get("music_volume"))
 
-                            boss_typing_sound = enemy.typing_sound
+        dialogues = []
+        boss_typing_sound = self.typing_sound
+        for enemy in self.game.game_data.enemy_data.values():
+            if type(enemy) == classes.Boss and enemy.scene_dialogues:
+                for speaker, text in enemy.scene_dialogues:
+                    if speaker == "Boss":
+                        image = enemy.full_image
+                        target_w = scale(320)
+                        target_h = int(image.get_height() * (target_w / image.get_width()))
+                        image = pygame.transform.smoothscale(image, (target_w, target_h))
+                        boss_typing_sound = enemy.typing_sound
+                    elif speaker == "Player":
+                        image = create_player_dialogue_portrait(width=380, height=430)
 
-                        elif speaker == "Player":
-                            image = create_player_dialogue_portrait(width=380, height=430)
-
-                        dialogues.append(
-                            SceneDialogue(
-                                speaker,
-                                text,
-                                image
-                            )
+                    dialogues.append(
+                        SceneDialogue(
+                            speaker,
+                            text,
+                            image
                         )
+                    )
 
-            if dialogues:
-                self.scene = Scene(
-                    font=self.dfont1,
-                    dialogues=dialogues,
-                    typing_sound2=self.typing_sound,
-                    typing_sound1=boss_typing_sound
-                )
-                self.scene.start()
+        if dialogues:
+            self.scene = Scene(
+                font=self.dfont1,
+                dialogues=dialogues,
+                typing_sound2=self.typing_sound,
+                typing_sound1=boss_typing_sound
+            )
+            self.scene.start()
 
     def check_level(self):
         if all(not enemy.living for enemy in self.game.game_data.enemy_data.values()):

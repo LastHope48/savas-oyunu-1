@@ -8,6 +8,12 @@ from fonts import all_font1, all_font3
 import colours
 from screens.types import ScreenType
 from typing import Literal
+from gamedata import GameData
+import copy
+from flags import FreeplayWorld as FreeplayWorldFlag
+from calcs import scale
+
+from custom_levels import game_data_cyber_world, world_cyber_world
 
 MODES = Literal["campaign", "freeplay"]
 
@@ -15,7 +21,8 @@ class CassetteWorld:
     """Tek bir kasetin temsil ettiği dünyayı, modu ve kuralları yöneten sınıf."""
     def __init__(
         self, 
-        world: World, 
+        world: World,
+        game_data: GameData,
         world_id: int,
         title: str, 
         tagline: str,
@@ -25,6 +32,7 @@ class CassetteWorld:
         unlocked: bool = True
     ):
         self.world = world
+        self.game_data = game_data
         self.world_id = world_id
         self.title = title
         self.tagline = tagline
@@ -102,26 +110,19 @@ class WorldSelectScreen(MenuScreen):
         # 2. Dünyaları Tanımla
         self.worlds = [
             CassetteWorld(
-                world="__default__",
                 world_id=1,
-                title="Sector 01: Familiar Enemies",
-                tagline="MISSION: Kill them all (by your own)",
+                game_data=game_data_cyber_world,
+                world=world_cyber_world,
+                title="Sector 01: Samsung Note 7",
+                tagline="MECHANIC THREAT: Enemies with their eyes gouged out",
                 preview_path=os.path.join(assets_dir, "world1_preview.png"),
                 mode="campaign",
-                theme="rooftop",
+                theme="digital_crew",
                 unlocked=True
             ),
-            #CassetteWorld(
-            #    world_id=2,
-            #    title="Sector 02: Samsung Note 7",
-            #    tagline="MECHANIC THREAT: Enemies with their eyes gouged out",
-            #    preview_path=os.path.join(assets_dir, "world1_preview.png"),
-            #    mode="campaign",
-            #    theme="digital_crew",
-            #    unlocked=True
-            #),
             CassetteWorld(
-                world="__freeplay__",
+                world=FreeplayWorldFlag(),
+                game_data=FreeplayWorldFlag(),
                 world_id=99,
                 title="FREE PLAY: Play only!",
                 tagline="Stickman fight back in 2000s",
@@ -333,7 +334,12 @@ class WorldSelectScreen(MenuScreen):
 
         elif self.state == self.STATE_ZOOMING:
             # Monitöre doğru büyüme (Zoom in transition)
-            self.zoom_factor += (5.5 - self.zoom_factor) * min(1.0, 4.0 * dt)
+            # dt değerini en fazla 30 FPS'e (0.033s) denk gelecek şekilde kısıtlayın
+            safe_dt = min(dt, 0.033)
+
+            # 2. Pürüzsüz yaklaşma (Lerp)
+            self.zoom_factor += (5.5 - self.zoom_factor) * min(1.0, 4.0 * safe_dt)
+
             if self.zoom_factor >= 4.8:
                 self._start_game(self.worlds[self.selected_world_idx].world_id)
 
@@ -485,21 +491,39 @@ class WorldSelectScreen(MenuScreen):
         # 4. ZOOM GEÇİŞİ
         # -------------------------------------------------------------
         if self.state == self.STATE_ZOOMING:
+            sw, sh = surface.get_size()
+            zoom = max(1.0, self.zoom_factor)
+
+            # Hedef odak noktası: Seçilen kaset çaların CRT monitör merkezi
             deck_x = (self.screen_w - self.deck_w) // 2
             deck_y = int(self.screen_h * 0.12 + self.selected_world_idx * self.world_spacing - self.scroll_y)
-            center_x = deck_x + self.deck_w * (self.MONITOR_REL[0] + self.MONITOR_REL[2] / 2)
-            center_y = deck_y + self.deck_h * (self.MONITOR_REL[1] + self.MONITOR_REL[3] / 2)
+            target_center_x = deck_x + self.deck_w * (self.MONITOR_REL[0] + self.MONITOR_REL[2] / 2)
+            target_center_y = deck_y + self.deck_h * (self.MONITOR_REL[1] + self.MONITOR_REL[3] / 2)
 
-            w = int(self.screen_w * self.zoom_factor)
-            h = int(self.screen_h * self.zoom_factor)
-            zoomed = pygame.transform.scale(surface, (w, h))
+            # Kamera odağını ekran merkezinden monitörün merkezine yumuşakça kaydır (Pan & Zoom)
+            t = min(1.0, max(0.0, (zoom - 1.0) / 3.8))
+            focus_x = (sw / 2) + (target_center_x - (sw / 2)) * t
+            focus_y = (sh / 2) + (target_center_y - (sh / 2)) * t
 
-            zx = int(center_x - (center_x * self.zoom_factor))
-            zy = int(center_y - (center_y * self.zoom_factor))
-            surface.blit(zoomed, (zx, zy))
+            # Yakınlaştıkça kaynak yüzeyden kesilecek pencere daralır
+            crop_w = max(16, int(sw / zoom))
+            crop_h = max(16, int(sh / zoom))
+
+            crop_rect = pygame.Rect(0, 0, crop_w, crop_h)
+            crop_rect.center = (int(focus_x), int(focus_y))
+            # Ekran sınırlarının dışına taşmayı engelle
+            crop_rect.clamp_ip(surface.get_rect())
+
+            # Devasa yüzey üretmek yerine sadece hedeflenen ufak pencereyi kesip tüm ekrana genişlet
+            cropped = surface.subsurface(crop_rect).copy()
+            zoomed = pygame.transform.scale(cropped, (sw, sh))
+            surface.blit(zoomed, (0, 0))
+
     def _start_game(self, world_id: int):
         """Kaset tamamen yüklendiğinde ve zoom bittiğinde oyunu başlatan köprü."""
         from screens.screen_manager import ScreenType
+
+        self.game.game_data.enemy_data = {}
         
         selected_world = self.worlds[self.selected_world_idx]
         mode = getattr(selected_world, "mode", "campaign")
@@ -507,12 +531,58 @@ class WorldSelectScreen(MenuScreen):
         if hasattr(self.game, "current_world_id"):
             self.game.current_world_id = world_id
 
+        if type(selected_world.game_data) != FreeplayWorldFlag:
+            self.game.game_data = copy.deepcopy(selected_world.game_data)
+            self.game.game_data.init_prepare()
+
         game_screen = self.game.screen_manager.get_screen(ScreenType.GAME)
         game_screen.start_new_game(mode=mode)
 
         self.game.screen_manager.set_screen(ScreenType.GAME)
 
+    def load_worlds(self):
+        """Varsayılan dünyalar ile modlardan gelen dünyaları birleştirir."""
+        assets_dir = os.path.join(self.base_dir, "images")
+
+        # 1. Varsayılan Dünyalar
+        self.worlds = [
+            CassetteWorld(
+                world_id=1,
+                game_data=game_data_cyber_world,
+                world=world_cyber_world,
+                title="Sector 01: Samsung Note 7",
+                tagline="MECHANIC THREAT: Enemies with their eyes gouged out",
+                preview_path=os.path.join(assets_dir, "world1_preview.png"),
+                mode="campaign",
+                theme="digital_crew",
+                unlocked=True
+            ),
+            CassetteWorld(
+                world=FreeplayWorldFlag(),
+                game_data=FreeplayWorldFlag(),
+                world_id=99,
+                title="FREE PLAY: Play only!",
+                tagline="Stickman fight back in 2000s",
+                preview_path=os.path.join(assets_dir, "freeplay_preview.png"),
+                mode="freeplay",
+                theme="endless_neon",
+                unlocked=True
+            ),
+        ]
+
+        # 2. Modlardan Gelen Dünyaları Ekle
+        if hasattr(self.game, "mod_manager") and self.game.mod_manager.custom_worlds:
+            for mod_world in self.game.mod_manager.custom_worlds:
+                # Çift eklemeyi önle
+                if not any(w.title == mod_world.title for w in self.worlds):
+                    self.worlds.append(mod_world)
+
+        # 3. Kaydırma Sınırını Güncelle (Yeni kaset için yer aç)
+        self.max_scroll = max(0.0, (len(self.worlds) - 1) * self.world_spacing)
+
     def on_enter(self, transfer_datas):
+        self.load_worlds()
+        
         if self.game.dump("last_music") != os.path.join(BASE_DIR, r"musics/mystery_music.ogg"):
             self.game.mixer.music.load(
                 os.path.join(

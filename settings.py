@@ -8,9 +8,15 @@ from lang_support import Lang
 from userfont import userFont
 from ready_music import Music
 from basedir import BASE_DIR
-from calcs import SCALE, calculate_size
+from calcs import SCALE, calculate_size, scale
 from update_manager import check_for_update
-from screens.types import ScreenType
+from flags import NotDataStorer
+from uuid import UUID
+from datetime import datetime, date
+from version import VERSION
+import logging
+
+logger = logging.getLogger()
 
 desktop_size = pygame.display.get_desktop_sizes()[0]
 
@@ -24,25 +30,76 @@ def is_json_serializable(value):
 
 
 def make_json_serializable(value):
+    # 1. Temel JSON tipleri
     if value is None or isinstance(value, (str, int, float, bool)):
         return value
+
+    if isinstance(value, NotDataStorer) or value == NotDataStorer:
+        print("NOTDATASTORER: ", value)
+        return "NotDataStorer"
+
+    # 2. Enum
     if isinstance(value, Enum):
         return make_json_serializable(value.value)
+
+    # 3. Tarih ve UUID
+    if isinstance(value, (datetime, date)):
+        return value.isoformat()
+    if isinstance(value, UUID):
+        return str(value)
+
+    # 4. to_dict() veya to_json() metodu olan nesneler (Music, Lang vb.)
+    if hasattr(value, "to_dict") and callable(value.to_dict):
+        try:
+            dict_data = value.to_dict()
+            # Eğer to_dict bir JSON string'i döndürdüyse objeye çevir
+            if isinstance(dict_data, str):
+                try:
+                    dict_data = json.loads(dict_data)
+                except Exception:
+                    pass
+            return make_json_serializable(dict_data)
+        except Exception as e:
+            print(f"to_dict() çağrısında hata: {e}")
+
+    if hasattr(value, "to_json") and callable(value.to_json):
+        try:
+            json_data = value.to_json()
+            # to_json genelde json.dumps string'i döndürür; dict'e açıp serileştirelim
+            if isinstance(json_data, str):
+                try:
+                    json_data = json.loads(json_data)
+                except Exception:
+                    pass
+            return make_json_serializable(json_data)
+        except Exception as e:
+            print(f"to_json() çağrısında hata: {e}")
+
+    # 5. Sözlükler
     if isinstance(value, dict):
         return {
             str(k): make_json_serializable(v)
             for k, v in value.items()
-            if is_json_serializable(v)
         }
+
+    # 6. Listeler / Kümeler / Demetler
     if isinstance(value, (list, tuple, set)):
-        return [
-            make_json_serializable(v)
-            for v in value
-            if is_json_serializable(v)
-        ]
+        return [make_json_serializable(v) for v in value]
+
+    # 7. __dict__ fallback
     if hasattr(value, "__dict__"):
-        return make_json_serializable(value.__dict__)
-    return None
+        return make_json_serializable(vars(value))
+
+    # 8. __slots__ fallback
+    if hasattr(value, "__slots__"):
+        return {
+            slot: make_json_serializable(getattr(value, slot))
+            for slot in value.__slots__
+            if hasattr(value, slot)
+        }
+
+    # Serileştirilemeyen son çare
+    return str(value)
 
 
 class Icon:
@@ -353,6 +410,47 @@ class Select(SettingElement):
         return value
 
 
+class SettingsText(SettingElement):
+    default_size = (320, 44)
+
+    def __init__(
+        self,
+        pos,
+        text: str = "",
+        image=None,
+        size=None,
+        icons=None,
+        font: userFont = None,
+        color: tuple = (220, 240, 255)
+    ):
+        if size is None:
+            size = self.default_size
+
+        super().__init__(pos, image, size, icons)
+
+        self.text = str(text)
+        self.font = font
+        self.color = color
+
+    def draw(self, screen: pygame.Surface, font: userFont, value):
+        # 1. Kullanılacak font ve metni belirle (Settings'ten gelen 'value' öncelikli)
+        use_font = self.font if self.font is not None else font
+        display_text = str(value) if value else self.text
+
+        if not display_text or use_font is None:
+            return
+
+        # 2. Metni açık/parlak renkle render et (Siyah yerine beyaz/neon)
+        text_surf = use_font.return_text(display_text, self.color)
+
+        # 3. Sol tarafa hizalayarak dikeyde ortala
+        text_rect = text_surf.get_rect(
+            midleft=(self.rect.left + 12, self.rect.centery)
+        )
+
+        screen.blit(text_surf, text_rect)
+
+
 class SettingsButton(SettingElement):
     default_size = (320, 44)
 
@@ -461,12 +559,18 @@ class Settings:
             "music_volume": 0.7,
             "sfx_volume": 0.8,
             "music_source": Lang(türkçe="Seçilen Müzik", english="Selected Music", arabic="موسيقى مختارة", sanskrit="चयनितं सङ्गीतम्"),
-            "selected_music": Lang(türkçe="Seçilmedi", english="Not Selected", arabic="لم يتم اختياره", sanskrit="न चयनितः आसीत्"),
+            "selected_music": Music(
+                "",
+                Lang(türkçe="Seçilmedi", english="Not Selected", arabic="لم يتم اختياره", sanskrit="न चयनितः आसीत्"),
+                True
+            ),
             "other_music": "",
             "fps": 60,
             "language": "Türkçe",
+            "mods_menu": "",
             "check_updates": "",
-            "credits": ""
+            "credits": "",
+            "version": f"v{VERSION}"
         }
 
         self.types = {
@@ -480,8 +584,10 @@ class Settings:
             "other_music": str,
             "fps": int,
             "language": str,
-            "check_updates": str,
-            "credits": str
+            "mods_menu": NotDataStorer,
+            "check_updates": NotDataStorer,
+            "credits": NotDataStorer,
+            "version": NotDataStorer
         }
 
         # ---------------------------------
@@ -575,6 +681,18 @@ class Settings:
                 ],
                 "font_size": 24
             },
+            "mods_menu": {
+                "type": "button",
+                "text": Lang(
+                    türkçe="Modlar / Eklentiler",
+                    english="Mods / Addons",
+                    arabic="تعديلات",
+                    sanskrit="रूपांतरणानि"
+                ),
+                "callback": "__ongame__",
+                "accent_color": (0, 255, 170),
+                "click_sound": click_sfx
+            },
             "check_updates": {
                 "type": "button",
                 "text": Lang(
@@ -598,6 +716,10 @@ class Settings:
                 "click_sound": click_sfx,
                 "callback": "__ongame__",
                 "accent_color": (255, 205, 50)
+            },
+            "version": {
+                "type": "text",
+                "text": f"v{VERSION}"
             }
         }
 
@@ -612,8 +734,10 @@ class Settings:
             "other_music": Lang(türkçe="Bilgisayardan Müzik", english="Music Path", arabic="موسيقى من الكمبيوتر", sanskrit="सङ्गणकात् सङ्गीतम्"),
             "fps": "FPS",
             "language": Lang(türkçe="Dil", english="Language", arabic="لغة", sanskrit="भाषा"),
+            "mods_menu": Lang(türkçe="Modlar", english="Mods", arabic="تعديلات", sanskrit="मोड्स"),
             "check_updates": Lang(türkçe="Sürüm", english="Version", arabic="إصدار", sanskrit="संस्करणम्"),
-            "credits": Lang(türkçe="Jenerik", english="Credits", arabic="شكر وتقدير", sanskrit="श्रेयः ददाति")
+            "credits": Lang(türkçe="Jenerik", english="Credits", arabic="شكر وتقدير", sanskrit="श्रेयः ददाति"),
+            "version": Lang(türkçe="Sürüm", english="Version", arabic="إصدار", sanskrit="संस्करण")
         }
 
         # ---------------------------------
@@ -714,7 +838,13 @@ class Settings:
                     accent_color=option.get("accent_color", (0, 240, 255)),
                     icons=option.get("icons")
                 )
+            elif element_type == "text":
+                element = SettingsText(
+                    (0, 0),
+                    text=self.options.get("text", "")
+                )
             else:
+                logging.warning(f"Unknown settings element type: {element_type}. Is it a typo?")
                 continue
 
             self.elements[key] = element
@@ -794,6 +924,16 @@ class Settings:
         values = deepcopy(self.values)
         if "make_json_serializable" in globals():
             values = make_json_serializable(values)
+
+            exclude = []
+
+            for k in self.values.keys():
+                if self.types[k] is NotDataStorer:
+                    exclude.append(k)
+
+            for key in exclude:
+                del values[key]
+
         with open(self.file, "w", encoding="utf-8") as file:
             json.dump(values, file, ensure_ascii=False, indent=4)
 
@@ -805,7 +945,50 @@ class Settings:
             return
 
         for key, value in data.items():
-            if key in self.values and type(value) is self.types[key]:
+            if key not in self.values:
+                continue
+
+
+            expected_type = self.types.get(key)
+
+            # -------------------------------------------------
+            # 1. Music Nesnesini Yeniden İnşa Etme
+            # -------------------------------------------------
+            if expected_type is Music:
+                if isinstance(value, dict):
+                    if hasattr(Music, "from_dict") and callable(Music.from_dict):
+                        self.values[key] = Music.from_dict(value)
+                    elif hasattr(Music, "from_json") and callable(Music.from_json):
+                        self.values[key] = Music.from_json(value)
+                    else:
+                        try:
+                            # filename ve name anahtarlarını açarak nesneyi üret
+                            self.values[key] = Music(**value)
+                        except TypeError:
+                            pass
+                elif isinstance(value, str):
+                    # Sadece dosya yolu kaydedildiyse
+                    self.values[key] = Music(value, os.path.splitext(os.path.basename(value))[0])
+
+            # -------------------------------------------------
+            # 2. Lang Nesnesini Yeniden İnşa Etme
+            # -------------------------------------------------
+            elif expected_type is Lang:
+                if isinstance(value, dict):
+                    if hasattr(Lang, "from_dict") and callable(Lang.from_dict):
+                        self.values[key] = Lang.from_dict(value)
+                    else:
+                        try:
+                            self.values[key] = Lang(**value)
+                        except TypeError:
+                            pass
+                elif isinstance(value, str):
+                    self.values[key] = Lang(türkçe=value, english=value)
+
+            # -------------------------------------------------
+            # 3. Standart Tipler (bool, float, int, str)
+            # -------------------------------------------------
+            elif type(value) is expected_type:
                 self.values[key] = value
 
     def load_image(self, path):
@@ -1016,6 +1199,7 @@ class Settings:
             screen.blit(text_front, front_rect)
 
             element.draw(screen, font, self.values[key])
+            
             element.draw_icon(screen)
 
         screen.set_clip(None)

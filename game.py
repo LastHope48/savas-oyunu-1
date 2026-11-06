@@ -81,6 +81,7 @@ from achievements import Achievements
 from device_id import DeviceID
 from val_manager import ValueManager
 from juice import JuiceManager
+from mod_manager import ModManager
 
 from dump import Dump
 
@@ -149,6 +150,9 @@ class Game:
         self.command_parser.add_command("dt", self.multiply_dt, [float], success_text="Delta Time multiplied to [arg1]")
 
         self.command_parser.add_command("fun", self.fun, [str])
+
+        self.mod_manager = ModManager(self)
+        self.mod_manager.load_mods()
 
         self.dump = Dump()
 
@@ -307,6 +311,11 @@ class Game:
         self.settings.options["credits"]["callback"] = (
             lambda: self.screen_manager.set_screen(ScreenType.CREDITS)
         )
+
+        self.settings.options["mods_menu"]["callback"] = (
+            lambda: self.screen_manager.set_screen(ScreenType.MODS)
+        )
+
         self.settings.create_elements()
 
     @property

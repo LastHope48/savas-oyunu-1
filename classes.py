@@ -27,6 +27,8 @@ from calcs import scale, SCALE
 import time
 from collections import deque
 from flags import *
+from ready_music import Music
+from sospr_tool import load_sospr
 
 from typing import Final, Literal
 
@@ -382,21 +384,6 @@ class Button:
 
     def set_topleft(self, x, y):
         self.rect.topleft = (x, y)
-
-
-class Music:
-    def __init__(self, filename: str | os.PathLike, name: str | None = None):
-        self.filename = filename
-        self.name = name or self.filename
-
-    def play(self, volume: float, loops: int = -1):
-        pygame.mixer.music.load(self.filename)
-        pygame.mixer.music.set_volume(volume)
-
-        pygame.mixer.music.play(loops=loops)
-
-    def __str__(self):
-        return self.name
 
 
 class InputBox:
@@ -1263,7 +1250,7 @@ class Effect:
         self.append_to_list = append_to_list
         self.appending = appending
         self.seconds = seconds
-        self.flags = flags
+        self.flags: tuple = flags if type(flags) == tuple else (flags,)
     
     def use_global(self, flags, varlik):
         if self.append_to_list is None:
@@ -2738,21 +2725,137 @@ class Player:
         self._init_sounds()
 
 
-class World:
+class CyberWall:
+    """Siber ızgara duvar segmenti."""
+    def __init__(
+        self,
+        grid_x: int,
+        grid_y: int,
+        cell_size: int,
+        orientation: str,  # "horizontal" veya "vertical"
+        part_type: str,    # "start", "mid", "end"
+    ):
+        self.grid_x = grid_x
+        self.grid_y = grid_y
+        self.cell_size = cell_size
+        self.orientation = orientation
+        self.part_type = part_type
 
+        self.x = grid_x * cell_size
+        self.y = grid_y * cell_size
+        self.rect = pygame.Rect(self.x, self.y, cell_size, cell_size)
+
+        # Karakterin ve mermilerin rahat geçişi için optimize edilmiş hitbox
+        if orientation == "horizontal":
+            self.hitbox = self.rect.inflate(-int(scale(6)), -int(scale(18)))
+        else:
+            self.hitbox = self.rect.inflate(-int(scale(18)), -int(scale(6)))
+
+    def draw(self, screen: pygame.Surface):
+        cs = self.cell_size
+        rx, ry = self.rect.x, self.rect.y
+
+        # 1. Zemin Koyu Siber Gövde
+        pygame.draw.rect(screen, (12, 18, 28), self.rect)
+        pygame.draw.rect(screen, (22, 35, 52), self.rect, width=1)
+
+        neon_cyan = (0, 240, 255)
+        core_white = (220, 255, 255)
+        dark_border = (0, 110, 160)
+
+        # -------------------------------------------------------------
+        # YATAY DUVAR ÇİZİMİ (Seamless Bağlantı)
+        # -------------------------------------------------------------
+        if self.orientation == "horizontal":
+            mid_y = ry + cs // 2
+            line_w = max(2, int(scale(4)))
+            core_w = max(1, int(scale(2)))
+
+            # Kesintisiz akan enerji rayı (Uçtan uca uzanır)
+            pygame.draw.line(screen, dark_border, (rx, mid_y), (rx + cs, mid_y), line_w + 2)
+            pygame.draw.line(screen, neon_cyan, (rx, mid_y), (rx + cs, mid_y), line_w)
+            pygame.draw.line(screen, core_white, (rx, mid_y), (rx + cs, mid_y), core_w)
+
+            # Üst ve alt metalik taşıyıcı şeritler
+            pygame.draw.line(screen, (35, 50, 72), (rx, ry + 6), (rx + cs, ry + 6), 2)
+            pygame.draw.line(screen, (35, 50, 72), (rx, ry + cs - 6), (rx + cs, ry + cs - 6), 2)
+
+            # Başlangıç Kapağı [ =
+            if self.part_type == "start":
+                cap_w = max(4, int(scale(8)))
+                cap_rect = pygame.Rect(rx, ry + 4, cap_w, cs - 8)
+                pygame.draw.rect(screen, (18, 30, 48), cap_rect, border_top_left_radius=6, border_bottom_left_radius=6)
+                pygame.draw.rect(screen, neon_cyan, cap_rect, width=2, border_top_left_radius=6, border_bottom_left_radius=6)
+                pygame.draw.circle(screen, neon_cyan, (rx + cap_w // 2, mid_y), 3)
+
+            # Bitiş Kapağı = ]
+            elif self.part_type == "end":
+                cap_w = max(4, int(scale(8)))
+                cap_rect = pygame.Rect(rx + cs - cap_w, ry + 4, cap_w, cs - 8)
+                pygame.draw.rect(screen, (18, 30, 48), cap_rect, border_top_right_radius=6, border_bottom_right_radius=6)
+                pygame.draw.rect(screen, neon_cyan, cap_rect, width=2, border_top_right_radius=6, border_bottom_right_radius=6)
+                pygame.draw.circle(screen, neon_cyan, (rx + cs - cap_w // 2, mid_y), 3)
+
+            # Orta Parça = (Eklem Detayları)
+            else:
+                pygame.draw.line(screen, (45, 68, 95), (rx + cs // 2, ry + 4), (rx + cs // 2, ry + cs - 4), 1)
+
+        # -------------------------------------------------------------
+        # DİKEY DUVAR ÇİZİMİ (Seamless Bağlantı)
+        # -------------------------------------------------------------
+        else:
+            mid_x = rx + cs // 2
+            line_w = max(2, int(scale(4)))
+            core_w = max(1, int(scale(2)))
+
+            # Kesintisiz dikey enerji rayı
+            pygame.draw.line(screen, dark_border, (mid_x, ry), (mid_x, ry + cs), line_w + 2)
+            pygame.draw.line(screen, neon_cyan, (mid_x, ry), (mid_x, ry + cs), line_w)
+            pygame.draw.line(screen, core_white, (mid_x, ry), (mid_x, ry + cs), core_w)
+
+            # Yan metalik taşıyıcı şeritler
+            pygame.draw.line(screen, (35, 50, 72), (rx + 6, ry), (rx + 6, ry + cs), 2)
+            pygame.draw.line(screen, (35, 50, 72), (rx + cs - 6, ry), (rx + cs - 6, ry + cs), 2)
+
+            # Başlangıç Kapağı (Üst)
+            if self.part_type == "start":
+                cap_h = max(4, int(scale(8)))
+                cap_rect = pygame.Rect(rx + 4, ry, cs - 8, cap_h)
+                pygame.draw.rect(screen, (18, 30, 48), cap_rect, border_top_left_radius=6, border_top_right_radius=6)
+                pygame.draw.rect(screen, neon_cyan, cap_rect, width=2, border_top_left_radius=6, border_top_right_radius=6)
+                pygame.draw.circle(screen, neon_cyan, (mid_x, ry + cap_h // 2), 3)
+
+            # Bitiş Kapağı (Alt)
+            elif self.part_type == "end":
+                cap_h = max(4, int(scale(8)))
+                cap_rect = pygame.Rect(rx + 4, ry + cs - cap_h, cs - 8, cap_h)
+                pygame.draw.rect(screen, (18, 30, 48), cap_rect, border_bottom_left_radius=6, border_bottom_right_radius=6)
+                pygame.draw.rect(screen, neon_cyan, cap_rect, width=2, border_bottom_left_radius=6, border_bottom_right_radius=6)
+                pygame.draw.circle(screen, neon_cyan, (mid_x, ry + cs - cap_h // 2), 3)
+
+            # Orta Parça (Eklem Detayları)
+            else:
+                pygame.draw.line(screen, (45, 68, 95), (rx + 4, ry + cs // 2), (rx + cs - 4, ry + cs // 2), 1)
+
+
+class World:
     def __init__(
             self,
             terrain_color: tuple,
             rock0: tuple,
             rock1: tuple,
             items: list,
-            terrain_image: os.PathLike=None,
-            dirt_image: os.PathLike=None, 
+            terrain_image: os.PathLike = None,
+            dirt_image: os.PathLike = None,
             theme: str = DefaultWorld(),
             levels: dict[
                 Literal["levels", "levels_sword_map", "levels_item_map"],
                 list[list["Enemy"]] | dict[str, Sword] | dict[str, Item]
-            ] = None
+            ] = None,
+            rock_shadow: tuple = None,
+            grid: bool = False,
+            rock_type: Literal["normal", "cyber"] = "normal",  # "normal" veya "cyber"
+            cell_size: int = None
         ):
         self.rocks = []
         self.rocks_rects = []
@@ -2761,7 +2864,6 @@ class World:
 
         if type(self.theme) == DefaultWorld or self.theme == DefaultWorld:
             pass
-
         else:
             self.levels_data: dict[
                 Literal["levels", "levels_sword_map", "levels_item_map"],
@@ -2769,9 +2871,22 @@ class World:
             ] = levels or {}
             self.current_level = 0
 
+        # -------------------------------------------------------------
+        # SİBER IZGARA VE TAŞ PARAMETRELERİ
+        # -------------------------------------------------------------
+        self.grid = grid
+        self.rock_type = rock_type
+        self.cell_size = cell_size if cell_size is not None else max(32, int(scale(64)))
+
+        # A* Yol Bulma İçin 2B Matris (0 = Geçilebilir, 1 = Duvar/Engel)
+        self.grid_cols = 0
+        self.grid_rows = 0
+        self.grid_matrix: list[list[int]] = []
+
         self.terrain_color = terrain_color
         self.rock0 = rock0
         self.rock1 = rock1
+        self.rock_shadow = rock_shadow or colours.darker(self.terrain_color, 45)
         self.rockChance = random.randint(3, 7)
         self.rockNum = random.randint(5, 13)
         self.items = copy.deepcopy(items)
@@ -2786,13 +2901,93 @@ class World:
         self.dirt_image_name = dirt_image
         if self.dirt_image_name:
             self.dirt_image = pygame.image.load(self.dirt_image_name)
-            self.dirt_image = pygame.transform.scale(self.dirt_image, (info.current_w, info.current_h/5))
-            self.dirt_rect = self.dirt_image.get_rect(topleft=(0, info.current_h/5*4))
+            self.dirt_image = pygame.transform.scale(self.dirt_image, (info.current_w, info.current_h / 5))
+            self.dirt_rect = self.dirt_image.get_rect(topleft=(0, info.current_h / 5 * 4))
         else:
             self.dirt_image = None
+            self.dirt_rect = pygame.Rect(0, 0, 0, 0)
+
         self.id = str(uuid.uuid4())
 
     def create_rocks(self, screen_x: int, screen_y: int):
+        self.rocks.clear()
+        self.rocks_rects.clear()
+
+        # Izgara boyutlarını hazırla
+        self.grid_cols = max(8, screen_x // self.cell_size)
+        self.grid_rows = max(8, screen_y // self.cell_size)
+        self.grid_matrix = [[0 for _ in range(self.grid_cols)] for _ in range(self.grid_rows)]
+
+        if self.rock_type == "cyber" or self.grid:
+            self.create_cyber_walls(screen_x, screen_y)
+        else:
+            self.create_normal_rocks(screen_x, screen_y)
+
+    def create_cyber_walls(self, screen_x: int, screen_y: int):
+        """
+        Siber dünyada 3-4 farklı başlangıç noktasından
+        seçilen yöne doğru kesintisiz ızgara duvarları inşa eder.
+        """
+        num_walls = random.randint(3, 4)
+        margin = 1
+
+        # Eğer alt tarafta toprak (dirt) varsa o alana duvar taşmasın
+        max_usable_row = self.grid_rows - margin
+        if self.dirt_image_name and self.dirt_rect.height > 0:
+            dirt_start_row = self.dirt_rect.top // self.cell_size
+            max_usable_row = min(max_usable_row, dirt_start_row - 1)
+
+        for _ in range(num_walls):
+            orientation = random.choice(["horizontal", "vertical"])
+            length = random.randint(3, 6)
+
+            tries = 0
+            placed = False
+
+            while tries < 30 and not placed:
+                tries += 1
+
+                if orientation == "horizontal":
+                    if self.grid_cols - margin - length < margin:
+                        break
+                    start_c = random.randint(margin, self.grid_cols - margin - length)
+                    start_r = random.randint(margin, max(margin, max_usable_row - 1))
+                    coords = [(start_c + i, start_r) for i in range(length)]
+                else:
+                    if max_usable_row - length < margin:
+                        break
+                    start_c = random.randint(margin, self.grid_cols - margin - 1)
+                    start_r = random.randint(margin, max_usable_row - length)
+                    coords = [(start_c, start_r + i) for i in range(length)]
+
+                # Üst üste binme kontrolü
+                if any(self.grid_matrix[r][c] == 1 for c, r in coords):
+                    continue
+
+                # Hücreleri inşa et
+                for idx, (c, r) in enumerate(coords):
+                    if idx == 0:
+                        part_type = "start"
+                    elif idx == len(coords) - 1:
+                        part_type = "end"
+                    else:
+                        part_type = "mid"
+
+                    wall = CyberWall(
+                        grid_x=c,
+                        grid_y=r,
+                        cell_size=self.cell_size,
+                        orientation=orientation,
+                        part_type=part_type
+                    )
+
+                    self.rocks.append(wall)
+                    self.rocks_rects.append(wall.hitbox)
+                    self.grid_matrix[r][c] = 1
+
+                placed = True
+
+    def create_normal_rocks(self, screen_x: int, screen_y: int):
         for _ in range(self.rockNum):
             deneme = 0
             uyarildi = False
@@ -2809,11 +3004,7 @@ class World:
 
                 if not rect.colliderect(self.dirt_rect):
                     if rolled < self.rockChance:
-                        # GÖRSEL RECT: Çizim için tam boyut
-                        # HITBOX: Köşe boşluklarından ve taşın tepesinden geçebilmek için
-                        # genişlikten 14px, yükseklikten 10px kırpılmış taban kutusu
                         collision_rect = rect.inflate(-14, -10)
-                        # Taban temasını hissettirmek için hitbox'ı hafif aşağı kaydır
                         collision_rect.centery = rect.centery + 3
 
                         rockData = {
@@ -2827,55 +3018,61 @@ class World:
                         }
 
                         self.rocks.append(rockData)
-                        # Çarpışma listesine tam rect yerine optimize hitbox'ı ekle
                         self.rocks_rects.append(collision_rect)
+
+                        # A* ızgarasında denk gelen hücreleri dolu işaretle
+                        c_start = max(0, x // self.cell_size)
+                        c_end = min(self.grid_cols, (x + width) // self.cell_size + 1)
+                        r_start = max(0, y // self.cell_size)
+                        r_end = min(self.grid_rows, (y + height) // self.cell_size + 1)
+                        for r in range(r_start, r_end):
+                            for c in range(c_start, c_end):
+                                if r < self.grid_rows and c < self.grid_cols:
+                                    self.grid_matrix[r][c] = 1
                         break
 
                 if deneme > 20 and not uyarildi:
                     logging.warning(f"Creating rocks try exceed 20. Try: {deneme}")
+                    uyarildi = True
                 if deneme > 50:
                     logging.error(f"Creating rocks limit. Try: {deneme}")
                     break
 
     def draw(self, screen: pygame.Surface):
         # 1. Zemin Çizimi
-        if self.terrain_image_name:
+        if self.terrain_image_name and self.terrain_image:
             screen.blit(self.terrain_image, (0, 0))
         else:
             screen.fill(self.terrain_color)
 
-        if self.dirt_image_name:
+        if self.dirt_image_name and self.dirt_image:
             screen.blit(self.dirt_image, (0, info.current_h / 5 * 4))
 
-        # 2. Taşların Çizimi (HUD ile Birebir Uyumlu Stil)
+        # -------------------------------------------------------------
+        # 2. SİBER DUVAR VEYA NORMAL TAŞ ÇİZİMİ
+        # -------------------------------------------------------------
         for rock in self.rocks:
-            # Önceden tanımlı rect'i doğrudan kullan (her karede yeni Rect üretmeyip FPS korur)
+            # A) Siber Duvar Nesnesi
+            if isinstance(rock, CyberWall):
+                rock.draw(screen)
+                continue
+
+            # B) Standart Park/Doğa Taşı Çizimi
             rock_rect = rock.get("rect")
             if rock_rect is None:
                 rock_rect = pygame.Rect(rock["x"], rock["y"], rock["width"], rock["height"])
 
             base_color = rock["color"]
-            
-            # Taşın boyutuna göre estetik köşe kavisi (küçük taşlar bozulmaz)
             radius = max(6, min(14, rock_rect.height // 5))
 
-            # -------------------------------------------------------------
-            # ADIM 1: ZEMİN GÖLGESİ (HUD'daki Kapsül Gölgesi ile Aynı Mantık)
-            # -------------------------------------------------------------
-            # Hafif aşağı-sağa düşen koyu gölge (zemine temas hissi verir)
+            # ADIM 1: Zemin Gölgesi
             shadow_rect = rock_rect.move(3, 6)
-            shadow_color = colours.darker(self.terrain_color, 45)
-            pygame.draw.rect(screen, shadow_color, shadow_rect, border_radius=radius)
+            pygame.draw.rect(screen, self.rock_shadow, shadow_rect, border_radius=radius)
 
-            # -------------------------------------------------------------
-            # ADIM 2: TAŞIN ANA GÖVDESİ
-            # -------------------------------------------------------------
+            # ADIM 2: Ana Gövde
             pygame.draw.rect(screen, base_color, rock_rect, border_radius=radius)
 
-            # -------------------------------------------------------------
-            # ADIM 3: ALT DERİNLİK (3D Alt Gölgelendirme / Inset Bevel)
-            # -------------------------------------------------------------
-            # Taşın alt %35'lik dilimine düşen gölge
+            # ADIM 3: Alt Derinlik
             bottom_shade_h = max(4, rock_rect.height // 3)
             bottom_shade_rect = pygame.Rect(
                 rock_rect.left,
@@ -2891,10 +3088,7 @@ class World:
                 border_bottom_right_radius=radius
             )
 
-            # -------------------------------------------------------------
-            # ADIM 4: ÜST CAM/KENAR IŞIĞI (Glossy Rim Highlight)
-            # -------------------------------------------------------------
-            # Üst kenara vuran açık renkli cilalı parıltı çizgisi
+            # ADIM 4: Üst Kenar Işığı
             pygame.draw.line(
                 screen,
                 colours.lighter(base_color, 55),
@@ -2903,15 +3097,11 @@ class World:
                 width=3
             )
 
-            # -------------------------------------------------------------
-            # ADIM 5: KABARTMALI MİNERAL ÇATLAĞI (Embossed Facet)
-            # -------------------------------------------------------------
-            # İki katmanlı kırık çizgisi: koyu tarafı derinlik, açık tarafı parlama verir
+            # ADIM 5: Çatlak Çizgisi
             crack_x = rock_rect.left + int(rock_rect.width * 0.42)
             crack_y = rock_rect.top + int(rock_rect.height * 0.28)
             crack_len = int(rock_rect.width * 0.22)
 
-            # Çatlağın gölgesi
             pygame.draw.line(
                 screen,
                 colours.darker(base_color, 45),
@@ -2919,7 +3109,6 @@ class World:
                 (crack_x + crack_len, crack_y + int(rock_rect.height * 0.35)),
                 width=2
             )
-            # Çatlağın ışık vuran kenarı (1 piksel yukarısı)
             pygame.draw.line(
                 screen,
                 colours.lighter(base_color, 45),
@@ -2928,9 +3117,7 @@ class World:
                 width=1
             )
 
-            # -------------------------------------------------------------
-            # ADIM 6: DIŞ ÇERÇEVE KONTURU (Netlik ve Ayırt Edilebilirlik)
-            # -------------------------------------------------------------
+            # ADIM 6: Dış Çerçeve Konturu
             pygame.draw.rect(
                 screen,
                 colours.darker(base_color, 60),
@@ -2938,44 +3125,37 @@ class World:
                 width=2,
                 border_radius=radius
             )
-    
+
     def draw_items(self, surface: pygame.Surface, font: userFont, player):
         for item in self.items:
             item.draw(surface, font, player)
 
     def update(self, enemy_list: list):
-        self.items = [
-            item for item in self.items
-            if not item.used
-        ]
-        enemy_list = [
-            enemy for enemy in enemy_list
-            if enemy.living
-        ]
+        self.items = [item for item in self.items if not item.used]
+        enemy_list = [enemy for enemy in enemy_list if enemy.living]
         return enemy_list
 
     def next_level(self) -> tuple[list["Enemy"], Sword | NoSword, list[Item] | NoItem] | Literal[True] | DefaultWorld:
         if type(getattr(self, "current_level", False)) == int:
-            self.current_level += 1
-
             try:
                 level = self.levels_data["levels"][self.current_level]
-                sword = self.levels_data["levels_sword_map"].get(f"level{self.current_level + 1}", NoSword())
-                items = self.levels_data["levels_item_map"].get(f"level{self.current_level + 1}", NoItem())
+                sword_map = self.levels_data.get("levels_sword_map", {})
+                item_map = self.levels_data.get("levels_item_map", {})
+                
+                sword = sword_map.get(f"level{self.current_level + 1}", NoSword())
+                items = item_map.get(f"level{self.current_level + 1}", NoItem())
 
+                self.current_level += 1
                 return level, sword, items
 
             except IndexError:
-                win = True
-                return win
+                return True
 
             except Exception as e:
                 print(f"Bilinmeyen hata: {e}")
                 logging.error(f"Getting next level on world caused error:")
                 logging.exception(e)
-
                 raise LevelPrepareError(self.current_level, e)
-
         else:
             return DefaultWorld()
 
@@ -2994,7 +3174,7 @@ class World:
             self.terrain_image = pygame.transform.scale(self.terrain_image, (info.current_w, info.current_w))
         if self.dirt_image_name:
             self.dirt_image = pygame.image.load(self.dirt_image_name)
-            self.dirt_image = pygame.transform.scale(self.dirt_image, (info.current_w, info.current_h/5))
+            self.dirt_image = pygame.transform.scale(self.dirt_image, (info.current_w, info.current_h / 5))
 
 
 class Arrow:
@@ -3447,7 +3627,7 @@ class Enemy:
             "duration": 1.75
         },
         "split_ground": {
-            "core": (60, 58, 58),     # Mor / Eflatun (Büyü atışı)
+            "core": (60, 58, 58),       # Mor / Eflatun (Büyü atışı)
             "glow": (43, 39, 39),
             "duration": 1.3
         },
@@ -3478,11 +3658,11 @@ class Enemy:
             hp: int,
             attack: int,
             abilities: list = None,
-            r_image_name: os.PathLike = os.path.join(BASE_DIR,"images/enemyr.png"),
+            r_image_name: os.PathLike = os.path.join(BASE_DIR, "images/enemyr.png"),
             l_image_name: os.PathLike = os.path.join(BASE_DIR, r"images/enemyl.png"),
             size = 100,
             speed=300,
-            damage_cooldown: Cooldown=Cooldown(2),
+            damage_cooldown: Cooldown = Cooldown(2),
             cooldown: Cooldown = Cooldown(10),
             collisions=True,
             damagables=[
@@ -3493,8 +3673,9 @@ class Enemy:
                 DAMAGE_SWORD
             ],
             cooldown_arrow: Cooldown = None,
-            arrow_image=os.path.join(BASE_DIR,r"images/arrow.png"),
-            drops: list = None
+            arrow_image=os.path.join(BASE_DIR, r"images/arrow.png"),
+            drops: list = None,
+            sprites_name: os.PathLike = None
         ):
 
         self.hp = hp
@@ -3508,35 +3689,22 @@ class Enemy:
         self.limage_name = l_image_name
         self.image_size = size
 
-        fallback_r = os.path.join(BASE_DIR, r"images/fallback_enemyr.png")
-        fallback_l = os.path.join(BASE_DIR, r"images/fallback_enemyr.png")
+        self.sprites_name = sprites_name
+        self.sprites: dict[str, list[pygame.Surface]] = None
 
-        try:
-            self.image_r = pygame.image.load(self.rimage_name)
+        # -------------------------------------------------------------
+        # ANİMASYON DURUM DEĞİŞKENLERİ
+        # -------------------------------------------------------------
+        self.current_state = "idle"       # "idle", "walk", "attack" vb.
+        self.look_dir = "right"           # "right" veya "left"
+        self.frame_index = 0.0
+        self.animation_speed = 10.0       # Saniyede geçilecek kare hızı (FPS)
 
-        except FileNotFoundError:
-            self.image_r = pygame.image.load(fallback_r)
+        # 1. Statik görselleri ve sospr animasyonlarını yükle
+        self._load_images()
 
-        try:
-            self.image_l = pygame.image.load(self.limage_name)
-
-        except FileNotFoundError:
-            self.image_l = pygame.image.load(fallback_l)
-
-        # Ekranın yüzde kaçını kaplayacak
-        screen_fill_percentage = 0.06
-
-        base_target_h = int(1080 * screen_fill_percentage * (self.image_size / 100.0))  # 1080p için ideal boy
-        target_h = max(30, int(base_target_h * SCALE))
-
-        # En-boy oranını bozmadan ölçekle:
-        ratio_r = target_h / self.image_r.get_height()
-        target_w_r = int(self.image_r.get_width() * ratio_r)
-        self.image_r = pygame.transform.smoothscale(self.image_r, (target_w_r, target_h))
-
-        ratio_l = target_h / self.image_l.get_height()
-        target_w_l = int(self.image_l.get_width() * ratio_l)
-        self.image_l = pygame.transform.smoothscale(self.image_l, (target_w_l, target_h))
+        # 2. Tüm görselleri ve kareleri orantılı ölçekle
+        self._scale_all_surfaces()
 
         self.uimage = self.image_r
         self.speed = scale(speed)
@@ -3547,11 +3715,9 @@ class Enemy:
         self.damage_cooldown = damage_cooldown
 
         self.abilities = abilities if abilities is not None else []
-
         assert type(self.abilities) == list, f"{self}.abilities is not list"
 
         self.arrow_image_name = arrow_image
-
         self.arrow_image = pygame.image.load(self.arrow_image_name)
         self.arrow_image = pygame.transform.scale_by(self.arrow_image, SCALE)
 
@@ -3585,7 +3751,7 @@ class Enemy:
         self.c_jump_dx = None
 
         self.scr_lazers: list[SCRLazerBeam] = []
-        self.scr_lazer_beam_firing = False  # Lazerler yaylım ateşindeyken True olur
+        self.scr_lazer_beam_firing = False
 
         self.claimed_death = False
 
@@ -3595,7 +3761,79 @@ class Enemy:
         self.charging_ability = None
 
         self.sneeze: list[Sneeze] = []
-        self.flash_timer = 0.0 # Darbe beyazlama sayacı
+        self.flash_timer = 0.0
+
+        # Ölüm
+        self.death_started = False
+        self.death_animation = 3
+        self.items_claimed = False
+
+    # =================================================================
+    # GÖRSEL VE ANİMASYON ÖLÇEKLEME MOTORU
+    # =================================================================
+    def _scale_surface(self, surf: pygame.Surface, target_h: int) -> pygame.Surface:
+        """En-boy oranını bozmadan belirtilen yüksekliğe göre yüzeyi ölçekler."""
+        if surf.get_height() == 0:
+            return surf
+        ratio = target_h / surf.get_height()
+        target_w = max(1, int(surf.get_width() * ratio))
+        return pygame.transform.smoothscale(surf, (target_w, target_h))
+
+    def _scale_all_surfaces(self):
+        screen_fill_percentage = 0.06
+        base_target_h = int(1080 * screen_fill_percentage * (self.image_size / 100.0))
+        target_h = max(30, int(base_target_h * SCALE))
+
+        # 1. Statik görselleri ölçekle
+        self.image_r = self._scale_surface(self.image_r, target_h)
+        self.image_l = self._scale_surface(self.image_l, target_h)
+
+        # 2. .sospr ile yüklenen animasyon karelerini ölçekle (Güvenli kontrol)
+        sprites = getattr(self, "sprites", None)
+        if sprites:
+            scaled_sprites = {}
+            for anim_name, frames in sprites.items():
+                scaled_sprites[anim_name] = [
+                    self._scale_surface(frame, target_h) for frame in frames
+                ]
+            self.sprites = scaled_sprites
+
+    def _update_animation(self, dt: float):
+        """Eğer .sospr animasyon kareleri varsa oynatır ve self.uimage'i günceller."""
+        if not self.sprites:
+            # Animasyon yoksa standart statik görselleri kullan
+            self.uimage = self.image_r if self.look_dir == "right" else self.image_l
+            return
+
+        # Uygun animasyon listesini ara
+        # Öncelik: "walk_right", "walk_left", "right", "idle" vb.
+        state_key = f"{self.current_state}_{self.look_dir}"
+        frames = None
+
+        if state_key in self.sprites and self.sprites[state_key]:
+            frames = self.sprites[state_key]
+        elif self.look_dir in self.sprites and self.sprites[self.look_dir]:
+            frames = self.sprites[self.look_dir]
+        elif self.current_state in self.sprites and self.sprites[self.current_state]:
+            frames = self.sprites[self.current_state]
+        else:
+            # Hiçbiri tutmazsa sözlükteki ilk geçerli kare listesini al
+            for f_list in self.sprites.values():
+                if f_list:
+                    frames = f_list
+                    break
+
+        if frames:
+            self.frame_index = (self.frame_index + self.animation_speed * dt) % len(frames)
+            current_frame = frames[int(self.frame_index)]
+
+            # Sadece tek yöne ait kareler verilmişse ve sola bakıyorsa otomatik yatay aynala
+            if self.look_dir == "left" and ("_left" not in state_key and "left" not in self.sprites):
+                current_frame = pygame.transform.flip(current_frame, True, False)
+
+            self.uimage = current_frame
+        else:
+            self.uimage = self.image_r if self.look_dir == "right" else self.image_l
 
     @classmethod
     def set_val_manager(cls, val_manager: ValueManager):
@@ -3621,18 +3859,17 @@ class Enemy:
                         level = variable.get("Level", "Unknown")
 
         raise EnemyPositionError(self.id, _, level)
-    
+
     def update_arrows(self, player: Player, dt):
         for arrow in self.arrows:
             arrow.update(player, dt)
-        # Güvenli ve hızlı toplu temizlik (Döngü içinde silme yok)
         self.arrows = [a for a in self.arrows if not a.touching]
 
     def update_bombs(self, player: Player, dt):
         for bomb in self.bombs:
             bomb.update(player, dt)
         self.bombs = [b for b in self.bombs if not b.deleted]
-    
+
     def update_sgrounds(self, player: Player, dt):
         for sg in self.sgrounds:
             sg: SplitGround
@@ -3670,22 +3907,21 @@ class Enemy:
     def update_scr_lazers(self, player: Player, dt):
         for scr_l_b in self.scr_lazers:
             scr_l_b.update(player, dt)
-    
+
     def update_sneezes(self, player: Player, dt):
         for sneeze in self.sneeze:
             sneeze.update(dt, player)
-        # Bellek sızıntısını önleyen satır:
         self.sneeze = [s for s in self.sneeze if not s.deleted]
-    
+
     def draw_arrows(self, surface: pygame.Surface):
         for arrow in self.arrows:
             arrow.draw(surface)
-    
+
     def draw_bombs(self, surface: pygame.Surface):
         for bomb in self.bombs:
             bomb: Bomb
             bomb.draw(surface)
-    
+
     def draw_sgrounds(self, surface: pygame.Surface):
         for sg in self.sgrounds:
             sg: SplitGround
@@ -3698,32 +3934,27 @@ class Enemy:
     def draw_sneezes(self, surface):
         for sneeze in self.sneeze:
             sneeze.draw(surface)
-    
+
     def use_arrow(self, dt):
-            if EnemyAbilities.ABILITY_ARROWS not in self.abilities or not self.living:
-                return
+        if EnemyAbilities.ABILITY_ARROWS not in self.abilities or not self.living:
+            return
 
-            cd = self.arrow_cooldown if self.arrow_cooldown is not None else self.cooldown
+        cd = self.arrow_cooldown if self.arrow_cooldown is not None else self.cooldown
 
-            # Eğer başka bir yeteneğin ünlemi yanıyorsa bekle
-            if self.charging_ability is not None and self.charging_ability != "arrow":
-                return
+        if self.charging_ability is not None and self.charging_ability != "arrow":
+            return
 
-            # Ünlem şarjı devrede mi?
-            if self.charging_ability == "arrow":
-                if self.telegraph.update(dt):
-                    # Ünlem doldu -> Oku fırlat, Cooldown yenile ve ünlemi kapat!
-                    self.arrows.append(Arrow(self.x, self.y, self.arrow_image_name))
-                    cd.refresh()
-                    self.charging_ability = None
-                return
+        if self.charging_ability == "arrow":
+            if self.telegraph.update(dt):
+                self.arrows.append(Arrow(self.x, self.y, self.arrow_image_name))
+                cd.refresh()
+                self.charging_ability = None
+            return
 
-            # Normal Cooldown sayacı
-            cd.reduce(dt)
-            if cd.check():
-                # Cooldown bitti! Hemen oku atmak yerine kafasında KIRMIZI ÜNLEM yak
-                self.charging_ability = "arrow"
-                self.telegraph.start_charge("arrow", self.THEMES)
+        cd.reduce(dt)
+        if cd.check():
+            self.charging_ability = "arrow"
+            self.telegraph.start_charge("arrow", self.THEMES)
 
     def use_bombing(self, dt, player: Player):
         if EnemyAbilities.ABILITY_BOMBING not in self.abilities or not self.living:
@@ -3771,14 +4002,10 @@ class Enemy:
             self.charging_ability = "split_ground"
             self.telegraph.start_charge("split_ground", self.THEMES)
 
-    # -------------------------------------------------------------
-    # 4. KEDİ ZIPLAMASI (YEŞİL LAZER)
-    # -------------------------------------------------------------
     def use_cat_jump(self, dt, player: Player):
         if EnemyAbilities.ABILITY_CAT_JUMP not in self.abilities or not self.living:
             return
 
-        # Kedi zaten havada zıplıyorsa yeni bir ünlem açma
         if getattr(self, "cat_jumping", False):
             return
 
@@ -3800,26 +4027,19 @@ class Enemy:
             self.charging_ability = "cat_jump"
             self.telegraph.start_charge("cat_jump", self.THEMES)
 
-    # -------------------------------------------------------------
-    # 5. SCR LAZER YAĞMURU (CYAN LAZER)
-    # -------------------------------------------------------------
     def use_scr_lazer_beam(self, dt, player: Player = None):
         if EnemyAbilities.ABILITY_SCR_LAZER_BEAM not in self.abilities or not self.living:
             return
 
-        # Başka bir yeteneğin ünlemi devredeyse bekle
         if self.charging_ability is not None and self.charging_ability != "scr_lazer_beam":
             return
 
-        # AŞAMA 1: TELEGRAPH / ÜNLEM ŞARJI
         if self.charging_ability == "scr_lazer_beam":
             if self.telegraph.update(dt):
-                # Ünlem bitti -> Ateşleme modunu aç, ünlem durumunu kapat!
                 self.charging_ability = None
                 self.scr_lazer_beam_firing = True
             return
 
-        # AŞAMA 2: ATEŞLEME MODU (10 Tane Lazer Tek Tek Çıkıyor)
         if getattr(self, "scr_lazer_beam_firing", False):
             self.lazer_beam_inside_cd.reduce(dt)
 
@@ -3839,61 +4059,63 @@ class Enemy:
                 self.scr_lazer_beam_cd.refresh()
                 self.lazer_beam_inside_cd.refresh()
                 self.scr_lazer_beam_counter = 0
-                self.scr_lazer_beam_firing = False  # Ateşleme bitti, cooldown başladı
+                self.scr_lazer_beam_firing = False
             return
 
-        # AŞAMA 3: NORMAL COOLDOWN SAYACI
         self.scr_lazer_beam_cd.reduce(dt)
         if self.scr_lazer_beam_cd.check():
-            # Cooldown bitti -> Ateşlemeye geçmeden önce kafada Mavi Ünlem yak!
             self.charging_ability = "scr_lazer_beam"
             self.telegraph.start_charge("scr_lazer_beam", self.THEMES)
 
     def use_sneeze(self):
-        if EnemyAbilities.ABILITY_SNEEZE not in self.abilities or not self.living: return
+        if EnemyAbilities.ABILITY_SNEEZE not in self.abilities or not self.living:
+            return
 
         if random.randint(0, 150) == 150:
             for i in range(10):
-                self.sneeze.append(
-                    Sneeze()
-                )
+                self.sneeze.append(Sneeze())
 
     def copy(self):
         new_copy = copy.deepcopy(self)
-        new_copy.id = str(uuid.uuid4())  # Her klona benzersiz yeni bir ID verilir
+        new_copy.id = str(uuid.uuid4())
         return new_copy
 
     def summon(self, dt, level: dict, world, pending_enemies: list):
         pass
-
 
     @staticmethod
     def draw(surface: pygame.Surface, font: userFont, level: list, bossFont: userFont = None):
         for enemy in level:
             enemy: Enemy
             if enemy.living:
-
-                if type(enemy) == Boss: continue
+                if type(enemy) == Boss:
+                    continue
 
                 head_x = enemy.x + (enemy.uimage.get_width() / 2)
                 head_y = enemy.y
                 enemy.telegraph.draw(surface, (head_x, head_y))
 
-                font.draw_text(str(max(0, enemy.hp)), (enemy.x+enemy.uimage.get_width()/2, enemy.y-10), surface, colours.BLACK, hiza="center")
+                font.draw_text(
+                    str(max(0, enemy.hp)),
+                    (enemy.x + enemy.uimage.get_width() / 2, enemy.y - 10),
+                    surface,
+                    colours.BLACK,
+                    hiza="center"
+                )
                 surface.blit(enemy.uimage, (enemy.x, enemy.y))
-    
+
     @classmethod
     def default(cls):
         return cls(100, 10, [])
-    
+
     @classmethod
     def miguel(cls):
         return cls(
             500,
             35,
             [EnemyAbilities.ABILITY_BOMBING],
-            r_image_name=os.path.join(BASE_DIR,r"images/miguelr.png"),
-            l_image_name=os.path.join(BASE_DIR,r"images/miguell.png"),
+            r_image_name=os.path.join(BASE_DIR, r"images/miguelr.png"),
+            l_image_name=os.path.join(BASE_DIR, r"images/miguell.png"),
             speed=270,
             damagables=[Enemy.DAMAGE_SWORD_DASH, Enemy.DAMAGE_SILVER_BULLET],
             drops=[Item("Miguel'in Kanı", colours.RED, [Effect("hp", 15, -1)], Item.YUVARLAK_IKSIR, Item.APPENDER)],
@@ -3905,20 +4127,20 @@ class Enemy:
         return cls(
             300,
             25,
-            r_image_name=os.path.join(BASE_DIR,r"images/luffyr.png"),
-            l_image_name=os.path.join(BASE_DIR,r"images/luffyl.png"),
+            r_image_name=os.path.join(BASE_DIR, r"images/luffyr.png"),
+            l_image_name=os.path.join(BASE_DIR, r"images/luffyl.png"),
             speed=420,
             damagables=[Enemy.DAMAGE_SWORD_DASH],
             size=95
         )
-    
+
     @classmethod
     def dinosaur(cls):
         return cls(
             1000,
             60,
-            r_image_name=os.path.join(BASE_DIR,r"images/urasr.png"),
-            l_image_name=os.path.join(BASE_DIR,r"images/urasl.png"),
+            r_image_name=os.path.join(BASE_DIR, r"images/urasr.png"),
+            l_image_name=os.path.join(BASE_DIR, r"images/urasl.png"),
             speed=210,
             size=230,
             abilities=[EnemyAbilities.ABILITY_SPLIT_GROUND],
@@ -3932,13 +4154,13 @@ class Enemy:
         return cls(
             700,
             50,
-            r_image_name=os.path.join(BASE_DIR,r"images/denizinseyir.png"),
-            l_image_name=os.path.join(BASE_DIR,r"images/denizinseyil.png"),
+            r_image_name=os.path.join(BASE_DIR, r"images/denizinseyir.png"),
+            l_image_name=os.path.join(BASE_DIR, r"images/denizinseyil.png"),
             speed=350,
             size=110,
             abilities=[],
             damagables=[Enemy.DAMAGE_SWORD_DASH, Enemy.DAMAGE_BRONZE_GUN, Enemy.DAMAGE_SILVER_GUN, Enemy.DAMAGE_SILVER_BULLET],
-            drops=[Effect("hp", 0, -1, player.available_guns, [Charm("Deniz'in şeyi", os.path.join(BASE_DIR,r"images/denizinseyir.png"), 0.09, [Effect("heal_cooldown_orig", 0.75, -1, flags=(Item.EQUALER,))], [Effect("hp", 15, -1, flags=(Item.APPENDER,))], 0.45)], (Item.APPENDER))] if special else []
+            drops=[Effect("hp", 0, -1, player.available_guns, [Charm("Deniz'in şeyi", os.path.join(BASE_DIR, r"images/denizinseyir.png"), 0.09, [Effect("heal_cooldown_orig", 0.75, -1, flags=(Item.EQUALER,))], [Effect("hp", 15, -1, flags=(Item.APPENDER,))], 0.45)], (Item.APPENDER))] if special else []
         )
 
     @classmethod
@@ -3948,10 +4170,10 @@ class Enemy:
             14,
             r_image_name=os.path.join(BASE_DIR, r"images/floppa.png"),
             l_image_name=os.path.join(BASE_DIR, r"images/floppa.png"),
-            speed = 450,
+            speed=450,
             abilities=[EnemyAbilities.ABILITY_CAT_JUMP],
-            damagables = [Enemy.DAMAGE_SWORD_DASH, Enemy.DAMAGE_BRONZE_GUN, Enemy.DAMAGE_BRONZE_BULLET],
-            size = 150
+            damagables=[Enemy.DAMAGE_SWORD_DASH, Enemy.DAMAGE_BRONZE_GUN, Enemy.DAMAGE_BRONZE_BULLET],
+            size=150
         )
 
     @classmethod
@@ -3965,64 +4187,69 @@ class Enemy:
         )
 
     def update(self, player: Player, world: World, dt, level: list, cheated=False):
+
         if self.flash_timer > 0:
             self.flash_timer -= dt
 
-        if not self.cat_jumping:
+        if not self.current_state == "death":
+            if not self.cat_jumping:
+                self.mx, self.my = player.x, player.y
+                if self.recoil > 0:
+                    if self.recoil_dir == "right":
+                        new_x = self.x + (self.speed + scale(500)) * dt
+                    elif self.recoil_dir == "left":
+                        new_x = self.x - (self.speed + scale(500)) * dt
 
-            self.mx, self.my = player.x, player.y
-            if self.recoil > 0:
-
-                if self.recoil_dir == "right":
-                    new_x = self.x + (self.speed + scale(500)) * dt
-
-                elif self.recoil_dir == "left":
-                    new_x = self.x - (self.speed + scale(500)) * dt
-
-                self.image_rect = self.uimage.get_rect(topleft=(new_x, self.y))
-                if not self.image_rect.collidelist(world.rocks_rects) != -1 or not self.collisions:
-                    self.x = new_x
-
-                self.recoil -= 1 * dt
-
-            try:
-                self.dx = self.mx - self.x
-                self.dy = self.my - self.y
-            except TypeError:
-                self.set_pos(world, info)
-                self.dx = self.mx - self.x
-                self.dy = self.my - self.y
-
-            self.distance = math.hypot(self.dx, self.dy)
-
-            if self.distance > 0:
-
-                new_x = self.x + (self.dx / self.distance) * self.speed * dt
-                new_y = self.y + (self.dy / self.distance) * self.speed * dt
-                self.image_rect = self.uimage.get_rect(topleft=(new_x, new_y))
-                self.rect = self.uimage.get_rect(topleft=(new_x, new_y))
-        
-                if self.rotated_rect is None:
+                    self.image_rect = self.uimage.get_rect(topleft=(new_x, self.y))
                     if not self.image_rect.collidelist(world.rocks_rects) != -1 or not self.collisions:
-                        self.x += (self.dx / self.distance) * self.speed * dt
-                        self.y += (self.dy / self.distance) * self.speed * dt
-                
-                else:
-                    self.rotated_rect.topleft = (new_x, new_y)
-                    if not self.rotated_rect.collidelist(world.rocks_rects) != -1 or not self.collisions:
-                        self.x += (self.dx / self.distance) * self.speed * dt
-                        self.y += (self.dy / self.distance) * self.speed * dt
+                        self.x = new_x
 
-            else:
-                self.touching = True
+                    self.recoil -= 1 * dt
+
+                try:
+                    self.dx = self.mx - self.x
+                    self.dy = self.my - self.y
+                except TypeError:
+                    self.set_pos(world, info)
+                    self.dx = self.mx - self.x
+                    self.dy = self.my - self.y
+
+                self.distance = math.hypot(self.dx, self.dy)
+
+                if self.distance > 0:
+                    # Hareket halindeyse animasyon durumunu 'walk' yap
+                    self.current_state = "walk"
+
+                    new_x = self.x + (self.dx / self.distance) * self.speed * dt
+                    new_y = self.y + (self.dy / self.distance) * self.speed * dt
+                    self.image_rect = self.uimage.get_rect(topleft=(new_x, new_y))
+                    self.rect = self.uimage.get_rect(topleft=(new_x, new_y))
+            
+                    if self.rotated_rect is None:
+                        if not self.image_rect.collidelist(world.rocks_rects) != -1 or not self.collisions:
+                            self.x += (self.dx / self.distance) * self.speed * dt
+                            self.y += (self.dy / self.distance) * self.speed * dt
+                    else:
+                        self.rotated_rect.topleft = (new_x, new_y)
+                        if not self.rotated_rect.collidelist(world.rocks_rects) != -1 or not self.collisions:
+                            self.x += (self.dx / self.distance) * self.speed * dt
+                            self.y += (self.dy / self.distance) * self.speed * dt
+                else:
+                    self.current_state = "idle"
+                    self.touching = True
+
         self.angle = math.degrees(math.atan2(-self.dy, self.dx))
 
-        if -45 < self.angle < 45:
-            self.uimage = self.image_r
+        # Yönü güncelle
+        if -90 <= self.angle <= 90:
+            self.look_dir = "right"
+        else:
+            self.look_dir = "left"
 
-        elif self.angle < -135 or self.angle > 135:
-            self.uimage = self.image_l
-
+        # -------------------------------------------------------------
+        # ANİMASYON KARELERİNİ OYNAT VE UIMAGE'İ GÜNCELLE
+        # -------------------------------------------------------------
+        self._update_animation(dt)
 
         self.update_sgrounds(player, dt)
         self.sgrounds = [sg for sg in self.sgrounds if not sg.destroyed]
@@ -4031,43 +4258,60 @@ class Enemy:
 
         if self.hp <= 0:
             self.telegraph.cancel()
+            self.current_state = "death"
 
-            if not self.claimed_death and Enemy.VAL_MNGR is not None and not cheated:
-                Enemy.VAL_MNGR("kill", 1, "change")
-                self.claimed_death = True
+            if not self.death_started:
+                if self.sprites is not None:
+                    self.death_animation = len(self.sprites.get("death", range(4))) - 1
 
-            self.living = False
-            self.summoned = False
-            self.drops: list
-            for drop in self.drops:
-                if type(drop) == Sword or type(drop) == Gun:
-                    player.available_guns.append(drop)
-                elif type(drop) == Item:
-                    drop.set_pos(world)
-                    world.items.append(drop)
-                elif type(drop) == Effect:
-                    drop.use(player, ())
-                elif type(drop) == Enemy:
-                    level.append(drop)
-            self.drops.clear()
+                else:
+                    self.death_animation = -1
+
+                self.death_started = True
+
+            self.death_animation -= self.animation_speed * dt
+            if self.death_animation <= 0:
+                self.kill(cheated)
+
+            if not self.items_claimed:
+                self.drops: list
+                for drop in self.drops:
+                    if type(drop) == Sword or type(drop) == Gun:
+                        player.available_guns.append(drop)
+                    elif type(drop) == Item:
+                        drop.set_pos(world)
+                        world.items.append(drop)
+                    elif type(drop) == Effect:
+                        drop.use(player, ())
+                    elif type(drop) == Enemy:
+                        level.append(drop)
+                self.drops.clear()
+                self.items_claimed = True
             return
+    
+    def kill(self, cheated=False):
+        self.living = False
+        self.summoned = False
+        if not self.claimed_death and Enemy.VAL_MNGR is not None and not cheated:
+            Enemy.VAL_MNGR("kill", 1, "change")
+            self.claimed_death = True
     
     @classmethod
     def prepared_police(cls):
         return cls(
-        450,
-        34,
-        r_image_name=os.path.join(BASE_DIR,r"images/enemy_policer.png"),
-        l_image_name=os.path.join(BASE_DIR,r"images/enemy_policel.png"),
-        speed=280,
-        damage_cooldown=Cooldown(1.7),
-        damagables=[
-            Enemy.DAMAGE_BRONZE_GUN,
-            Enemy.DAMAGE_SILVER_GUN,
-            Enemy.DAMAGE_SWORD_DASH,
-            Enemy.DAMAGE_SILVER_BULLET
-        ]
-    )
+            450,
+            34,
+            r_image_name=os.path.join(BASE_DIR, r"images/enemy_policer.png"),
+            l_image_name=os.path.join(BASE_DIR, r"images/enemy_policel.png"),
+            speed=280,
+            damage_cooldown=Cooldown(1.7),
+            damagables=[
+                Enemy.DAMAGE_BRONZE_GUN,
+                Enemy.DAMAGE_SILVER_GUN,
+                Enemy.DAMAGE_SWORD_DASH,
+                Enemy.DAMAGE_SILVER_BULLET
+            ]
+        )
 
     @classmethod
     def prepared_old(cls, random_speed=False, hp=40):
@@ -4077,7 +4321,7 @@ class Enemy:
         return cls(
             hp,
             2,
-            r_image_name=os.path.join(BASE_DIR,r"images/enemy_oldr.png"),
+            r_image_name=os.path.join(BASE_DIR, r"images/enemy_oldr.png"),
             l_image_name=os.path.join(BASE_DIR, r"images/enemy_oldl.png"),
             size=70,
             speed=speed if random_speed else 360,
@@ -4115,6 +4359,7 @@ class Enemy:
         self.charging_ability = None
         self.scr_lazer_beam_firing = False
         self.scr_lazer_beam_counter = 0
+        self.frame_index = 0.0
         if getattr(self, "telegraph", None):
             self.telegraph.cancel()
 
@@ -4122,65 +4367,57 @@ class Enemy:
         fallback_r = os.path.join(BASE_DIR, r"images/fallback_enemyr.png")
         fallback_l = os.path.join(BASE_DIR, r"images/fallback_enemyr.png")
 
-        try:
-            self.image_r = pygame.image.load(self.rimage_name)
+        # sprites_name yoksa veya yüklenemezse her zaman varsayılan olarak None olsun:
+        self.sprites = None
 
-        except FileNotFoundError:
-
+        # 1. Eğer sprites_name varsa .sospr dosyasından kareleri yükle
+        if self.sprites_name is not None and os.path.exists(self.sprites_name):
             try:
-                logging.warning(f"{self.rimage_name} not found. Falling back to fallback image: {fallback_r}")
-                self.image_r = pygame.image.load(fallback_r)
+                self.sprites = load_sospr(self.sprites_name)
+            except Exception as e:
+                logging.error(f"Error loading .sospr file {self.sprites_name}: {e}")
+                self.sprites = None
 
-            except FileNotFoundError:
-                logging.error(f"Fallback image not found for enemy {self}: {fallback_r}")
+        # 2. Statik Görselleri Yükle
+        try:
+            self.image_r = pygame.image.load(self.rimage_name).convert_alpha()
+        except (FileNotFoundError, pygame.error):
+            try:
+                logging.warning(f"{self.rimage_name} not found. Falling back to {fallback_r}")
+                self.image_r = pygame.image.load(fallback_r).convert_alpha()
+            except (FileNotFoundError, pygame.error):
                 self.image_r = pygame.Surface((100, 100))
                 self.image_r.fill('purple')
 
         try:
-            self.image_l = pygame.image.load(self.limage_name)
-
-        except FileNotFoundError:
-
+            self.image_l = pygame.image.load(self.limage_name).convert_alpha()
+        except (FileNotFoundError, pygame.error):
             try:
-                logging.warning(f"{self.limage_name} not found. Falling back to fallback image: {fallback_l}")
-                self.image_l = pygame.image.load(fallback_l)
-
-            except FileNotFoundError:
-                logging.error(f"Fallback image not found for enemy {self}: {fallback_l}")
+                logging.warning(f"{self.limage_name} not found. Falling back to {fallback_l}")
+                self.image_l = pygame.image.load(fallback_l).convert_alpha()
+            except (FileNotFoundError, pygame.error):
                 self.image_l = pygame.Surface((100, 100))
                 self.image_l.fill('purple')
 
     def __getstate__(self):
         state = self.__dict__.copy()
-        if state.get("image_r"):
-            del state["image_r"]
-            del state["image_l"]
-            del state["uimage"]
-            del state["arrow_image"]
+        # Yüzeyler (Surface) C nesnesi olduğundan serileştirilemez
+        for surf_key in ["image_r", "image_l", "uimage", "arrow_image"]:
+            if surf_key in state:
+                del state[surf_key]
+
+        if "sprites" in state:
+            del state["sprites"]
         
         return state
     
     def __setstate__(self, state):
         self.__dict__.update(state)
+        # Görselleri ve .sospr karelerini yeniden diskten yükle
         self._load_images()
-
-        # Ekranın yüzde kaçını kaplayacak
-        screen_fill_percentage = 0.06
-
-        base_target_h = int(1080 * screen_fill_percentage * (self.image_size / 100.0))  # 1080p için ideal boy
-        target_h = max(30, int(base_target_h * SCALE))
-
-        # En-boy oranını bozmadan ölçekle:
-        ratio_r = target_h / self.image_r.get_height()
-        target_w_r = int(self.image_r.get_width() * ratio_r)
-        self.image_r = pygame.transform.smoothscale(self.image_r, (target_w_r, target_h))
-
-        ratio_l = target_h / self.image_l.get_height()
-        target_w_l = int(self.image_l.get_width() * ratio_l)
-        self.image_l = pygame.transform.smoothscale(self.image_l, (target_w_l, target_h))
+        self._scale_all_surfaces()
 
         self.uimage = self.image_r
-
         self.arrow_image = pygame.image.load(self.arrow_image_name)
         self.arrow_image = pygame.transform.scale_by(self.arrow_image, SCALE)
 
@@ -4220,7 +4457,8 @@ class Boss(Enemy):
             summons: list = None,
             cooldown_summons = Cooldown(3),
             scene_dialogues=None,
-            typing_sound=None
+            typing_sound=None,
+            music: Music = Music("", "", default=True)
         ):
 
         super().__init__(
@@ -4248,6 +4486,7 @@ class Boss(Enemy):
         self.drops = drops or []
         self.summons = summons or []
         self.summon_cooldown = cooldown_summons
+        self.music: Music = music
 
         try:
             self.full_image = pygame.image.load(r_image_name)

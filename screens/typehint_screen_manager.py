@@ -1,6 +1,7 @@
 import pygame
 from .typehint_screen import Screen
 from enum import auto
+from .types import ScreenType
 
 class ScreenManager:
     def __init__(self, game):
@@ -20,4 +21,4 @@ class ScreenManager:
 
     def handle_event(self, event: pygame.event.Event): ...
 
-    def get_last_screen(self): ...
+    def get_last_screen(self) -> ScreenType: ...

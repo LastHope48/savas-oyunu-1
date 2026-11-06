@@ -10,6 +10,7 @@ game.log
 test.py
 test2.py
 3d.py
+mods/
 
 dist/
 build/

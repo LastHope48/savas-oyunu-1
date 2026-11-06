@@ -8,6 +8,7 @@ class ScreenType(Enum):
     SAVE = auto()
     ACHIEVEMENTS = auto()
     SETTINGS = auto()
+    MODS = auto()
     WIN = auto()
     LOSE = auto()
     WARN = auto()
